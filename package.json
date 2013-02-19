@@ -1,0 +1,19 @@
+{
+  "name": "conductor.js",
+  "version": "0.1.0",
+  "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tildeio/conductor.js.git"
+  },
+  "author": "Tilde, Inc.",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "grunt": "0.4.0"
+  }
+}
