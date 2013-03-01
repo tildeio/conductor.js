@@ -66,13 +66,6 @@ module.exports = function(grunt) {
 
     clean: ["dist"],
 
-    wrap: {
-      dist: {
-        src: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-        dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
-      }
-    },
-
     concat: {
       conductor: {
         src: ['lib/conductor.js', 'lib/conductor/card.js'],
@@ -97,24 +90,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
-
-  // Multi-task for wrapping a file in an IIFE that exports a module. This one is
-  // hard-coded for Conductor:
-  //
-  // (function(exports) {
-  //   // ... file contents ...
-  //   exports.Conductor = requireModule('conductor');
-  // })(this);
-
-  this.registerMultiTask('wrap', "Wraps source files with specified header and footer", function() {
-    this.files.forEach(function(f) {
-      var contents = f.src.map(function(path) {
-        return grunt.file.read(path);
-      }).join("\n");
-
-      grunt.file.write(f.dest, contents);
-    });
-  });
 
   // Multi-task for es6-module-transpiler
   this.registerMultiTask('transpile', "Transpile ES6 modules into AMD, CJS or globals", function() {
