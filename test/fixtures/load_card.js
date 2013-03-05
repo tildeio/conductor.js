@@ -1,5 +1,11 @@
 Conductor.require("/test/fixtures/alert.js");
 
+var assertionPort;
+
+Conductor.Oasis.connect('assertion', function(port) {
+  assertionPort = port;
+});
+
 var card = Conductor.card({
   activate: function() {
     assertionPort.send('cardActivated');

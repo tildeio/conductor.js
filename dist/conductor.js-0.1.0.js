@@ -1229,21 +1229,6 @@ define("oasis",
 
   var Card = Conductor.Card = function(sandbox) {
     this.sandbox = sandbox;
-
-    /*
-    if (Oasis.card) {
-      throw new Error("You have already defined a Card for this sandbox.");
-    }
-
-    Oasis.connect({
-      consumers: {
-        metadata: MetadataConsumer,
-        height: HeightConsumer
-      }
-    });
-
-    Oasis.card = this;
-    */
   };
 
   Card.prototype = {
