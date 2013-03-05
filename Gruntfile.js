@@ -7,10 +7,10 @@ module.exports = function(grunt) {
   this.registerTask('default', ['build']);
 
   // Run the QUnit tests in a headless PhantomJS instance.
-  this.registerTask('test', ['connect', 'qunit']);
+  this.registerTask('test', "Runs the tests in a headless PhantomJS instance", ['connect', 'qunit']);
 
   // Build a new version of the library
-  this.registerTask('build', ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
+  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
   this.registerTask('server', ['concat:tests', 'build', 'connect', 'watch']);
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       server: {},
 
       options: {
-        port: 9292,
+        port: 8000,
         base: '.'
       }
     },
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           urls: [
-            'http://localhost:9292/test/index.html'
+            'http://localhost:8000/test/index.html'
           ]
         }
       }
@@ -119,7 +119,6 @@ module.exports = function(grunt) {
         return format.call(compiler);
       });
 
-      console.log("Writing to " + f.dest);
       grunt.file.write(f.dest, contents);
     });
   });

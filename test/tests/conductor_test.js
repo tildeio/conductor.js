@@ -17,7 +17,7 @@ test("it works", function() {
 asyncTest("the conductor will load cards", function() {
   expect(2);
 
-  var conductor = new Conductor({testing: true});
+  var conductor = new Conductor({ testing: true });
   var card = conductor.load("/test/fixtures/test_card.js");
   card.appendTo(qunitFixture);
 
