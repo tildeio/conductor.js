@@ -360,6 +360,7 @@ define("oasis",
 
       var src = "data:text/html,<!doctype html>";
       src += "<base href='" + base + "'>";
+      src += "<script src='/dist/conductor.js-0.1.0.js'><" + "/script>";
       src += "<script>" + importScripts.toString() + "<" + "/script>";
       dependencyURLs.forEach(function(url) {
         src += "<script src='" + url + "'><" + "/script>";
@@ -461,7 +462,7 @@ define("oasis",
         return "importScripts('" + base + url + "'); ";
       }
 
-      var src = "";
+      var src = importScriptsString("oasis.js");
       dependencyURLs.forEach(function(url) {
         src += importScriptsString(url);
       });
@@ -553,10 +554,16 @@ define("oasis",
       this.capabilities = capabilities;
       this.options = options;
 
+      this.promise = new RSVP.Promise();
+
       this.adapter.initializeSandbox(this);
     };
 
     OasisSandbox.prototype = {
+      then: function() {
+        this.promise.then.apply(this.promise, arguments);
+      },
+
       connect: function(capability) {
         var promise = new RSVP.Promise();
         var connections;
@@ -621,6 +628,7 @@ define("oasis",
         }, this);
 
         this.adapter.connectPorts(this, ports);
+        this.promise.resolve();
       },
 
       start: function(options) {
@@ -1122,15 +1130,183 @@ define("oasis",
     return Oasis;
   });
 
-(function(exports) {
+(function() {
   "use strict";
-  var Oasis = requireModule("oasis");
+  (function(globals) {
+    var requiredUrls = [],
+        xhrPort;
 
-  var XHRService = Oasis.Service.extend({
+    var Conductor = globals.Conductor = function(options) {
+      this.options = options || {};
+    };
+
+    Conductor.Oasis = requireModule('oasis');
+
+    Conductor.prototype = {
+      load: function(url, data) {
+        var capabilities = ['xhr', 'metadata'];
+
+        if (this.options.testing) {
+          capabilities.push('assertion');
+        }
+
+        var sandbox = Conductor.Oasis.createSandbox({
+          url: url,
+          dependencies: ['/dist/conductor.js-0.1.0.js'],
+          capabilities: capabilities,
+          services: {
+            xhr: Conductor.XHRService,
+            metadata: Conductor.MetadataService
+          }
+        });
+
+        sandbox.data = data;
+
+        sandbox.start();
+
+        return new Conductor.Card(sandbox);
+      }
+    };
+
+    Conductor.require = function(url) {
+      requiredUrls.push(url);
+    };
+
+    Conductor.card = function(options) {
+      var metadataPromise = new Conductor.Oasis.RSVP.Promise();
+
+      metadataPromise.then(function(data) {
+        options.data = data;
+      });
+
+      var renderPromise = new Conductor.Oasis.RSVP.Promise();
+
+      renderPromise.then(function(args) {
+        options.render.apply(options, args);
+      });
+
+      var xhrPromise = new Conductor.Oasis.RSVP.Promise();
+
+      Conductor.Oasis.connect({
+        consumers: {
+          xhr: Conductor.xhrConsumer(requiredUrls, xhrPromise),
+          render: Conductor.renderConsumer(renderPromise),
+          metadata: Conductor.metadataConsumer(metadataPromise)
+        }
+      });
+
+      Conductor.Oasis.RSVP.all([ xhrPromise, metadataPromise ]).then(function() {
+        options.activate();
+      });
+    };
+
+  })(window);
+
+  (function() {
+
+  var MetadataConsumer = Conductor.Oasis.Consumer.extend({
     events: {
+      data: function(data) {
+        Conductor.Oasis.card.trigger('didLoadData', data);
 
+        if (data.title) {
+          this.send('titleDidChange', data.title);
+        }
+
+        Conductor.Oasis.card.data = data;
+      }
+    }
+  });
+
+  var HeightConsumer = Conductor.Oasis.Consumer.extend();
+
+  var Card = Conductor.Card = function(sandbox) {
+    this.sandbox = sandbox;
+
+    var promise = this.promise = new Conductor.Oasis.RSVP.Promise(), card = this;
+
+    sandbox.then(function() {
+      promise.resolve(card);
+    });
+
+    return this;
+  };
+
+  Card.prototype = {
+    metadataFor: function(name) {
+      return this.sandbox.metadataPort.request('metadataFor', name);
     },
 
+    appendTo: function(parent) {
+      if (typeof parent === 'string') {
+        var selector = parent;
+        parent = document.querySelector(selector);
+        if (!parent) { throw new Error("You are trying to append to '" + selector + "' but no element matching it was found"); }
+      }
+
+      parent.appendChild(this.sandbox.el);
+    },
+
+    then: function() {
+      return this.promise.then.apply(this.promise, arguments);
+    }
+  };
+
+  Conductor.Oasis.RSVP.EventTarget.mixin(Card.prototype);
+
+  })();
+
+
+  Conductor.metadataConsumer = function(promise) {
+    return Conductor.Oasis.Consumer.extend({
+      events: {
+        data: function(data) {
+          promise.resolve(data);
+        }
+      }
+    });
+  };
+
+  Conductor.renderConsumer = function(promise) {
+    return Conductor.Oasis.Consumer.extend({
+      events: {
+        render: function() {
+          promise.resolve([].slice.call(arguments));
+        }
+      }
+    });
+  };
+
+  Conductor.xhrConsumer = function(requiredUrls, promise) {
+    return Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var promises = [];
+
+        requiredUrls.forEach(function(url) {
+          var promise = this.port.request('get', url);
+          promises.push(promise);
+          promise.then(function(data) {
+            var script = document.createElement('script');
+            script.innerText = data;
+            document.body.appendChild(script);
+          });
+        }, this);
+
+        Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); });
+      }
+    });
+  };
+
+  Conductor.MetadataService = Conductor.Oasis.Service.extend({
+    initialize: function(port) {
+      var data = this.sandbox.data;
+      this.send('data', data);
+
+      this.sandbox.metadataPort = port;
+    }
+  });
+
+  Conductor.XHRService = Conductor.Oasis.Service.extend({
     requests: {
       get: function(promise, url) {
         var xhr = new XMLHttpRequest();
@@ -1147,103 +1323,4 @@ define("oasis",
     }
   });
 
-  var Conductor = function(options) {
-    this.options = options || {};
-  };
-
-  Conductor.prototype = {
-    load: function(url) {
-      var capabilities = ['xhr'];
-
-      if (this.options.testing) {
-        capabilities.push('assertion');
-      }
-
-      var sandbox = Oasis.createSandbox({
-        url: url,
-        dependencies: ['/dist/conductor.js-0.1.0.js'],
-        capabilities: capabilities,
-        services: {
-          xhr: XHRService
-        }
-      });
-
-      sandbox.start();
-
-      return new Conductor.Card(sandbox);
-    }
-  };
-
-  var requiredUrls = [];
-  var xhrPort;
-  var activatePromise = new Oasis.RSVP.Promise();
-
-  Conductor.require = function(url) {
-    requiredUrls.push(url);
-  };
-
-  Conductor.card = function(options) {
-    activatePromise.then(function(data) {
-      options.activate();
-    });
-  };
-
-  Conductor.Oasis = Oasis;
-
-  Oasis.connect('xhr').then(function(port) {
-    var promises = [];
-
-    requiredUrls.forEach(function(url) {
-      var promise = port.request('get', url);
-      promises.push(promise);
-      promise.then(function(data) {
-        var script = document.createElement('script');
-        script.innerText = data;
-        document.body.appendChild(script);
-      });
-    });
-
-    Oasis.RSVP.all(promises).then(function() {
-      activatePromise.resolve();
-    });
-  });
-
-
-  (function() {
-
-  var MetadataConsumer = Oasis.Consumer.extend({
-    events: {
-      data: function(data) {
-        Oasis.card.trigger('didLoadData', data);
-
-        if (data.title) {
-          this.send('titleDidChange', data.title);
-        }
-
-        Oasis.card.data = data;
-      }
-    }
-  });
-
-  var HeightConsumer = Oasis.Consumer.extend();
-
-  var Card = Conductor.Card = function(sandbox) {
-    this.sandbox = sandbox;
-  };
-
-  Card.prototype = {
-    setTitle: function(title) {
-      Oasis.consumers.metadata.send('titleDidChange', title);
-    },
-
-    appendTo: function(parent) {
-      parent.appendChild(this.sandbox.el);
-    }
-  };
-
-  Oasis.RSVP.EventTarget.mixin(Card.prototype);
-
-  })();
-
-  exports.Conductor = Conductor;
-})(window);
+})();

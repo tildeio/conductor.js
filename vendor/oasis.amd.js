@@ -35,6 +35,7 @@ define("oasis",
 
       var src = "data:text/html,<!doctype html>";
       src += "<base href='" + base + "'>";
+      src += "<script src='/dist/conductor.js-0.1.0.js'><" + "/script>";
       src += "<script>" + importScripts.toString() + "<" + "/script>";
       dependencyURLs.forEach(function(url) {
         src += "<script src='" + url + "'><" + "/script>";
@@ -136,7 +137,7 @@ define("oasis",
         return "importScripts('" + base + url + "'); ";
       }
 
-      var src = "";
+      var src = importScriptsString("oasis.js");
       dependencyURLs.forEach(function(url) {
         src += importScriptsString(url);
       });
@@ -228,10 +229,16 @@ define("oasis",
       this.capabilities = capabilities;
       this.options = options;
 
+      this.promise = new RSVP.Promise();
+
       this.adapter.initializeSandbox(this);
     };
 
     OasisSandbox.prototype = {
+      then: function() {
+        this.promise.then.apply(this.promise, arguments);
+      },
+
       connect: function(capability) {
         var promise = new RSVP.Promise();
         var connections;
@@ -296,6 +303,7 @@ define("oasis",
         }, this);
 
         this.adapter.connectPorts(this, ports);
+        this.promise.resolve();
       },
 
       start: function(options) {
