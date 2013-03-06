@@ -1257,8 +1257,8 @@ define("oasis",
       return this;
     },
 
-    render: function(intent) {
-      return this.sandbox.renderPort.send('render', intent);
+    render: function(intent, dimensions) {
+      return this.sandbox.renderPort.send('render', [intent, dimensions]);
     },
 
     then: function() {
@@ -1292,8 +1292,8 @@ define("oasis",
   };
 
   Conductor.renderConsumer = function(options, promise) {
-    options.events.render = function() {
-      promise.resolve([].slice.call(arguments));
+    options.events.render = function(args) {
+      promise.resolve(args);
     };
 
     return Conductor.Oasis.Consumer.extend(options);
