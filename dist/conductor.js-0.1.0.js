@@ -1187,11 +1187,14 @@ define("oasis",
 
       var xhrPromise = new Conductor.Oasis.RSVP.Promise();
 
+      options.events = options.events || {};
+      options.requests = options.requests || {};
+
       Conductor.Oasis.connect({
         consumers: {
-          xhr: Conductor.xhrConsumer(requiredUrls, xhrPromise),
-          render: Conductor.renderConsumer(renderPromise),
-          metadata: Conductor.metadataConsumer(metadataPromise)
+          xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
+          render: Conductor.renderConsumer(options, renderPromise),
+          metadata: Conductor.metadataConsumer(options, metadataPromise)
         }
       });
 
@@ -1257,44 +1260,39 @@ define("oasis",
   })();
 
 
-  Conductor.metadataConsumer = function(promise) {
-    return Conductor.Oasis.Consumer.extend({
-      events: {
-        data: function(data) {
-          promise.resolve(data);
-        }
-      }
-    });
+  Conductor.metadataConsumer = function(options, promise) {
+    options.events.data = function(data) {
+      promise.resolve(data);
+    };
+    return Conductor.Oasis.Consumer.extend(options);
   };
 
-  Conductor.renderConsumer = function(promise) {
-    return Conductor.Oasis.Consumer.extend({
-      events: {
-        render: function() {
-          promise.resolve([].slice.call(arguments));
-        }
-      }
-    });
+  Conductor.renderConsumer = function(options, promise) {
+    options.events.render = function() {
+      promise.resolve([].slice.call(arguments));
+    };
+
+    return Conductor.Oasis.Consumer.extend(options);
   };
 
-  Conductor.xhrConsumer = function(requiredUrls, promise) {
-    return Conductor.Oasis.Consumer.extend({
-      initialize: function() {
-        var promises = [];
+  Conductor.xhrConsumer = function(options, requiredUrls, promise) {
+    options.initialize = function() {
+      var promises = [];
 
-        requiredUrls.forEach(function(url) {
-          var promise = this.port.request('get', url);
-          promises.push(promise);
-          promise.then(function(data) {
-            var script = document.createElement('script');
-            script.innerText = data;
-            document.body.appendChild(script);
-          });
-        }, this);
+      requiredUrls.forEach(function(url) {
+        var promise = this.port.request('get', url);
+        promises.push(promise);
+        promise.then(function(data) {
+          var script = document.createElement('script');
+          script.innerText = data;
+          document.body.appendChild(script);
+        });
+      }, this);
 
-        Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); });
-      }
-    });
+      Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); });
+    };
+
+    return Conductor.Oasis.Consumer.extend(options);
   };
 
   Conductor.MetadataService = Conductor.Oasis.Service.extend({

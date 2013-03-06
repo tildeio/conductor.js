@@ -21,7 +21,6 @@ test("A card can return a title", function() {
 
   card.appendTo('#qunit-fixture');
   card.then(function() {
-    debugger;
     return card.metadataFor('title');
   }).then(function(title) {
     start();
