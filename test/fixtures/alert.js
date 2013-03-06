@@ -1,1 +1,1 @@
-assertionPort.send('assetRequired');
+ok(true, "The file was required");

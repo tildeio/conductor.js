@@ -1,3 +1,5 @@
-Conductor.Oasis.connect('assertion').then(function(port) {
-  port.send('greatSuccess');
+Conductor.card({
+  activate: function() {
+    ok(true, "Card's activate method was called");
+  }
 });

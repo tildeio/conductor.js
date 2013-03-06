@@ -1144,7 +1144,7 @@ define("oasis",
 
     Conductor.prototype = {
       load: function(url, data) {
-        var capabilities = ['xhr', 'metadata'];
+        var capabilities = ['xhr', 'metadata', 'assertion'];
 
         if (this.options.testing) {
           capabilities.push('assertion');
@@ -1156,7 +1156,8 @@ define("oasis",
           capabilities: capabilities,
           services: {
             xhr: Conductor.XHRService,
-            metadata: Conductor.MetadataService
+            metadata: Conductor.MetadataService,
+            assertion: Conductor.AssertionService
           }
         });
 
@@ -1190,13 +1191,16 @@ define("oasis",
       options.events = options.events || {};
       options.requests = options.requests || {};
 
-      Conductor.Oasis.connect({
+      var cardOptions = {
         consumers: {
           xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
           render: Conductor.renderConsumer(options, renderPromise),
-          metadata: Conductor.metadataConsumer(options, metadataPromise)
+          metadata: Conductor.metadataConsumer(options, metadataPromise),
+          assertion: Conductor.assertionConsumer()
         }
-      });
+      };
+
+      Conductor.Oasis.connect(cardOptions);
 
       Conductor.Oasis.RSVP.all([ xhrPromise, metadataPromise ]).then(function() {
         options.activate();
@@ -1260,6 +1264,19 @@ define("oasis",
   })();
 
 
+  Conductor.assertionConsumer = function() {
+    return Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var service = this;
+
+        window.ok = function(bool, message) {
+          service.send('ok', { bool: bool, message: message });
+        };
+      }
+    });
+  };
+
+
   Conductor.metadataConsumer = function(options, promise) {
     options.events.data = function(data) {
       promise.resolve(data);
@@ -1296,6 +1313,15 @@ define("oasis",
 
     return Conductor.Oasis.Consumer.extend(options);
   };
+
+  Conductor.AssertionService = Conductor.Oasis.Service.extend({
+    events: {
+      ok: function(data) {
+        start();
+        ok(data.bool, data.message);
+      }
+    }
+  });
 
   Conductor.MetadataService = Conductor.Oasis.Service.extend({
     initialize: function(port) {
