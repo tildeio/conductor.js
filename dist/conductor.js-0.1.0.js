@@ -1144,7 +1144,7 @@ define("oasis",
 
     Conductor.prototype = {
       load: function(url, data) {
-        var capabilities = ['xhr', 'metadata', 'assertion'];
+        var capabilities = ['xhr', 'metadata', 'assertion', 'render'];
 
         if (this.options.testing) {
           capabilities.push('assertion');
@@ -1157,7 +1157,8 @@ define("oasis",
           services: {
             xhr: Conductor.XHRService,
             metadata: Conductor.MetadataService,
-            assertion: Conductor.AssertionService
+            assertion: Conductor.AssertionService,
+            render: Conductor.RenderService
           }
         });
 
@@ -1252,6 +1253,12 @@ define("oasis",
       }
 
       parent.appendChild(this.sandbox.el);
+
+      return this;
+    },
+
+    render: function(intent) {
+      return this.sandbox.renderPort.send('render', intent);
     },
 
     then: function() {
@@ -1329,6 +1336,12 @@ define("oasis",
       this.send('data', data);
 
       this.sandbox.metadataPort = port;
+    }
+  });
+
+  Conductor.RenderService = Conductor.Oasis.Service.extend({
+    initialize: function(port) {
+      this.sandbox.renderPort = port;
     }
   });
 
