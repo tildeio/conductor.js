@@ -1276,6 +1276,8 @@ define("oasis",
   };
 
   Conductor.xhrConsumer = function(options, requiredUrls, promise) {
+    options = Object.create(options);
+
     options.initialize = function() {
       var promises = [];
 
