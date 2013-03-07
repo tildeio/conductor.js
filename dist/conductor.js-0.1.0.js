@@ -1144,7 +1144,7 @@ define("oasis",
 
     Conductor.prototype = {
       load: function(url, data) {
-        var capabilities = ['xhr', 'metadata', 'assertion', 'render'];
+        var capabilities = ['xhr', 'metadata', 'render', 'data'];
 
         if (this.options.testing) {
           capabilities.push('assertion');
@@ -1158,7 +1158,8 @@ define("oasis",
             xhr: Conductor.XHRService,
             metadata: Conductor.MetadataService,
             assertion: Conductor.AssertionService,
-            render: Conductor.RenderService
+            render: Conductor.RenderService,
+            data: Conductor.DataService
           }
         });
 
@@ -1192,19 +1193,23 @@ define("oasis",
       options.events = options.events || {};
       options.requests = options.requests || {};
 
+      var assertionPromise = new Conductor.Oasis.RSVP.Promise();
+      var dataPromise = new Conductor.Oasis.RSVP.Promise();
+
       var cardOptions = {
         consumers: {
           xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
           render: Conductor.renderConsumer(options, renderPromise),
           metadata: Conductor.metadataConsumer(options, metadataPromise),
-          assertion: Conductor.assertionConsumer()
+          assertion: Conductor.assertionConsumer(assertionPromise),
+          data: Conductor.dataConsumer(dataPromise, options)
         }
       };
 
       Conductor.Oasis.connect(cardOptions);
 
-      Conductor.Oasis.RSVP.all([ xhrPromise, metadataPromise ]).then(function() {
-        options.activate();
+      Conductor.Oasis.RSVP.all([ dataPromise, xhrPromise, assertionPromise ]).then(function(resolutions) {
+        options.activate(resolutions[0]);
       });
     };
 
@@ -1261,6 +1266,10 @@ define("oasis",
       return this.sandbox.renderPort.send('render', [intent, dimensions]);
     },
 
+    updateData: function(data) {
+      return this.sandbox.dataPort.send('updateData', data);
+    },
+
     then: function() {
       return this.promise.then.apply(this.promise, arguments);
     }
@@ -1271,7 +1280,7 @@ define("oasis",
   })();
 
 
-  Conductor.assertionConsumer = function() {
+  Conductor.assertionConsumer = function(promise) {
     return Conductor.Oasis.Consumer.extend({
       initialize: function() {
         var service = this;
@@ -1279,15 +1288,28 @@ define("oasis",
         window.ok = function(bool, message) {
           service.send('ok', { bool: bool, message: message });
         };
+
+        promise.resolve();
       }
     });
   };
 
 
-  Conductor.metadataConsumer = function(options, promise) {
-    options.events.data = function(data) {
-      promise.resolve(data);
-    };
+  Conductor.dataConsumer = function(promise, card) {
+    return Conductor.Oasis.Consumer.extend({
+      events: {
+        initializeData: function(data) {
+          promise.resolve(data);
+        },
+
+        updateData: function(data) {
+          card.updateData(data);
+        }
+      }
+    });
+  };
+
+  Conductor.metadataConsumer = function(options) {
     return Conductor.Oasis.Consumer.extend(options);
   };
 
@@ -1330,11 +1352,17 @@ define("oasis",
     }
   });
 
-  Conductor.MetadataService = Conductor.Oasis.Service.extend({
+  Conductor.DataService = Conductor.Oasis.Service.extend({
     initialize: function(port) {
       var data = this.sandbox.data;
-      this.send('data', data);
+      this.send('initializeData', data);
 
+      this.sandbox.dataPort = port;
+    }
+  });
+
+  Conductor.MetadataService = Conductor.Oasis.Service.extend({
+    initialize: function(port) {
       this.sandbox.metadataPort = port;
     }
   });
