@@ -1174,30 +1174,35 @@ define("oasis",
       }
     };
 
+  })(window);
+
+  (function() {
+    var requiredUrls = [],
+        RSVP = requireModule('rsvp'),
+        Promise = RSVP.Promise;
+
     Conductor.require = function(url) {
       requiredUrls.push(url);
     };
 
-    Conductor.card = function(options) {
-      var metadataPromise = new Promise();
+    Conductor.Card = function(options) {
+      this.options = options = options || {};
 
-      metadataPromise.then(function(data) {
+      var metadataPromise = this.promise(function(data) {
         options.data = data;
       });
 
-      var renderPromise = new Promise();
-
-      renderPromise.then(function(args) {
+      var renderPromise = this.promise(function(args) {
         options.render.apply(options, args);
       });
 
-      var xhrPromise = new Promise();
+      var xhrPromise = this.promise();
 
       options.events = options.events || {};
       options.requests = options.requests || {};
 
-      var assertionPromise = new Promise();
-      var dataPromise = new Promise();
+      var assertionPromise = this.promise();
+      var dataPromise = this.promise();
 
       var activatePromise = RSVP.all([ dataPromise, xhrPromise ])
         .then(function(resolutions) {
@@ -1218,10 +1223,28 @@ define("oasis",
       };
 
       Conductor.Oasis.connect(cardOptions);
-
     };
 
-  })(window);
+    Conductor.Card.prototype = {
+      promise: function(callback) {
+        var promise = new Promise();
+        if (callback) { promise.then(callback); }
+        return promise;
+      },
+
+      activateWhen: function(dataPromise, otherPromises) {
+        var options = this.options;
+
+        return RSVP.all([dataPromise].concat(otherPromises)).then(function(resolutions) {
+          if (options.activate) { options.activate(resolutions[0]); }
+        });
+      }
+    };
+
+    Conductor.card = function(options) {
+      return new Conductor.Card(options);
+    };
+  })();
 
   (function() {
 
