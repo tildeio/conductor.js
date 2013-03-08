@@ -1170,7 +1170,7 @@ define("oasis",
 
         sandbox.start();
 
-        return new Conductor.Card(sandbox);
+        return new Conductor.CardReference(sandbox);
       }
     };
 
@@ -1225,23 +1225,7 @@ define("oasis",
 
   (function() {
 
-  var MetadataConsumer = Conductor.Oasis.Consumer.extend({
-    events: {
-      data: function(data) {
-        Conductor.Oasis.card.trigger('didLoadData', data);
-
-        if (data.title) {
-          this.send('titleDidChange', data.title);
-        }
-
-        Conductor.Oasis.card.data = data;
-      }
-    }
-  });
-
-  var HeightConsumer = Conductor.Oasis.Consumer.extend();
-
-  var Card = Conductor.Card = function(sandbox) {
+  var CardReference = Conductor.CardReference = function(sandbox) {
     this.sandbox = sandbox;
 
     var promise = this.promise = new Conductor.Oasis.RSVP.Promise(), card = this;
@@ -1253,7 +1237,7 @@ define("oasis",
     return this;
   };
 
-  Card.prototype = {
+  CardReference.prototype = {
     metadataFor: function(name) {
       return this.sandbox.metadataPort.request('metadataFor', name);
     },
@@ -1290,7 +1274,7 @@ define("oasis",
     }
   };
 
-  Conductor.Oasis.RSVP.EventTarget.mixin(Card.prototype);
+  Conductor.Oasis.RSVP.EventTarget.mixin(CardReference.prototype);
 
   })();
 
