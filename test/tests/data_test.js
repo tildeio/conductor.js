@@ -42,5 +42,9 @@ test("The containing environment can update the data", function() {
   });
 });
 
+test("The card can notify the parent about data updates", function() {
+  expect(0);
+});
+
 })();
 

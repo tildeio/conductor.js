@@ -32,4 +32,14 @@ test("A card can receive rendering dimensions", function() {
   });
 });
 
+test("The render method on a card is always invoked after activate", function() {
+  var card = conductor.load('/test/fixtures/render/activate_then_render_card.js');
+
+  stop();
+
+  card.appendTo('#qunit-fixture').then(function() {
+    card.render('thumbnail');
+  });
+});
+
 })();

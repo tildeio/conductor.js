@@ -1133,18 +1133,19 @@ define("oasis",
 (function() {
   "use strict";
   (function(globals) {
-    var requiredUrls = [],
-        xhrPort;
-
     var Conductor = globals.Conductor = function(options) {
       this.options = options || {};
     };
 
     Conductor.Oasis = requireModule('oasis');
 
+    var requiredUrls = [],
+        RSVP = Conductor.Oasis.RSVP,
+        Promise = RSVP.Promise;
+
     Conductor.prototype = {
       load: function(url, data) {
-        var capabilities = ['xhr', 'metadata', 'render', 'data'];
+        var capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
 
         if (this.options.testing) {
           capabilities.push('assertion');
@@ -1159,11 +1160,13 @@ define("oasis",
             metadata: Conductor.MetadataService,
             assertion: Conductor.AssertionService,
             render: Conductor.RenderService,
+            lifecycle: Conductor.LifecycleService,
             data: Conductor.DataService
           }
         });
 
         sandbox.data = data;
+        sandbox.activatePromise = new Promise();
 
         sandbox.start();
 
@@ -1176,25 +1179,32 @@ define("oasis",
     };
 
     Conductor.card = function(options) {
-      var metadataPromise = new Conductor.Oasis.RSVP.Promise();
+      var metadataPromise = new Promise();
 
       metadataPromise.then(function(data) {
         options.data = data;
       });
 
-      var renderPromise = new Conductor.Oasis.RSVP.Promise();
+      var renderPromise = new Promise();
 
       renderPromise.then(function(args) {
         options.render.apply(options, args);
       });
 
-      var xhrPromise = new Conductor.Oasis.RSVP.Promise();
+      var xhrPromise = new Promise();
 
       options.events = options.events || {};
       options.requests = options.requests || {};
 
-      var assertionPromise = new Conductor.Oasis.RSVP.Promise();
-      var dataPromise = new Conductor.Oasis.RSVP.Promise();
+      var assertionPromise = new Promise();
+      var dataPromise = new Promise();
+
+      var activatePromise = RSVP.all([ dataPromise, xhrPromise, assertionPromise ])
+        .then(function(resolutions) {
+          if (options.activate) {
+            options.activate(resolutions[0]);
+          }
+        });
 
       var cardOptions = {
         consumers: {
@@ -1202,15 +1212,13 @@ define("oasis",
           render: Conductor.renderConsumer(options, renderPromise),
           metadata: Conductor.metadataConsumer(options, metadataPromise),
           assertion: Conductor.assertionConsumer(assertionPromise),
-          data: Conductor.dataConsumer(dataPromise, options)
+          data: Conductor.dataConsumer(dataPromise, options),
+          lifecycle: Conductor.lifecycleConsumer(activatePromise)
         }
       };
 
       Conductor.Oasis.connect(cardOptions);
 
-      Conductor.Oasis.RSVP.all([ dataPromise, xhrPromise, assertionPromise ]).then(function(resolutions) {
-        options.activate(resolutions[0]);
-      });
     };
 
   })(window);
@@ -1263,11 +1271,18 @@ define("oasis",
     },
 
     render: function(intent, dimensions) {
-      return this.sandbox.renderPort.send('render', [intent, dimensions]);
+      var card = this;
+
+      this.sandbox.activatePromise.then(function() {
+        card.sandbox.renderPort.send('render', [intent, dimensions]);
+      });
     },
 
     updateData: function(data) {
-      return this.sandbox.dataPort.send('updateData', data);
+      var sandbox = this.sandbox;
+      sandbox.activatePromise.then(function() {
+        sandbox.dataPort.send('updateData', data);
+      });
     },
 
     then: function() {
@@ -1305,6 +1320,18 @@ define("oasis",
         updateData: function(data) {
           card.updateData(data);
         }
+      }
+    });
+  };
+
+  Conductor.lifecycleConsumer = function(promise) {
+    return Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var consumer = this;
+
+        promise.then(function() {
+          consumer.send('activated');  
+        });
       }
     });
   };
@@ -1358,6 +1385,15 @@ define("oasis",
       this.send('initializeData', data);
 
       this.sandbox.dataPort = port;
+    }
+  });
+
+  Conductor.LifecycleService = Conductor.Oasis.Service.extend({
+    events: {
+      activated: function() {
+        console.log('resolving activate promise');
+        this.sandbox.activatePromise.resolve();
+      }
     }
   });
 
