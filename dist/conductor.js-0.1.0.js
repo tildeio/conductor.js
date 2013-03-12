@@ -1391,7 +1391,6 @@ define("oasis",
   Conductor.LifecycleService = Conductor.Oasis.Service.extend({
     events: {
       activated: function() {
-        console.log('resolving activate promise');
         this.sandbox.activatePromise.resolve();
       }
     }

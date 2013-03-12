@@ -132,11 +132,30 @@ Conductor.card({
 ## Build Tools
 
 Conductor.js uses [Grunt](http://gruntjs.com/) to automate building and
-testing. Before you use any of the commands below, make sure you have
-install node.js, which includes npm, the node package manager.
+testing. 
 
-To install Conductor's dependencies, run `npm install` from the root of
-the project directory.
+### Setup
+
+Before you use any of the commands below, make sure you have
+installed node.js, which includes npm, the node package manager.
+
+If you haven't before, install the `grunt` CLI tool:
+
+```sh
+$ npm install -g grunt-cli
+```
+
+This will put the `grunt` command in your system path, allowing it to be
+run from any directory.
+
+Next, install Conductor's dependencies:
+
+```sh
+$ npm install
+```
+
+This will install all of the packages that Conductor's Gruntfile relies
+on into the local `node_modules` directory.
 
 ### Building
 
