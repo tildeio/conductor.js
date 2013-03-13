@@ -1199,7 +1199,7 @@ define("oasis",
       var assertionPromise = new Promise();
       var dataPromise = new Promise();
 
-      var activatePromise = RSVP.all([ dataPromise, xhrPromise, assertionPromise ])
+      var activatePromise = RSVP.all([ dataPromise, xhrPromise ])
         .then(function(resolutions) {
           if (options.activate) {
             options.activate(resolutions[0]);
