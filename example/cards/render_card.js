@@ -19,8 +19,13 @@ function createCanvas(width, height) {
   ctx.strokeStyle = "red";
   ctx.strokeRect(0, 0, width, height);
 
-  ctx.font = "Courier";
-  ctx.fillText(width + "×" + height, 0, 0);
+  ctx.font = "12px Courier";
+  ctx.fillStyle = "red";
+
+  var dimensionString = width + "x" + height;
+  var textWidth = ctx.measureText(dimensionString).width;
+
+  ctx.fillText(dimensionString, width-textWidth-5, height-5);
 }
 
 Conductor.card({
@@ -28,3 +33,4 @@ Conductor.card({
     createCanvas(dimensions.width, dimensions.height);
   }
 });
+
