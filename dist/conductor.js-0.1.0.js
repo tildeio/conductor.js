@@ -349,10 +349,11 @@ define("oasis",
 
     // ADAPTERS
 
-    function generateSrc(sandboxURL, dependencyURLs) {
+    function generateSrc(sandboxURL, oasisURL, dependencyURLs) {
       function importScripts() {}
 
       dependencyURLs = dependencyURLs || [];
+      oasisURL = oasisURL || "oasis.js";
 
       var link = document.createElement("a");
       link.href = "!";
@@ -360,7 +361,7 @@ define("oasis",
 
       var src = "data:text/html,<!doctype html>";
       src += "<base href='" + base + "'>";
-      src += "<script src='/dist/conductor.js-0.1.0.js'><" + "/script>";
+      src += "<script src='"+oasisURL+"'><" + "/script>";
       src += "<script>" + importScripts.toString() + "<" + "/script>";
       dependencyURLs.forEach(function(url) {
         src += "<script src='" + url + "'><" + "/script>";
@@ -378,7 +379,7 @@ define("oasis",
 
         iframe.sandbox = 'allow-scripts';
         iframe.seamless = true;
-        iframe.src = generateSrc(options.url, sandbox.dependencies);
+        iframe.src = generateSrc(options.url, options.oasisURL, sandbox.dependencies);
 
         // rendering-specific code
         if (options.width) {
@@ -536,6 +537,7 @@ define("oasis",
 
     var OasisSandbox = function(options) {
       this.connections = {};
+      this.wiretaps = [];
 
       // Generic capabilities code
       var pkg = packages[options.url];
@@ -562,6 +564,10 @@ define("oasis",
     OasisSandbox.prototype = {
       then: function() {
         this.promise.then.apply(this.promise, arguments);
+      },
+
+      wiretap: function(callback) {
+        this.wiretaps.push(callback);
       },
 
       connect: function(capability) {
@@ -610,6 +616,30 @@ define("oasis",
 
             var environmentPort = this.adapter.environmentPort(this, channel),
                 sandboxPort = this.adapter.sandboxPort(this, channel);
+
+            environmentPort.all(function(eventName, data) {
+              this.wiretaps.forEach(function(wiretap) {
+                wiretap(capability, {
+                  type: eventName,
+                  data: data,
+                  direction: 'received'
+                });
+              });
+            }, this);
+
+            this.wiretaps.forEach(function(wiretap) {
+              var originalSend = environmentPort.send;
+
+              environmentPort.send = function(eventName, data) {
+                wiretap(capability, {
+                  type: eventName,
+                  data: data,
+                  direction: 'sent'
+                });
+
+                originalSend.apply(environmentPort, arguments);
+              };
+            });
 
             if (service) {
               /*jshint newcap:false*/
@@ -790,12 +820,17 @@ define("oasis",
       }
     };
 
-    Oasis.Service.extend = function(object) {
+    Oasis.Service.extend = function extend(object) {
+      var superConstructor = this;
+
       function Service() {
-        Oasis.Service.apply(this, arguments);
+        if (Service.prototype.init) { Service.prototype.init.call(this); }
+        superConstructor.apply(this, arguments);
       }
 
-      var ServiceProto = Service.prototype = Object.create(Oasis.Service.prototype);
+      Service.extend = extend;
+
+      var ServiceProto = Service.prototype = Object.create(this.prototype);
 
       for (var prop in object) {
         ServiceProto[prop] = object[prop];
@@ -871,6 +906,12 @@ define("oasis",
         @param {any?} binding an optional value of `this` inside of the callback
       */
       on: mustImplement('OasisPort', 'on'),
+
+      /**
+        Allows you to register an event handler that is called for all events
+        that are sent to the port.
+      */
+      all: mustImplement('OasisPort', 'all'),
 
       /**
         This allows you to unregister an event handler for an event name
@@ -977,6 +1018,12 @@ define("oasis",
 
         this._callbacks.push([callback, wrappedCallback]);
         this.port.addEventListener('message', wrappedCallback);
+      },
+
+      all: function(callback, binding) {
+        this.port.addEventListener('message', function(event) {
+          callback.call(binding, event.data.type, event.data.data);
+        });
       },
 
       off: function(eventName, callback) {
@@ -1153,8 +1200,8 @@ define("oasis",
 
         var sandbox = Conductor.Oasis.createSandbox({
           url: url,
-          dependencies: ['/dist/conductor.js-0.1.0.js'],
           capabilities: capabilities,
+          oasisURL: '/dist/conductor.js-0.1.0.js',
           services: {
             xhr: Conductor.XHRService,
             metadata: Conductor.MetadataService,
@@ -1172,6 +1219,53 @@ define("oasis",
 
         return new Conductor.CardReference(sandbox);
       }
+    };
+
+    Conductor.require = function(url) {
+      requiredUrls.push(url);
+    };
+
+    Conductor.card = function(options) {
+      var metadataPromise = new Promise();
+
+      metadataPromise.then(function(data) {
+        options.data = data;
+      });
+
+      var renderPromise = new Promise();
+
+      renderPromise.then(function(args) {
+        options.render.apply(options, args);
+      });
+
+      var xhrPromise = new Promise();
+
+      options.events = options.events || {};
+      options.requests = options.requests || {};
+
+      var assertionPromise = new Promise();
+      var dataPromise = new Promise();
+
+      var activatePromise = RSVP.all([ dataPromise, xhrPromise ])
+        .then(function(resolutions) {
+          if (options.activate) {
+            options.activate(resolutions[0]);
+          }
+        });
+
+      var cardOptions = {
+        consumers: {
+          xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
+          render: Conductor.renderConsumer(options, renderPromise),
+          metadata: Conductor.metadataConsumer(options, metadataPromise),
+          assertion: Conductor.assertionConsumer(assertionPromise),
+          data: Conductor.dataConsumer(dataPromise, options),
+          lifecycle: Conductor.lifecycleConsumer(activatePromise)
+        }
+      };
+
+      Conductor.Oasis.connect(cardOptions);
+
     };
 
   })(window);
@@ -1204,12 +1298,7 @@ define("oasis",
       var assertionPromise = this.promise();
       var dataPromise = this.promise();
 
-      var activatePromise = RSVP.all([ dataPromise, xhrPromise ])
-        .then(function(resolutions) {
-          if (options.activate) {
-            options.activate(resolutions[0]);
-          }
-        });
+      var activatePromise = this.activateWhen(dataPromise, [ xhrPromise, assertionPromise ]);
 
       var cardOptions = {
         consumers: {
