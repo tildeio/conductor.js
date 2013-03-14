@@ -1298,7 +1298,7 @@ define("oasis",
       var assertionPromise = this.promise();
       var dataPromise = this.promise();
 
-      var activatePromise = this.activateWhen(dataPromise, [ xhrPromise, assertionPromise ]);
+      var activatePromise = this.activateWhen(dataPromise, [ xhrPromise ]);
 
       var cardOptions = {
         consumers: {
