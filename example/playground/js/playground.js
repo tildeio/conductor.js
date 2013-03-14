@@ -6,7 +6,8 @@
 
   addStringExtensions();
 
-  var conductor;
+  var conductor,
+      card;
 
   $(function() {
     loadCard();
@@ -14,8 +15,6 @@
   });
 
   function loadCard() {
-    var card;
-
     conductor = new Conductor();
 
     card = conductor.load('../cards/render_card.js');
@@ -37,6 +36,30 @@
     });
 
     printAnalytics("✔ Analytics monitoring active".green);
+    printAnalytics("");
+
+    card.sandbox.wiretap(function(service, event) {
+      var direction = event.direction === "sent" ? "→" : "←";
+      var data = JSON.stringify(event.data) || "";
+
+      printAnalytics("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, data.lightGrey));
+    });
+
+    function pad(string, max) {
+      while (string.length < max) {
+        string = string+" ";
+      }
+
+      return string;
+    }
+
+    function padLeft(string, max) {
+      while (string.length < max) {
+        string = " "+string;
+      }
+
+      return string;
+    }
   }
 
   function timestamp() {
@@ -104,8 +127,11 @@
     var colors = {
       red: '#a00',
       green: '#0a0',
-      blue: '#4839de',
-      yellow: '#aa0'
+      blue: '#4866ff',
+      yellow: '#aa0',
+      teal: '#0aa',
+      magenta: '#a0a',
+      lightGrey: '#aaa'
     };
 
     Object.keys(colors).forEach(function(color) {
