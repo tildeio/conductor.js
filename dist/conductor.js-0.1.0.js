@@ -1383,6 +1383,12 @@ define("oasis",
 
     then: function() {
       return this.promise.then.apply(this.promise, arguments);
+    },
+
+    wiretap: function(callback, binding) {
+      this.sandbox.wiretap(function() {
+        callback.apply(binding, arguments);
+      });
     }
   };
 

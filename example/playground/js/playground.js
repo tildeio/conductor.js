@@ -1,101 +1,38 @@
 /*globals $*/
 
-(function() {
+// Create a namespace for the Playground jQuery app
+// to live in.
+window.Playground = {
+  initialize: function() {
+    // Create a new Conductor instance that will
+    // manage all of the cards on the page.
+    this.conductor = new Conductor();
 
+    // Create the initial Conductor card and
+    // insert it into the page.
+    this.initializeCard();
+
+    // Wiretap the card and configure any events
+    // to be displayed in the analytics panel on
+    // screen.
+    this.initializeAnalytics();
+  }
+};
+
+// Initialize the Playground application once the
+// page has finished loading.
+$(function() {
+  Playground.initialize();
+});
+
+// Pluck off the RSVP object from Conductor and
+// re-export it to the global scope.
+window.RSVP = Conductor.Oasis.RSVP;
+
+(function() {
   "use strict";
 
   addStringExtensions();
-
-  var conductor,
-      card;
-
-  $(function() {
-    loadCard();
-    initializeAnalytics();
-  });
-
-  function loadCard() {
-    conductor = new Conductor();
-
-    card = conductor.load('../cards/render_card.js');
-
-    card.appendTo('.cards').then(function() {
-      card.render('thumbnail', {
-        width: 100,
-        height: 100
-      });
-    });
-  }
-
-  // Setup event listeners for the analytics panel
-  function initializeAnalytics() {
-    var $analytics = $('.analytics');
-
-    $('.analytics .tab').on('click', function() {
-      $analytics.toggleClass('showing');
-    });
-
-    printAnalytics("✔ Analytics monitoring active".green);
-    printAnalytics("");
-
-    card.sandbox.wiretap(function(service, event) {
-      var direction = event.direction === "sent" ? "→" : "←";
-      var data = JSON.stringify(event.data) || "";
-
-      printAnalytics("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, data.lightGrey));
-    });
-
-    function pad(string, max) {
-      while (string.length < max) {
-        string = string+" ";
-      }
-
-      return string;
-    }
-
-    function padLeft(string, max) {
-      while (string.length < max) {
-        string = " "+string;
-      }
-
-      return string;
-    }
-  }
-
-  function timestamp() {
-    var date = new Date(),
-        year = date.getFullYear(),
-        month = date.getMonth()+1,
-        day = date.getDate(),
-        hour = date.getHours(),
-        minute = date.getMinutes();
-
-    function pad(number) {
-      number = number+'';
-      if (number.length === 1) {
-        return "0"+number;
-      }
-      return number;
-    }
-
-    return "%@-%@-%@ %@:%@ ".fmt(year, pad(month), pad(day), pad(hour), pad(minute));
-  }
-
-  function printAnalytics(string) {
-    var $output = $('.analytics .output'),
-        atBottom;
-
-    atBottom = ($output.scrollTop() === ($output[0].scrollHeight - $output.height()));
-
-    // Append the new message
-    $output.append("<p>%@%@</p>".fmt(timestamp().yellow, string));
-
-    if (atBottom) {
-      // Scroll the div to show the new message
-      $output.scrollTop($output[0].scrollHeight);
-    }
-  }
-
 
   function addStringExtensions() {
     var stringProto = String.prototype;
