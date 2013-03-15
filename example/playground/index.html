@@ -8,18 +8,57 @@
     <script src="../../dist/conductor.js-0.1.0.js"></script>
     <script src="js/playground.js"></script>
     <script src="js/playground-card.js"></script>
+    <script src="js/playground-render.js"></script>
     <script src="js/playground-analytics.js"></script>
   </head>
   <body>
-    <div class="cards">
+    <div class="main">
       <h1>Conductor.js Playground</h1>
+      <div class="card"></div>
+      <div class="popovers">
+        <div class="render">Render</div>
+        <div class="report">Report</div>
+        <div class="react">React</div>
+        <div class="restore">Restore</div>
+      </div>
     </div>
 
-    <div class="analytics showing">
+    <div class="analytics">
       <div class="tab">Analytics</div>
       <div class="panel">
         <pre class="output"></pre>
       </div>
+    </div>
+
+    <div class="render popover">
+      <table>
+        <tr>
+          <th><label for="intent">Intent</label></th>
+          <td><select id="intent">
+            <option value="thumbnail">Thumbnail</option>
+            <option value="small">Small</option>
+            <option value="large">Large</option>
+            <option value="fullScreen">Full-screen</option>
+            <option value="edit">Edit Mode</option>
+         </select></td>
+       </tr>
+       <tr class="dimensions">
+         <th><label>Dimensions</label></th>
+         <td><input id="width" type="text"> × <input id="height" type="text"></td>
+       </tr>
+     </table>
+    </div>
+
+    <div class="report popover">
+      Report
+    </div>
+
+    <div class="react popover">
+      React
+    </div>
+
+    <div class="restore popover">
+      Restore
     </div>
   </body>
 </html>

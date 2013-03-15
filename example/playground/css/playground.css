@@ -13,14 +13,40 @@ h1 {
   margin: 32px 0 82px 0;
 }
 
-.cards {
-  width: 960px;
+.main {
+  width: 760px;
   margin: 0 auto;
 }
 
-.cards iframe {
+.card iframe {
   border: 1px solid rgba(0,0,0, 0.8);
   border-radius: 3px;
+}
+
+.popovers > div {
+  display: inline-block;
+  padding: 4px 8px;
+
+  border-radius: 10px;
+
+  background-color: rgba(0,0,0,0.7);
+  color: #ddd;
+
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px rgba(0,0,0,0.9);
+
+  -webkit-font-smoothing: antialiased;
+
+  cursor: pointer;
+
+  -webkit-transition: background-color 0.2s ease-out, text-shadow 0.2s ease-out, color 0.2s ease-out;
+}
+
+.popovers > div:hover, .popovers > .active {
+  color: #fff;
+  background-color: rgba(0,0,0,0.4);
+  text-shadow: 0 1px rgba(0,0,0,0.8);
 }
 
 .analytics {
@@ -82,5 +108,67 @@ h1 {
   /*background-color: white;*/
 
   font-family: "Menlo", Consolas, monaco, monospace;)
+}
 
+/*
+  Popovers
+*/
+
+.popover {
+  display: none;
+  position: absolute;
+  /*width: 200px;*/
+
+  padding: 9px;
+
+  color: #fff;
+  background-color: rgba(0,0,0, 0.9);
+
+  border-radius: 5px;
+  box-shadow: 1px 1px 15px rgba(0,0,0,0.6);
+
+  font-size: 14px;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+.popover:after {
+  display: block;
+  content: '';
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: 50%;
+  margin-left: -7px;
+  top: -7px;
+  border-width: 7px;
+  border-top-width: 0;
+  border-color: transparent;
+  border-bottom-color: rgba(0,0,0, 0.9);
+  border-style: solid;
+}
+
+.popover table {
+  width: 300px;
+  margin: 7px 5px;
+}
+
+.popover table td, .popover table th {
+  padding: 3px 0;
+}
+
+.popover table td {
+  text-align: center;
+}
+
+.popover table th {
+  padding-right: 5px;
+}
+
+.popover select {
+  width: 100%;
+}
+
+.popover.render .dimensions input {
+  width: 35px;
 }

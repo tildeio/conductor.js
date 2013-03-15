@@ -9,4 +9,3 @@ Conductor.card({
     ok(data.marco === 'polo');
   }
 });
-

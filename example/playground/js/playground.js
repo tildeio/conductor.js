@@ -1,5 +1,9 @@
 /*globals $*/
 
+// Pluck off the RSVP object from Conductor and
+// re-export it to the global scope.
+window.RSVP = Conductor.Oasis.RSVP;
+
 // Create a namespace for the Playground jQuery app
 // to live in.
 window.Playground = {
@@ -19,15 +23,14 @@ window.Playground = {
   }
 };
 
+RSVP.EventTarget.mixin(window.Playground);
+
 // Initialize the Playground application once the
 // page has finished loading.
 $(function() {
   Playground.initialize();
 });
 
-// Pluck off the RSVP object from Conductor and
-// re-export it to the global scope.
-window.RSVP = Conductor.Oasis.RSVP;
 
 (function() {
   "use strict";
@@ -59,6 +62,10 @@ window.RSVP = Conductor.Oasis.RSVP;
 
     extend('p', function() {
       return '<p>'+this+'</p>';
+    });
+
+    extend('bold', function() {
+      return '<span style="font-weight: bold;">'+this+'</span>';
     });
 
     var colors = {

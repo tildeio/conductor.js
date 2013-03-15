@@ -1286,9 +1286,7 @@ define("oasis",
         options.data = data;
       });
 
-      var renderPromise = this.promise(function(args) {
-        options.render.apply(options, args);
-      });
+      var renderPromise = this.promise();
 
       var xhrPromise = this.promise();
 
@@ -1444,7 +1442,7 @@ define("oasis",
 
   Conductor.renderConsumer = function(options, promise) {
     options.events.render = function(args) {
-      promise.resolve(args);
+      options.render.apply(options, args);
     };
 
     return Conductor.Oasis.Consumer.extend(options);

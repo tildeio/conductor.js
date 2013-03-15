@@ -25,6 +25,8 @@
 
       this.print("✔ Analytics monitoring active".green);
       this.print("");
+      this.print("%@ %@ %@ %@".fmt(padLeft("Service", 9).blue.bold, "↔".teal.bold, pad("Event", 14).magenta.bold, "Data".lightGrey.bold));
+      this.print("");
     },
 
     print: function(string) {
