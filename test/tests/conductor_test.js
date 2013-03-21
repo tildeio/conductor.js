@@ -41,5 +41,15 @@ test("cards can require dependencies", function() {
   equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
 });
 
+test("cards can require CSS dependencies", function() {
+  expect(1);
+
+  var conductor = new Conductor({ testing: true });
+  var card = conductor.load("/test/fixtures/load_css_card.js");
+  card.appendTo(qunitFixture);
+
+  stop();
+});
+
 
 })();

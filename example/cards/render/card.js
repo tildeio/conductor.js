@@ -1,6 +1,6 @@
 var canvas;
 
-//Conductor.require('/example/libs/jquery-1.9.1.js');
+Conductor.requireCSS('/example/cards/render/style.css');
 
 function createCanvas(intent, width, height) {
   if (!canvas) {
@@ -54,15 +54,16 @@ function capitalize(string) {
 }
 
 Conductor.card({
-  //activate: function() {
-    //$('html, body').css({
-      //margin: '0',
-      //padding: '0'
-    //});
-  //},
-
   render: function(intent, dimensions) {
     createCanvas(intent, dimensions.width, dimensions.height);
+  },
+
+  requests: {
+    metadataFor: function(resolver, name) {
+      resolver.resolve({
+        title: "Foo",
+        author: "&copy;2013 McGraw Hill Education Corp. & its subsidiaries"
+      });
+    }
   }
 });
-

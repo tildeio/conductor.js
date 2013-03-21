@@ -9,17 +9,20 @@
     <script src="js/playground.js"></script>
     <script src="js/playground-card.js"></script>
     <script src="js/playground-render.js"></script>
+    <script src="js/playground-report.js"></script>
     <script src="js/playground-analytics.js"></script>
   </head>
   <body>
     <div class="main">
       <h1>Conductor.js Playground</h1>
-      <div class="card"></div>
-      <div class="popovers">
-        <div class="render">Render</div>
-        <div class="report">Report</div>
-        <div class="react">React</div>
-        <div class="restore">Restore</div>
+      <div class="card-wrapper">
+        <div class="card"></div>
+        <div class="popovers">
+          <div class="render">Render</div>
+          <div class="report">Report</div>
+          <div class="react">React</div>
+          <div class="restore">Restore</div>
+        </div>
       </div>
     </div>
 
@@ -50,7 +53,10 @@
     </div>
 
     <div class="report popover">
-      Report
+      <h2>Metadata</h2>
+      <div class="metadata">
+        Loading…
+      </div>
     </div>
 
     <div class="react popover">

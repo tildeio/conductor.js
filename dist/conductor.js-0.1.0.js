@@ -1187,6 +1187,7 @@ define("oasis",
     Conductor.Oasis = requireModule('oasis');
 
     var requiredUrls = [],
+        requiredCSSUrls = [],
         RSVP = Conductor.Oasis.RSVP,
         Promise = RSVP.Promise;
 
@@ -1221,62 +1222,20 @@ define("oasis",
       }
     };
 
-    Conductor.require = function(url) {
-      requiredUrls.push(url);
-    };
-
-    Conductor.card = function(options) {
-      var metadataPromise = new Promise();
-
-      metadataPromise.then(function(data) {
-        options.data = data;
-      });
-
-      var renderPromise = new Promise();
-
-      renderPromise.then(function(args) {
-        options.render.apply(options, args);
-      });
-
-      var xhrPromise = new Promise();
-
-      options.events = options.events || {};
-      options.requests = options.requests || {};
-
-      var assertionPromise = new Promise();
-      var dataPromise = new Promise();
-
-      var activatePromise = RSVP.all([ dataPromise, xhrPromise ])
-        .then(function(resolutions) {
-          if (options.activate) {
-            options.activate(resolutions[0]);
-          }
-        });
-
-      var cardOptions = {
-        consumers: {
-          xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
-          render: Conductor.renderConsumer(options, renderPromise),
-          metadata: Conductor.metadataConsumer(options, metadataPromise),
-          assertion: Conductor.assertionConsumer(assertionPromise),
-          data: Conductor.dataConsumer(dataPromise, options),
-          lifecycle: Conductor.lifecycleConsumer(activatePromise)
-        }
-      };
-
-      Conductor.Oasis.connect(cardOptions);
-
-    };
-
   })(window);
 
   (function() {
     var requiredUrls = [],
+        requiredCSSUrls = [],
         RSVP = requireModule('rsvp'),
         Promise = RSVP.Promise;
 
     Conductor.require = function(url) {
       requiredUrls.push(url);
+    };
+
+    Conductor.requireCSS = function(url) {
+      requiredCSSUrls.push(url);
     };
 
     Conductor.Card = function(options) {
@@ -1300,7 +1259,7 @@ define("oasis",
 
       var cardOptions = {
         consumers: {
-          xhr: Conductor.xhrConsumer(options, requiredUrls, xhrPromise),
+          xhr: Conductor.xhrConsumer(options, requiredUrls, requiredCSSUrls, xhrPromise),
           render: Conductor.renderConsumer(options, renderPromise),
           metadata: Conductor.metadataConsumer(options, metadataPromise),
           assertion: Conductor.assertionConsumer(assertionPromise),
@@ -1448,21 +1407,35 @@ define("oasis",
     return Conductor.Oasis.Consumer.extend(options);
   };
 
-  Conductor.xhrConsumer = function(options, requiredUrls, promise) {
+  Conductor.xhrConsumer = function(options, requiredUrls, requiredCSSUrls, promise) {
     options = Object.create(options);
 
     options.initialize = function() {
-      var promises = [];
+      var promises = [],
+          port = this.port;
 
-      requiredUrls.forEach(function(url) {
-        var promise = this.port.request('get', url);
-        promises.push(promise);
-        promise.then(function(data) {
-          var script = document.createElement('script');
-          script.innerText = data;
-          document.body.appendChild(script);
-        });
-      }, this);
+      function loadURL(callback) {
+        return function(url) {
+          var promise = port.request('get', url);
+          promises.push(promise);
+          promise.then(callback);
+        };
+      }
+
+      function processJavaScript(data) {
+        var script = document.createElement('script');
+        script.innerText = data;
+        document.body.appendChild(script);
+      }
+
+      function processCSS(data) {
+        var style = document.createElement('style');
+        style.innerText = data;
+        document.head.appendChild(style);
+      }
+
+      requiredUrls.forEach(loadURL(processJavaScript));
+      requiredCSSUrls.forEach(loadURL(processCSS));
 
       Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); });
     };

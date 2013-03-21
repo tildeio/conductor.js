@@ -41,9 +41,11 @@
         });
 
         $('.card iframe').css({
-          width: parseInt(this.renderWidth, 10)+10,
-          height: parseInt(this.renderHeight, 10)+10
+          width: this.renderWidth,
+          height: this.renderHeight
         });
+
+        this.repositionPopover();
       }, this);
 
       this.trigger('change:render');

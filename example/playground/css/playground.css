@@ -18,9 +18,22 @@ h1 {
   margin: 0 auto;
 }
 
+.card-wrapper {
+  padding: 17px;
+  border-radius: 6px;
+  margin: 0 30px;
+  background-image: linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
+background-image: -o-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
+background-image: -moz-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
+background-image: -webkit-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
+background-image: -ms-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
+  box-shadow: 0px 1px 6px rgba(0,0,0,0.8);
+}
+
 .card iframe {
   border: 1px solid rgba(0,0,0, 0.8);
   border-radius: 3px;
+  overflow: hidden;
 }
 
 .popovers > div {
@@ -101,7 +114,7 @@ h1 {
   bottom: 10px;
   left: 10px;
 
-  overflow: scroll;
+  overflow: auto;
 
   border-radius: 2px;
 
@@ -117,7 +130,6 @@ h1 {
 .popover {
   display: none;
   position: absolute;
-  /*width: 200px;*/
 
   padding: 9px;
 
@@ -148,8 +160,11 @@ h1 {
   border-style: solid;
 }
 
+.popover h2 {
+  text-align: center;
+}
+
 .popover table {
-  width: 300px;
   margin: 7px 5px;
 }
 
@@ -171,4 +186,31 @@ h1 {
 
 .popover.render .dimensions input {
   width: 35px;
+}
+
+.popover.report {
+  max-width: 300px;
+}
+
+.popover.report table {
+  margin: 5px -9px;
+}
+
+.popover.report td {
+  font-weight: normal;
+  text-align: left;
+  padding-right: 4px;
+}
+
+.popover.report th {
+  padding-left: 4px;
+  text-align: right;
+}
+
+.popover.report tr:nth-child(odd) {
+  background-color: rgba(100,100,100,0.4);
+}
+
+.popover.report tr:nth-child(even) {
+  background-color: rgba(100,100,100,0.2);
 }

@@ -9,7 +9,7 @@
     initializeCard: function() {
       // Create a new card and save it on the
       // application.
-      var card = this.conductor.load('../cards/render_card.js');
+      var card = this.conductor.load('../cards/render/card.js');
       this.card = card;
 
       // Insert the card into DOM, starting events flowing
@@ -37,6 +37,11 @@
 
         var controlType = $this.attr('class');
         var $popover = $('.popover.'+controlType);
+
+        Playground.currentPopover = {
+          $elem: $this,
+          $popover: $popover
+        };
 
         positionPopover($this, $popover);
         $popover.fadeIn(150);
@@ -87,6 +92,7 @@
       });
 
       this.initializeRender();
+      this.initializeReport();
     },
 
     bindPopoverKeys: function(popover, keys) {
@@ -104,6 +110,14 @@
           Playground.trigger('change:'+popover);
         });
       }, this);
+    },
+
+    repositionPopover: function() {
+      var currentPopover = this.currentPopover;
+
+      if (!currentPopover) { return; }
+
+      positionPopover(currentPopover.$elem, currentPopover.$popover);
     }
   });
 
