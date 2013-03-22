@@ -9,7 +9,7 @@
     initializeCard: function() {
       // Create a new card and save it on the
       // application.
-      var card = this.conductor.load('../cards/render/card.js');
+      var card = this.conductor.load('../cards/metadata/card.js');
       this.card = card;
 
       // Insert the card into DOM, starting events flowing

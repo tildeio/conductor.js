@@ -199,11 +199,11 @@ background-image: -ms-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,2
 .popover.report td {
   font-weight: normal;
   text-align: left;
-  padding-right: 4px;
+  padding-right: 13px;
 }
 
 .popover.report th {
-  padding-left: 4px;
+  padding-left: 13px;
   text-align: right;
 }
 
