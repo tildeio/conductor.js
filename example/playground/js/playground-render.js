@@ -8,8 +8,8 @@
     renderHeight: 100,
     renderIntent: 'thumbnail',
 
-    initializeRender: function() {
-      this.bindPopoverKeys('render', ['width', 'height', 'intent']);
+    bindRenderPopover: function(card) {
+      this.bindPopoverKeys('render', card, ['width', 'height', 'intent']);
 
       var $popover = $('.popover.render');
       $popover.find('#width, #height').on('keydown', function(event) {
@@ -34,15 +34,15 @@
         }
       });
 
-      this.on('change:render', function() {
-        this.card.render(this.renderIntent, {
-          width: this.renderWidth,
-          height: this.renderHeight
+      card.on('change:render', function() {
+        card.render(card.renderIntent, {
+          width: card.renderWidth,
+          height: card.renderHeight
         });
 
         $('.card iframe').css({
-          width: this.renderWidth,
-          height: this.renderHeight
+          width: card.renderWidth,
+          height: card.renderHeight
         });
 
         this.repositionPopover();

@@ -15,6 +15,9 @@
   <body>
     <div class="main">
       <h1>Conductor.js Playground</h1>
+
+      <!-- This is the template that will be cloned and populated for
+           each card on the screen. -->
       <div class="card-wrapper">
         <div class="card"></div>
         <div class="popovers">
@@ -22,6 +25,19 @@
           <div class="report">Report</div>
           <div class="react">React</div>
           <div class="restore">Restore</div>
+        </div>
+      </div>
+
+      <div class="cards"></div>
+
+      <div class="add-card">
+        <button>+</button>
+        <div class="card-selector">
+          Add a Card
+          <select id="card-url">
+            <option value="../cards/render/card.js">Render</option>
+            <option value="../cards/metadata/card.js">Metadata</option>
+          </select>
         </div>
       </div>
     </div>

@@ -12,14 +12,15 @@ window.Playground = {
     // manage all of the cards on the page.
     this.conductor = new Conductor();
 
-    // Create the initial Conductor card and
-    // insert it into the page.
-    this.initializeCard();
-
     // Wiretap the card and configure any events
     // to be displayed in the analytics panel on
     // screen.
-    this.initializeAnalytics();
+    //this.initializeAnalytics();
+
+    this.initializeCards();
+    this.cardTemplate = $('.card-wrapper').hide();
+
+    this.addCard('../cards/render/card.js');
   }
 };
 
@@ -30,7 +31,6 @@ RSVP.EventTarget.mixin(window.Playground);
 $(function() {
   Playground.initialize();
 });
-
 
 (function() {
   "use strict";

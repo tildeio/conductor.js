@@ -9,8 +9,9 @@ html, body {
 }
 
 h1 {
+  font-weight: bold;
   font-size: 48px;
-  margin: 32px 0 82px 0;
+  margin: 32px 0;
 }
 
 .main {
@@ -19,15 +20,26 @@ h1 {
 }
 
 .card-wrapper {
-  padding: 17px;
-  border-radius: 6px;
-  margin: 0 30px;
-  background-image: linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
-background-image: -o-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
-background-image: -moz-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
-background-image: -webkit-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
-background-image: -ms-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,209) 51%, rgb(245,245,245) 92%);
-  box-shadow: 0px 1px 6px rgba(0,0,0,0.8);
+  /* This style is stolen shamelessly from Twitter Bootstrap's navbar styling. */
+  padding: 20px;
+  margin: 14px 0;
+
+  background-color: #fafafa;
+  background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f2f2f2));
+  background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+  background-repeat: repeat-x;
+  border: 1px solid #d4d4d4;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+  *zoom: 1;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
+     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
 }
 
 .card iframe {
@@ -36,7 +48,48 @@ background-image: -ms-linear-gradient(bottom, rgb(189,189,189) 2%, rgb(209,209,2
   overflow: hidden;
 }
 
+.add-card {
+  position: relative;
+  padding: 25px 0;
+
+  -webkit-transition: margin-top 1s ease-out;
+}
+
+.add-card button {
+  position: relative;
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(0,0,0, 0.6);
+}
+
+.add-card button:active {
+  background: rgba(0,0,0, 0.9);
+}
+
+.add-card .card-selector {
+  margin-left: 8px;
+  position: absolute;
+  display: inline-block;
+  opacity: 0;
+  top: 34px;
+
+  -webkit-transition: opacity 0.2s ease-out, top 0.2s ease-out;
+}
+
+.add-card:hover .card-selector {
+  opacity: 1;
+  top: 30px;
+}
+
 .popovers > div {
+  margin-top: 8px;
+
   display: inline-block;
   padding: 4px 8px;
 

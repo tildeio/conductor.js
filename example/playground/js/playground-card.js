@@ -6,28 +6,59 @@
   // Add card management functionality to the
   // Playground app.
   $.extend(Playground, {
-    initializeCard: function() {
+    cards: [],
+
+    popoverInitializers: {},
+    bindPopover: function(type, card) {
+      this['bind'+capitalize(type)+'Popover'](card);
+    },
+
+    addCard: function(url) {
       // Create a new card and save it on the
       // application.
-      var card = this.conductor.load('../cards/metadata/card.js');
-      this.card = card;
+      var card = this.conductor.load(url);
+      card.renderHeight = 100;
+      card.renderWidth = 100;
+      card.renderIntent = 'thumbnail';
 
-      // Insert the card into DOM, starting events flowing
-      // in both directions. Once the card has been activated,
-      // tell it to render itself as a thumbnail.
+      var $card = this.cardTemplate.clone().show();
+      var height = $card.height();
 
-      card.appendTo('.card').then(function() {
+      $card.css({
+        height: 0,
+        opacity: 0,
+        marginTop: 0,
+        marginBottom: 0,
+        paddingTop: 0,
+        paddingBottom: 0
+      }).appendTo('.cards').animate({
+        height: 176,
+        opacity: 1,
+        marginTop: 14,
+        marginBottom: 14,
+        paddingTop: 20,
+        paddingBottom: 20
+      }, 700).data('card', card);
+
+      card.appendTo($card.find('.card')[0]).then(function() {
         card.render('thumbnail', {
           width: 100,
           height: 100
         });
       });
 
-      this.initializePopovers();
+      this.initializePopovers($card);
     },
 
-    initializePopovers: function() {
-      $('.popovers > div').on('click', function() {
+    initializeCards: function() {
+      $('.add-card button').on('click', function() {
+        var url = $('.card-selector select').val();
+        Playground.addCard(url);
+      });
+    },
+
+    initializePopovers: function($card) {
+      $card.find('.popovers > div').on('click', function() {
         // If there is already a popover open, hide it.
         if (Playground.hidePopover) {
           Playground.hidePopover();
@@ -38,13 +69,17 @@
         var controlType = $this.attr('class');
         var $popover = $('.popover.'+controlType);
 
+        var card = $this.closest('.card-wrapper').data('card');
+
+        Playground.bindPopover(controlType, card);
+
         Playground.currentPopover = {
           $elem: $this,
           $popover: $popover
         };
 
         positionPopover($this, $popover);
-        $popover.fadeIn(150);
+        $popover.show();
         $this.addClass('active');
 
         function handleEvent(event) {
@@ -67,7 +102,7 @@
         }
 
         function hidePopover() {
-          $popover.fadeOut(150);
+          $popover.hide();
           $this.removeClass('active');
 
           $('body').off('click', handleEvent);
@@ -91,23 +126,23 @@
         return false;
       });
 
-      this.initializeRender();
-      this.initializeReport();
+      //this.initializeRender();
+      //this.initializeReport();
     },
 
-    bindPopoverKeys: function(popover, keys) {
+    bindPopoverKeys: function(popover, card, keys) {
       keys.forEach(function(key) {
         var $input = $('.popover.'+popover).find('#'+key);
-        var appKey = popover + capitalize(key);
+        key = popover + capitalize(key);
 
-        if (this[appKey] !== undefined) {
-          $input.val(this[appKey]);
+        if (card[key] !== undefined) {
+          $input.val(card[key]);
         }
 
         $input.on('change keydown keyup', function() {
-          Playground[appKey] = $(this).val();
-          Playground.trigger('change:'+appKey);
-          Playground.trigger('change:'+popover);
+          card[key] = $(this).val();
+          card.trigger('change:'+key);
+          card.trigger('change:'+popover);
         });
       }, this);
     },
