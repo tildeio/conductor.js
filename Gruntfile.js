@@ -6,9 +6,6 @@ module.exports = function(grunt) {
   // a new build.
   this.registerTask('default', ['build']);
 
-  // Run the QUnit tests in a headless PhantomJS instance.
-  this.registerTask('test', "Runs the tests in a headless PhantomJS instance", ['connect', 'qunit']);
-
   // Build a new version of the library
   this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
 
@@ -30,16 +27,6 @@ module.exports = function(grunt) {
     watch: {
       files: ['lib/**', 'vendor/*', 'test/tests/*'],
       tasks: ['build', 'concat:tests']
-    },
-
-    qunit: {
-      all: {
-        options: {
-          urls: [
-            'http://localhost:8000/test/index.html'
-          ]
-        }
-      }
     },
 
     transpile: {
@@ -87,7 +74,6 @@ module.exports = function(grunt) {
   // Load tasks from npm
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
