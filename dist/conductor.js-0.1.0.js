@@ -1331,10 +1331,10 @@ define("oasis",
       });
     },
 
-    updateData: function(data) {
+    updateData: function(bucket, data) {
       var sandbox = this.sandbox;
       sandbox.activatePromise.then(function() {
-        sandbox.dataPort.send('updateData', data);
+        sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
       });
     },
 
@@ -1381,7 +1381,7 @@ define("oasis",
         },
 
         updateData: function(data) {
-          card.updateData(data);
+          card.updateData(data.bucket, data.data);
         }
       }
     });
