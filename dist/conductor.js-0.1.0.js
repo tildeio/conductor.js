@@ -1363,6 +1363,10 @@ define("oasis",
           service.send('ok', { bool: bool, message: message });
         };
 
+        window.start = function() {
+          service.send('start');
+        };
+
         promise.resolve();
       }
     });
@@ -1475,8 +1479,11 @@ define("oasis",
   Conductor.AssertionService = Conductor.Oasis.Service.extend({
     events: {
       ok: function(data) {
-        start();
         ok(data.bool, data.message);
+      },
+
+      start: function() {
+        start();
       }
     }
   });

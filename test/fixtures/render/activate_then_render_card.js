@@ -8,6 +8,7 @@ Conductor.card({
   },
   render: function(intent) {
     ok(activated, "The activate hook was already called");
+    start();
   }
 });
 

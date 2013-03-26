@@ -24,8 +24,6 @@ test("A card can receive rendering dimensions", function() {
   var card = conductor.load('/test/fixtures/render/render_dimensions_card.js');
 
   stop();
-  stop();
-  stop();
 
   card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail', { width: 100, height: 100 });

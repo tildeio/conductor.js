@@ -3,6 +3,7 @@ Conductor.require("/test/fixtures/alert.js");
 var card = Conductor.card({
   activate: function() {
     ok(true, "Card was activated");
+    start();
   },
 
   events: {

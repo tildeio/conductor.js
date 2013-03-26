@@ -34,8 +34,7 @@ test("cards can require dependencies", function() {
   var card = conductor.load("/test/fixtures/load_card.js");
   card.appendTo(qunitFixture);
 
-  // Wait for two assertions from cards
-  stop();
+  // Wait for card
   stop();
 
   equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
