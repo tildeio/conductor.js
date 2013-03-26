@@ -1,12 +1,15 @@
 (function() {
 
-var conductor;
+var conductor, card;
 
 module("Metadata Service", {
   setup: function() {
     conductor = new Conductor({
       testing: true
     });
+
+    card = conductor.load('/test/fixtures/metadata/multi_metadata_card.js');
+    card.appendTo('#qunit-fixture');
   },
 
   teardown: function() {
@@ -14,31 +17,22 @@ module("Metadata Service", {
   }
 });
 
-test("A card can return a title", function() {
-  var card = conductor.load('/test/fixtures/metadata/multi_metadata_card.js');
-
-  stop();
-
-  card.appendTo('#qunit-fixture');
-  card.then(function() {
+test("A card can return metadata for some type", function() {
+  card.then(async(function() {
     return card.metadataFor('document');
-  }).then(function(documentMetadata) {
-    start();
-
+  })).then(async(function(documentMetadata) {
     equal(documentMetadata.title, "Rails is omakase");
-  });
+  }));
+});
 
-  stop();
-
-  card.then(function() {
+test("A card carn return all of its metadata at once", function() {
+  card.then(async(function() {
     return card.metadataFor('*');
-  }).then(function(metadata) {
-    start();
-
+  })).then(async(function(metadata) {
     equal(metadata['document:title'], "Rails is omakase");
     equal(metadata['image:width'], 100);
     equal(metadata['image:height'], 100);
-  });
+  }));
 });
 
 })();
