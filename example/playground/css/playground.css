@@ -17,9 +17,12 @@ h1 {
 .main {
   width: 760px;
   margin: 0 auto;
+  padding-bottom: 500px;
 }
 
 .card-wrapper {
+  position: relative;
+
   /* This style is stolen shamelessly from Twitter Bootstrap's navbar styling. */
   padding: 20px;
   margin: 14px 0;
@@ -42,10 +45,37 @@ h1 {
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
 }
 
+.card-wrapper button {
+  position: absolute;
+  opacity: 0;
+  top: 12px;
+  right: 12px;
+
+  -webkit-transition: opacity 0.2s ease-out;
+}
+
+.card-wrapper:hover button {
+  opacity: 1;
+}
+
 .card iframe {
+  width: 100px;
+  height: 100px;
   border: 1px solid rgba(0,0,0, 0.8);
   border-radius: 3px;
   overflow: hidden;
+}
+
+button {
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 14px;
+  background: rgba(0,0,0, 0.6);
+  width: 28px;
+  height: 28px;
 }
 
 .add-card {
@@ -57,15 +87,6 @@ h1 {
 
 .add-card button {
   position: relative;
-  color: white;
-  border: none;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  border-radius: 14px;
-  background: rgba(0,0,0, 0.6);
 }
 
 .add-card button:active {
@@ -167,11 +188,10 @@ h1 {
   bottom: 10px;
   left: 10px;
 
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   border-radius: 2px;
-
-  /*background-color: white;*/
 
   font-family: "Menlo", Consolas, monaco, monospace;)
 }
@@ -185,6 +205,7 @@ h1 {
   position: absolute;
 
   padding: 9px;
+  margin-bottom: 18px;
 
   color: #fff;
   background-color: rgba(0,0,0, 0.9);
@@ -266,4 +287,10 @@ h1 {
 
 .popover.report tr:nth-child(even) {
   background-color: rgba(100,100,100,0.2);
+}
+
+.popover.report td.empty {
+  font-style: italic;
+  text-align: center;
+  padding: 6px 18px;
 }

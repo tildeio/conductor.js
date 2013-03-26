@@ -8,9 +8,18 @@
   $.extend(Playground, {
     cards: [],
 
-    popoverInitializers: {},
-    bindPopover: function(type, card) {
-      this['bind'+capitalize(type)+'Popover'](card);
+    bindPopover: function(type, card, $card) {
+      var key = 'bind'+capitalize(type)+'Popover';
+      if (this[key]) {
+        this[key](card, $card);
+      }
+    },
+
+    unbindPopover: function(type, card) {
+      var key = 'unbind'+capitalize(type)+'Popover';
+      if (this[key]) {
+        this[key](card);
+      }
     },
 
     addCard: function(url) {
@@ -32,13 +41,15 @@
         paddingTop: 0,
         paddingBottom: 0
       }).appendTo('.cards').animate({
-        height: 176,
+        height: 133,
         opacity: 1,
         marginTop: 14,
         marginBottom: 14,
         paddingTop: 20,
         paddingBottom: 20
-      }, 700).data('card', card);
+      }, 500, function() {
+        $(this).css('height', '');
+      }).data('card', card);
 
       card.appendTo($card.find('.card')[0]).then(function() {
         card.render('thumbnail', {
@@ -47,6 +58,20 @@
         });
       });
 
+      $card.find('button').on('click', function() {
+        $card.animate({
+          opacity: 0,
+          height: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+          marginTop: 0,
+          marginBottom: 0
+        }, 500, function() {
+          $card.remove();
+        });
+      });
+
+      this.wiretapCard(card);
       this.initializePopovers($card);
     },
 
@@ -71,7 +96,7 @@
 
         var card = $this.closest('.card-wrapper').data('card');
 
-        Playground.bindPopover(controlType, card);
+        Playground.bindPopover(controlType, card, $card);
 
         Playground.currentPopover = {
           $elem: $this,
@@ -103,6 +128,7 @@
 
         function hidePopover() {
           $popover.hide();
+          Playground.unbindPopover(controlType, card);
           $this.removeClass('active');
 
           $('body').off('click', handleEvent);
@@ -144,6 +170,15 @@
           card.trigger('change:'+key);
           card.trigger('change:'+popover);
         });
+      }, this);
+    },
+
+    unbindPopoverKeys: function(popover, card, keys) {
+      keys.forEach(function(key) {
+        var $input = $('.popover.'+popover).find('#'+key);
+        key = popover + capitalize(key);
+
+        $input.off('change keydown keyup');
       }, this);
     },
 

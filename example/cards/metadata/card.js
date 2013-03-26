@@ -1,5 +1,7 @@
 Conductor.card({
-  render: function() { },
+  render: function() {
+    document.write("This is the metadata card. There are many like it, but this one is mine.");
+  },
   metadata: {
     document: function(promise) {
       promise.resolve({

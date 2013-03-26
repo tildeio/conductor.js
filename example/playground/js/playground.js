@@ -18,6 +18,8 @@ window.Playground = {
     //this.initializeAnalytics();
 
     this.initializeCards();
+    this.initializeAnalytics();
+
     this.cardTemplate = $('.card-wrapper').hide();
 
     this.addCard('../cards/render/card.js');

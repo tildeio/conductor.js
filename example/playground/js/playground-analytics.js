@@ -6,6 +6,15 @@
   // Add analytics functionality to the
   // Playground app.
   $.extend(Playground, {
+    wiretapCard: function(card) {
+      card.wiretap(function(service, event) {
+        var direction = (event.direction === "sent" ? "→" : "←");
+        var data = JSON.stringify(event.data) || "";
+
+        this.print("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, data.lightGrey));
+      }, this);
+    },
+
     initializeAnalytics: function() {
       var $analytics = $('.analytics');
 
@@ -14,14 +23,6 @@
       });
 
       this.$analytics = $analytics;
-
-
-      this.card.wiretap(function(service, event) {
-        var direction = (event.direction === "sent" ? "→" : "←");
-        var data = JSON.stringify(event.data) || "";
-
-        this.print("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, data.lightGrey));
-      }, this);
 
       this.print("✔ Analytics monitoring active".green);
       this.print("");

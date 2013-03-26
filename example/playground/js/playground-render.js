@@ -8,7 +8,11 @@
     renderHeight: 100,
     renderIntent: 'thumbnail',
 
-    bindRenderPopover: function(card) {
+    unbindRenderPopover: function(card) {
+      this.unbindPopoverKeys('render', card, ['width', 'height', 'intent']);
+    },
+
+    bindRenderPopover: function(card, $card) {
       this.bindPopoverKeys('render', card, ['width', 'height', 'intent']);
 
       var $popover = $('.popover.render');
@@ -40,7 +44,7 @@
           height: card.renderHeight
         });
 
-        $('.card iframe').css({
+        $card.find('iframe').css({
           width: card.renderWidth,
           height: card.renderHeight
         });
