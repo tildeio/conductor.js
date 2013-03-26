@@ -294,3 +294,8 @@ button {
   text-align: center;
   padding: 6px 18px;
 }
+
+.credits {
+  text-align: center;
+  margin: 0 auto;
+}
