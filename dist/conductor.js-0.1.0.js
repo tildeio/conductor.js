@@ -193,13 +193,13 @@ define("rsvp",
           value, error, succeeded, failed;
 
       if (hasCallback) {
-        try {
+        // try {
           value = callback(event.detail);
           succeeded = true;
-        } catch(e) {
-          failed = true;
-          error = e;
-        }
+        // } catch(e) {
+        //   failed = true;
+        //   error = e;
+        // }
       } else {
         value = event.detail;
         succeeded = true;
@@ -1182,6 +1182,8 @@ define("oasis",
   (function(globals) {
     var Conductor = globals.Conductor = function(options) {
       this.options = options || {};
+      this.data = {};
+      this.cards = {};
     };
 
     Conductor.Oasis = requireModule('oasis');
@@ -1191,8 +1193,48 @@ define("oasis",
         RSVP = Conductor.Oasis.RSVP,
         Promise = RSVP.Promise;
 
+    function coerceId(id) {
+      return id + '';
+    }
+
     Conductor.prototype = {
-      load: function(url, data) {
+      loadData: function(url, id, data) {
+        id = coerceId(id);
+
+        this.data[url] = this.data[url] || {};
+        this.data[url][id] = data;
+
+        var cards = this.cards[url] && this.cards[url][id];
+
+        if (!cards) { return; }
+
+        cards.forEach(function(card) {
+          card.updateData('*', data);
+        });
+      },
+
+      updateData: function(card, bucket, data) {
+        var url = card.url,
+            id = card.id;
+
+        this.data[url][id][bucket] = data;
+
+        var cards = this.cards[url][id].slice(),
+            index = cards.indexOf(card);
+
+        cards.splice(index, 1);
+
+        cards.forEach(function(card) {
+          card.updateData(bucket, data);
+        });
+      },
+
+      load: function(url, id) {
+        id = coerceId(id);
+
+        var datas = this.data[url],
+            data = datas && datas[id];
+
         var capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
 
         if (this.options.testing) {
@@ -1218,7 +1260,19 @@ define("oasis",
 
         sandbox.start();
 
-        return new Conductor.CardReference(sandbox);
+        var card = new Conductor.CardReference(sandbox);
+
+        this.cards[url] = this.cards[url] || {};
+        var cards = this.cards[url][id] = this.cards[url][id] || [];
+        cards.push(card);
+
+        card.url = url;
+        card.id = id;
+
+        sandbox.conductor = this;
+        sandbox.card = card;
+
+        return card;
       }
     };
 
@@ -1239,6 +1293,10 @@ define("oasis",
     };
 
     Conductor.Card = function(options) {
+      for (var prop in options) {
+        this[prop] = options[prop];
+      }
+
       this.options = options = options || {};
 
       var metadataPromise = this.promise(function(data) {
@@ -1259,11 +1317,11 @@ define("oasis",
 
       var cardOptions = {
         consumers: {
-          xhr: Conductor.xhrConsumer(options, requiredUrls, requiredCSSUrls, xhrPromise),
-          render: Conductor.renderConsumer(options, renderPromise),
-          metadata: Conductor.metadataConsumer(options, metadataPromise),
-          assertion: Conductor.assertionConsumer(assertionPromise),
-          data: Conductor.dataConsumer(dataPromise, options),
+          xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),
+          render: Conductor.renderConsumer(renderPromise, this),
+          metadata: Conductor.metadataConsumer(metadataPromise, this),
+          assertion: Conductor.assertionConsumer(assertionPromise, this),
+          data: Conductor.dataConsumer(dataPromise, this),
           lifecycle: Conductor.lifecycleConsumer(activatePromise)
         }
       };
@@ -1278,11 +1336,15 @@ define("oasis",
         return promise;
       },
 
+      updateData: function(name, hash) {
+        Conductor.Oasis.portFor('data').send('updateData', { bucket: name, object: hash });
+      },
+
       activateWhen: function(dataPromise, otherPromises) {
-        var options = this.options;
+        var card = this;
 
         return RSVP.all([dataPromise].concat(otherPromises)).then(function(resolutions) {
-          if (options.activate) { options.activate(resolutions[0]); }
+          if (card.activate) { card.activate(resolutions[0]); }
         });
       }
     };
@@ -1309,6 +1371,10 @@ define("oasis",
   CardReference.prototype = {
     metadataFor: function(name) {
       return this.sandbox.metadataPort.request('metadataFor', name);
+    },
+
+    instruct: function(info) {
+      return this.sandbox.assertionPort.send('instruct', info);
     },
 
     appendTo: function(parent) {
@@ -1354,7 +1420,7 @@ define("oasis",
   })();
 
 
-  Conductor.assertionConsumer = function(promise) {
+  Conductor.assertionConsumer = function(promise, card) {
     return Conductor.Oasis.Consumer.extend({
       initialize: function() {
         var service = this;
@@ -1368,25 +1434,37 @@ define("oasis",
         };
 
         promise.resolve();
-      }
-    });
-  };
+      },
 
-
-  Conductor.dataConsumer = function(promise, card) {
-    return Conductor.Oasis.Consumer.extend({
       events: {
-        initializeData: function(data) {
-          promise.resolve(data);
-        },
-
-        updateData: function(data) {
-          card.updateData(data.bucket, data.data);
+        instruct: function(info) {
+          card.instruct(info);
         }
       }
     });
   };
+  Conductor.dataConsumer = function(promise, card) {
+    return Conductor.Oasis.Consumer.extend({
+      events: {
+        initializeData: function(data) {
+          card.data = data;
+          promise.resolve(data);
+        },
 
+        updateData: function(data) {
+          if (data.bucket === '*') {
+            card.data = data.data;
+          } else {
+            card.data[data.bucket] = data.data;
+          }
+
+          if (card.didUpdateData) {
+            card.didUpdateData(data.bucket, data.data);
+          }
+        }
+      }
+    });
+  };
   Conductor.lifecycleConsumer = function(promise) {
     return Conductor.Oasis.Consumer.extend({
       initialize: function() {
@@ -1399,14 +1477,16 @@ define("oasis",
     });
   };
 
-  Conductor.metadataConsumer = function(options) {
+  Conductor.metadataConsumer = function(promise, card) {
+    var options = card.options;
+
     options.requests.metadataFor = function(resolver, name) {
       if (name === '*') {
         var promises = [], names = [], promise;
 
         for (var metadataName in options.metadata) {
           promise = new Conductor.Oasis.RSVP.Promise();
-          options.metadata[metadataName].call(this, promise);
+          card.metadata[metadataName].call(card, promise);
           promises.push(promise);
           names.push(metadataName);
         }
@@ -1425,23 +1505,25 @@ define("oasis",
         });
 
       } else {
-        options.metadata[name].call(this, resolver);
+        card.metadata[name].call(card, resolver);
       }
     };
 
     return Conductor.Oasis.Consumer.extend(options);
   };
 
-  Conductor.renderConsumer = function(options, promise) {
+  Conductor.renderConsumer = function(promise, card) {
+    var options = Object.create(card.options);
+
     options.events.render = function(args) {
-      options.render.apply(options, args);
+      card.render.apply(card, args);
     };
 
     return Conductor.Oasis.Consumer.extend(options);
   };
 
-  Conductor.xhrConsumer = function(options, requiredUrls, requiredCSSUrls, promise) {
-    options = Object.create(options);
+  Conductor.xhrConsumer = function(requiredUrls, requiredCSSUrls, promise, card) {
+    var options = Object.create(card.options);
 
     options.initialize = function() {
       var promises = [],
@@ -1477,6 +1559,10 @@ define("oasis",
   };
 
   Conductor.AssertionService = Conductor.Oasis.Service.extend({
+    initialize: function(port) {
+      this.sandbox.assertionPort = port;
+    },
+
     events: {
       ok: function(data) {
         ok(data.bool, data.message);
@@ -1494,6 +1580,12 @@ define("oasis",
       this.send('initializeData', data);
 
       this.sandbox.dataPort = port;
+    },
+
+    events: {
+      updateData: function(event) {
+        this.sandbox.conductor.updateData(this.sandbox.card, event.bucket, event.object);
+      }
     }
   });
 

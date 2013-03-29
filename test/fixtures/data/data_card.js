@@ -6,9 +6,9 @@ Conductor.card({
     ok(data.one === 23, "one came through");
   },
 
-  updateData: function(bucket, data) {
-    ok(bucket === 'all');
-    ok(data.marco === 'polo', "marco polo came through");
+  didUpdateData: function(bucket, data) {
+    ok(bucket === '*', "The bucket is *");
+    ok(data.all.marco === 'polo', "marco polo came through");
     start();
   }
 });
