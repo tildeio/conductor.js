@@ -11,7 +11,7 @@
         var direction = (event.direction === "sent" ? "→" : "←");
         var data = JSON.stringify(event.data) || "";
 
-        this.print("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, data.lightGrey));
+        this.print("%@ %@ %@ %@".fmt(padLeft(service, 9).blue, direction.teal, pad(event.type, 14).magenta, htmlEscape(data).lightGrey));
       }, this);
     },
 
@@ -94,6 +94,10 @@
         minute = zeroPad(date.getMinutes());
 
     return "%@-%@-%@ %@:%@ ".fmt(year, month, day, hour, minute);
+  }
+
+  function htmlEscape(str) {
+    return str.replace(/</g, '&lt;');
   }
 
 })();
