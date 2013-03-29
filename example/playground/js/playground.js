@@ -22,7 +22,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/render/card.js');
+    this.addCard('../cards/magazine/card.js');
   }
 };
 

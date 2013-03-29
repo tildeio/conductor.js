@@ -4,10 +4,6 @@
   "use strict";
 
   $.extend(Playground, {
-    renderWidth: 100,
-    renderHeight: 100,
-    renderIntent: 'thumbnail',
-
     unbindRenderPopover: function(card) {
       this.unbindPopoverKeys('render', card, ['width', 'height', 'intent']);
     },

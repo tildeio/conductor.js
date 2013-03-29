@@ -27,7 +27,7 @@
       // application.
       var card = this.conductor.load(url);
       card.renderHeight = 100;
-      card.renderWidth = 100;
+      card.renderWidth = 300;
       card.renderIntent = 'thumbnail';
 
       var $card = this.cardTemplate.clone().show();
@@ -52,6 +52,8 @@
       }).data('card', card);
 
       card.appendTo($card.find('.card')[0]).then(function() {
+        card.sandbox.el.seamless = true;
+
         card.render('thumbnail', {
           width: 100,
           height: 100

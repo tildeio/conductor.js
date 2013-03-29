@@ -1,0 +1,12 @@
+body {
+  font-family: 'Merriweather Sans', sans-serif;
+}
+
+.small img {
+  height: 100%;
+  float: left;
+}
+
+.small em {
+  color: #999;
+}

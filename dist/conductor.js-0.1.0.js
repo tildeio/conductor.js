@@ -1457,7 +1457,7 @@ define("oasis",
 
       function processJavaScript(data) {
         var script = document.createElement('script');
-        script.innerText = data;
+        script.textContent = data;
         document.body.appendChild(script);
       }
 
