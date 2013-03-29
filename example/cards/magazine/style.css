@@ -1,12 +1,23 @@
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Merriweather Sans', sans-serif;
 }
 
-.small img {
+.small img, .large img {
   height: 100%;
   float: left;
+  margin-right: 8px;
 }
 
-.small em {
+em {
   color: #999;
+}
+
+.lede {
+  font-size: 18px;
+  font-style: italic;
 }

@@ -40,16 +40,21 @@
           height: card.renderHeight
         });
 
-        $card.find('iframe').css({
-          width: card.renderWidth,
-          height: card.renderHeight
-        });
+        resizeIframe();
 
         this.repositionPopover();
       }, this);
 
-      this.trigger('change:render');
+      card.trigger('change:render');
+
+      function resizeIframe() {
+        $card.find('iframe').css({
+          width: card.renderWidth,
+          height: card.renderHeight
+        });
+      }
     }
+
   });
 
 })();

@@ -20,6 +20,10 @@ window.Playground = {
     this.initializeCards();
     this.initializeAnalytics();
 
+    $('#show-borders').on('change', function() {
+      $('body').toggleClass('show-borders', $(this).val());
+    });
+
     this.cardTemplate = $('.card-wrapper').hide();
 
     this.addCard('../cards/magazine/card.js');

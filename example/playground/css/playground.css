@@ -53,14 +53,12 @@ h1 {
   -webkit-transition: opacity 0.2s ease-out;
 }
 
-.card-wrapper:hover button {
-  opacity: 1;
+.show-borders .card-wrapper iframe {
+  border: 1px solid rgba(0,0,0,0.3);
 }
 
-.card iframe {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
+.card-wrapper:hover button {
+  opacity: 1;
 }
 
 button {

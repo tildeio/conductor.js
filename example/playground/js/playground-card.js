@@ -26,8 +26,8 @@
       // Create a new card and save it on the
       // application.
       var card = this.conductor.load(url);
-      card.renderHeight = 100;
-      card.renderWidth = 300;
+      card.renderHeight = 200;
+      card.renderWidth = 200;
       card.renderIntent = 'thumbnail';
 
       var $card = this.cardTemplate.clone().show();
@@ -52,11 +52,16 @@
       }).data('card', card);
 
       card.appendTo($card.find('.card')[0]).then(function() {
-        card.sandbox.el.seamless = true;
+        //card.sandbox.el.seamless = true;
 
         card.render('thumbnail', {
-          width: 100,
-          height: 100
+          width: 200,
+          height: 200
+        });
+
+        $card.find('iframe').css({
+          width: 200,
+          height: 200
         });
       });
 
