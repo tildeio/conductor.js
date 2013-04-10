@@ -1650,6 +1650,6 @@ define("oasis",
     render: Conductor.RenderService,
     lifecycle: Conductor.LifecycleService,
     data: Conductor.DataService
-  }
+  };
 
 })();

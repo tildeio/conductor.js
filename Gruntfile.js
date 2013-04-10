@@ -7,7 +7,7 @@ module.exports = function(grunt) {
   this.registerTask('default', ['build']);
 
   // Build a new version of the library
-  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
+  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist']);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
   this.registerTask('server', ['concat:tests', 'build', 'connect', 'watch']);
@@ -68,6 +68,13 @@ module.exports = function(grunt) {
         src: ['lib/loader.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'tmp/conductor.browser.js'],
         dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
       }
+    },
+
+    jshint: {
+      options: {
+        jshintrc: './.jshintrc'
+      },
+      all: ['Gruntfile.js', 'lib/**/*.js', 'test/tests/**/*.js']
     }
   });
 
@@ -76,6 +83,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
   // Multi-task for es6-module-transpiler
   this.registerMultiTask('transpile', "Transpile ES6 modules into AMD, CJS or globals", function() {
