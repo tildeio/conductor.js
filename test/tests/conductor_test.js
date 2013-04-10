@@ -50,5 +50,26 @@ test("cards can require CSS dependencies", function() {
   stop();
 });
 
+test("instances can add custom services", function() {
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      CustomService = Conductor.Oasis.Service.extend({
+        events: {
+          result: function (result) {
+            start();
+            equal(result,"success", "Custom Service received message");
+          }
+        }
+      }),
+      card;
+
+  conductor.services.custom = CustomService;
+  card = conductor.load(  "/test/fixtures/custom_consumer_card.js",
+                          1,
+                          { capabilities: ['custom'] });
+
+  card.appendTo(qunitFixture);
+});
 
 })();

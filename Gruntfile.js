@@ -55,12 +55,12 @@ module.exports = function(grunt) {
 
     concat: {
       conductor: {
-        src: ['lib/conductor.js', 'lib/conductor/*.js', 'lib/consumers/*.js', 'lib/services/*.js'],
+        src: ['lib/conductor.js', 'lib/conductor/*.js', 'lib/consumers/*.js', 'lib/services/*.js', 'lib/services.js'],
         dest: 'tmp/conductor.js'
       },
 
       tests: {
-        src: ['test/test_helpers.js', 'test/tests/*_test.js'],
+        src: ['test/test_helpers.js', 'test/tests/**/*_test.js'],
         dest: 'tmp/conductor_tests.js'
       },
 

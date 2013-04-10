@@ -193,13 +193,13 @@ define("rsvp",
           value, error, succeeded, failed;
 
       if (hasCallback) {
-        // try {
+        try {
           value = callback(event.detail);
           succeeded = true;
-        // } catch(e) {
-        //   failed = true;
-        //   error = e;
-        // }
+        } catch(e) {
+          failed = true;
+          error = e;
+        }
       } else {
         value = event.detail;
         succeeded = true;
@@ -1176,7 +1176,6 @@ define("oasis",
 
     return Oasis;
   });
-
 (function() {
   "use strict";
   (function(globals) {
@@ -1184,6 +1183,7 @@ define("oasis",
       this.options = options || {};
       this.data = {};
       this.cards = {};
+      this.services = Object.create(Conductor.services);
     };
 
     Conductor.Oasis = requireModule('oasis');
@@ -1229,14 +1229,19 @@ define("oasis",
         });
       },
 
-      load: function(url, id) {
+      load: function(url, id, options) {
         id = coerceId(id);
 
         var datas = this.data[url],
-            data = datas && datas[id];
+            data = datas && datas[id],
+            _options = options || {},
+            extraCapabilities = _options.capabilities || [];
 
         var capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
 
+        capabilities.push.apply(capabilities, extraCapabilities);
+
+        // TODO: this should be a custom service provided in tests
         if (this.options.testing) {
           capabilities.push('assertion');
         }
@@ -1245,14 +1250,7 @@ define("oasis",
           url: url,
           capabilities: capabilities,
           oasisURL: '/dist/conductor.js-0.1.0.js',
-          services: {
-            xhr: Conductor.XHRService,
-            metadata: Conductor.MetadataService,
-            assertion: Conductor.AssertionService,
-            render: Conductor.RenderService,
-            lifecycle: Conductor.LifecycleService,
-            data: Conductor.DataService
-          }
+          services: this.services
         });
 
         sandbox.data = data;
@@ -1284,6 +1282,15 @@ define("oasis",
         RSVP = requireModule('rsvp'),
         Promise = RSVP.Promise;
 
+    function extend(a, b) {
+      for (var key in b) {
+        if (b.hasOwnProperty(key)) {
+          a[key] = b[key];
+        }
+      }
+      return a;
+    }
+
     Conductor.require = function(url) {
       requiredUrls.push(url);
     };
@@ -1297,6 +1304,7 @@ define("oasis",
         this[prop] = options[prop];
       }
 
+      this.consumers = Object.create(Conductor.Oasis.consumers);
       this.options = options = options || {};
 
       var metadataPromise = this.promise(function(data) {
@@ -1315,15 +1323,21 @@ define("oasis",
 
       var activatePromise = this.activateWhen(dataPromise, [ xhrPromise ]);
 
+      for (var capability in options.consumers) {
+        var factory = options.consumers[capability];
+        options.consumers[capability] = factory(this);
+      }
+
       var cardOptions = {
-        consumers: {
+        consumers: extend({
           xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),
           render: Conductor.renderConsumer(renderPromise, this),
           metadata: Conductor.metadataConsumer(metadataPromise, this),
+          // TODO: this should be a custom consumer provided in tests
           assertion: Conductor.assertionConsumer(assertionPromise, this),
           data: Conductor.dataConsumer(dataPromise, this),
           lifecycle: Conductor.lifecycleConsumer(activatePromise)
-        }
+        }, options.consumers)
       };
 
       Conductor.Oasis.connect(cardOptions);
@@ -1625,5 +1639,17 @@ define("oasis",
       }
     }
   });
+
+  /**
+    Default Conductor services provided to every conductor instance.
+  */
+  Conductor.services = {
+    xhr: Conductor.XHRService,
+    metadata: Conductor.MetadataService,
+    assertion: Conductor.AssertionService,
+    render: Conductor.RenderService,
+    lifecycle: Conductor.LifecycleService,
+    data: Conductor.DataService
+  }
 
 })();
