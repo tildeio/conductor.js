@@ -9,8 +9,11 @@ module.exports = function(grunt) {
   // Build a new version of the library
   this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist']);
 
+  // Build a dev version of the library
+  this.registerTask('build-dev', "Builds a development version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
+
   // Run a server. This is ideal for running the QUnit tests in the browser.
-  this.registerTask('server', ['concat:tests', 'build', 'connect', 'watch']);
+  this.registerTask('server', ['concat:tests', 'build-dev', 'connect', 'watch']);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
