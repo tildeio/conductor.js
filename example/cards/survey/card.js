@@ -1,8 +1,10 @@
+/*global Handlebars*/
+
 Conductor.require('/example/libs/jquery-1.9.1.js');
 Conductor.require('/example/libs/handlebars-1.0.0-rc.3.js');
 
 var defaultTemplate = '<div><form>{{#each grades}}<input type="radio" name="survey" value="{{this}}">{{this}}</br>{{/each}}<input id="vote" type="button" value="Vote"></div>';
-var voteResultTemplate = 'Your rating: {{vote}} <button id="changeVote">Change</button></div>'
+var voteResultTemplate = 'Your rating: {{vote}} <button id="changeVote">Change</button></div>';
 
 Conductor.card({
   consumers: {
@@ -35,7 +37,7 @@ Conductor.card({
           self.render('takeSurvey');
         });
         break;
-case "thumbnail":
+      case "thumbnail":
       case "takeSurvey":
         $('body').html( defaultTemplate( this ) );
         // See how we can do this with Handlebars

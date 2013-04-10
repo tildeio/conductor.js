@@ -4,7 +4,7 @@
   var CardData = {
     "../cards/video/card.js": {
       '1': { videoId: '4d8ZDSyFS2g' },
-      '2': { videoId: '6kMWLYYcAYw' },
+      '2': { videoId: 'dJOn3jG5tUk' },
       '3': { videoId: 'EquPUW83D-Q' }
     }
   }
