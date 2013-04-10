@@ -22,10 +22,14 @@
       }
     },
 
-    addCard: function(url) {
+    addCard: function(url, id, capabilities) {
+      Playground.loadData(url, id);
+
       // Create a new card and save it on the
       // application.
-      var card = this.conductor.load(url);
+      var card = this.conductor.load(
+        url, id, { capabilities: capabilities });
+
       card.renderHeight = 200;
       card.renderWidth = 200;
       card.renderIntent = 'thumbnail';
@@ -84,8 +88,23 @@
 
     initializeCards: function() {
       $('.add-card button').on('click', function() {
-        var url = $('.card-selector select').val();
-        Playground.addCard(url);
+        var url = $('#card-url').val(),
+            cardId = $('#card-id').val(),
+            capability = $('#card-url option:selected').data('capabilities'),
+            capabilities = [];
+
+        if (capability) {
+          capabilities.push(capability);
+        }
+
+        Playground.addCard(url, cardId, capabilities);
+      });
+
+      $('.card-selector').on('change', function () {
+        var showIds = !!$(this).find('#card-url option:selected').data('has-ids'),
+            idSelector = $('.card-id-selector');
+
+        showIds ? idSelector.show() : idSelector.hide();
       });
     },
 

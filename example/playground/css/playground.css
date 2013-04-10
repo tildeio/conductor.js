@@ -103,6 +103,10 @@ button {
   top: 30px;
 }
 
+.add-card .card-id-selector {
+  display: none;
+}
+
 .popovers > div {
   margin-top: 8px;
 

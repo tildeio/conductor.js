@@ -9,8 +9,10 @@
     <script src="../../dist/conductor.js-0.1.0.js"></script>
     <script src="js/playground.js"></script>
     <script src="js/playground-card.js"></script>
+    <script src="js/playground-data.js"></script>
     <script src="js/playground-render.js"></script>
     <script src="js/playground-report.js"></script>
+    <script src="js/playground-services.js"></script>
     <script src="js/playground-analytics.js"></script>
   </head>
   <body>
@@ -42,7 +44,16 @@
             <option value="../cards/render/card.js">Render</option>
             <option value="../cards/metadata/card.js">Metadata</option>
             <option value="../cards/magazine/card.js">Magazine</option>
+            <option data-has-ids="true" data-capabilities="video" value="../cards/video/card.js">Video</option>
           </select>
+          <span class="card-id-selector">
+            With Id
+            <select id="card-id">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </span>
         </div>
       </div>
     </div>

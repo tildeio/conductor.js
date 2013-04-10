@@ -17,6 +17,7 @@ window.Playground = {
     // screen.
     //this.initializeAnalytics();
 
+    this.initializeServices();
     this.initializeCards();
     this.initializeAnalytics();
 
@@ -26,7 +27,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/magazine/card.js');
+    this.addCard('../cards/video/card.js', 1, ['video']);
   }
 };
 
