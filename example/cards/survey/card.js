@@ -14,7 +14,8 @@ Conductor.card({
   },
 
   vote: null,
-  grades: ["A", "B", "C"],
+  grades: ["A", "B", "C", "D", "E", "F"],
+  renderMode: 'survey',
 
   activate: function( data ) {
     this.self = this;
@@ -27,36 +28,69 @@ Conductor.card({
   },
 
   render: function(intent, dimensions) {
-    var self = this;
+    this.resize( dimensions );
 
     switch( intent ) {
-      case "report":
-        $('body').html( voteResultTemplate( this ) );
-        $('#changeVote').click( function( event ) {
-          $(this).off('click');
-          self.render('takeSurvey');
-        });
-        break;
       case "thumbnail":
-      case "takeSurvey":
-        $('body').html( defaultTemplate( this ) );
-        // See how we can do this with Handlebars
-        if( this.vote ) {
-          $('input:radio[name=survey][value="' + this.vote + '"]').attr('checked', 'checked');
+      case "small":
+      case "large":
+        if( this.renderMode === 'survey' ) {
+          this.renderSurvey();
+        } else {
+          this.renderReport();
         }
-        $('#vote').click( function( event ) {
-          $(this).off('click');
-          if( !self.vote ) {
-            // Vote counts only once
-            self.consumers.survey.send('surveyTaken');
-          }
-          self.vote = $('input:radio[name=survey]:checked').val();
-          self.render('report');
-        });
         break;
       default:
         $('body').html("This card does not support the " + intent + " intent.");
         break;
     }
+  },
+
+  resize: function(dimensions) {
+    var width = Math.min(dimensions.width, 50);
+    var height = Math.min(dimensions.height, 50);
+    var size = Math.min(width, height);
+
+    $('img').css({
+      width: size,
+      height: size
+    });
+  },
+
+  renderReport: function() {
+    var self = this;
+    this.renderMode = 'report';
+
+    $('body').html( voteResultTemplate( this ) );
+
+    $('#changeVote').click( function( event ) {
+      $(this).off('click');
+      self.renderSurvey();
+    });
+  },
+
+  renderSurvey: function() {
+    var self = this;
+    this.renderMode = 'survey';
+
+    $('body').html( defaultTemplate( this ) );
+
+    // See how we can do this with Handlebars
+    if( this.vote ) {
+      $('input:radio[name=survey][value="' + this.vote + '"]').attr('checked', 'checked');
+    }
+
+    $('#vote').click( function( event ) {
+      var vote = $('input:radio[name=survey]:checked').val();
+      if( vote ) {
+        $(this).off('click');
+        if( !self.vote ) {
+          // Vote counts only once
+          self.consumers.survey.send('surveyTaken', vote);
+        }
+        self.vote = vote;
+        self.renderReport();
+      }
+    });
   }
 });
