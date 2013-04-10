@@ -5,6 +5,12 @@ var defaultTemplate = '<div><form>{{#each grades}}<input type="radio" name="surv
 var voteResultTemplate = 'Your rating: {{vote}} <button id="changeVote">Change</button></div>'
 
 Conductor.card({
+  consumers: {
+    survey: function (card) {
+      return Conductor.Oasis.Consumer.extend();
+    }
+  },
+
   vote: null,
   grades: ["A", "B", "C"],
 
@@ -37,8 +43,12 @@ case "thumbnail":
           $('input:radio[name=survey][value="' + this.vote + '"]').attr('checked', 'checked');
         }
         $('#vote').click( function( event ) {
-          self.vote = $('input:radio[name=survey]:checked').val();
           $(this).off('click');
+          if( !self.vote ) {
+            // Vote counts only once
+            self.consumers.survey.send('surveyTaken');
+          }
+          self.vote = $('input:radio[name=survey]:checked').val();
           self.render('report');
         });
         break;

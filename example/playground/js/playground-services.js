@@ -14,9 +14,21 @@
     }
   });
 
+  Playground.SurveyService = Conductor.Oasis.Service.extend({
+    initialize: function (port) {
+      this.sandbox.surveyPort = port;
+    },
+
+    events: {
+      surveyTaken: function () {
+      }
+    }
+  });
+
   $.extend(Playground, {
     initializeServices: function () {
       Conductor.services.video = Playground.VideoService;
+      Conductor.services.survey = Playground.SurveyService;
     }
   });
 })();
