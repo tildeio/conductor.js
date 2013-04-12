@@ -27,7 +27,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/video/card.js', 1, ['video']);
+    this.addCard('../cards/ad/card.js', 1, ['survey']);
   }
 };
 

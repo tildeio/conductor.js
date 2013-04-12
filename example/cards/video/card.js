@@ -25,6 +25,7 @@ Conductor.card({
     $('head').append('<script src="https://www.youtube.com/iframe_api"></script>');
     $('body').html('<img id="thumbnail" /><div id="player"></div>');
 
+    this.on('resize', this.resizeThumbnail);
     this.loadVideo(data.videoId);
   },
 
@@ -53,7 +54,7 @@ Conductor.card({
   loadVideo: function (videoId) {
     var card = this;
 
-    $('#thumbnail').attr('src', 'http://img.youtube.com/vi/' + videoId + '/1.jpg');
+    $('#thumbnail').attr('src', 'http://img.youtube.com/vi/' + videoId + '/0.jpg');
     this.youtube.then( function (YT) {
       var dimensions = card.getDimensions();
       card.player = new YT.Player('player', {
@@ -78,6 +79,11 @@ Conductor.card({
         this.player.setSize(dimensions.width, dimensions.height);
       });
     });
+  },
+
+  resizeThumbnail: function () {
+    var dimensions = this.getDimensions();
+    $('#thumbnail').css({ height: dimensions.height });
   },
 
   getDimensions: function () {

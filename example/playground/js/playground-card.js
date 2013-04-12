@@ -31,7 +31,7 @@
         url, id, { capabilities: capabilities });
 
       card.renderHeight = 200;
-      card.renderWidth = 200;
+      card.renderWidth = 600;
       card.renderIntent = 'thumbnail';
 
       var $card = this.cardTemplate.clone().show();
@@ -59,12 +59,12 @@
         //card.sandbox.el.seamless = true;
 
         card.render('thumbnail', {
-          width: 200,
+          width: 600,
           height: 200
         });
 
         $card.find('iframe').css({
-          width: 200,
+          width: 600,
           height: 200
         });
       });
@@ -90,12 +90,8 @@
       $('.add-card button').on('click', function() {
         var url = $('#card-url').val(),
             cardId = $('#card-id').val(),
-            capability = $('#card-url option:selected').data('capabilities'),
-            capabilities = [];
-
-        if (capability) {
-          capabilities.push(capability);
-        }
+            capabilitiesString = $('#card-url option:selected').data('capabilities'),
+            capabilities = capabilitiesString && capabilitiesString.split(" ");
 
         Playground.addCard(url, cardId, capabilities);
       });
