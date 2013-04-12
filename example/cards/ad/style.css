@@ -4,5 +4,6 @@ html, body {
 }
 
 iframe {
-  display: inline-block;
+  display: block;
+  float: left;
 }

@@ -22,7 +22,7 @@ var SurveyService = Conductor.Oasis.Service.extend({
 
 var card = Conductor.card({
   consumers: {
-    survey: function (card) { return Conductor.Oasis.Consumer }
+    survey: function (card) { return Conductor.Oasis.Consumer; }
   },
 
   activate: function (data) {

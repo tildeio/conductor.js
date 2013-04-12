@@ -3,6 +3,10 @@ html, body {
   padding: 0;
 }
 
+iframe {
+  display: block;
+}
+
 #thumbnail {
-  display: none;
+  display: block;
 }

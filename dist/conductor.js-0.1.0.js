@@ -1176,6 +1176,7 @@ define("oasis",
 
     return Oasis;
   });
+
 (function() {
   "use strict";
   (function(globals) {
