@@ -1542,6 +1542,7 @@ define("oasis",
 
     options.initialize = function() {
       var promises = [],
+          jsPromises = [],
           port = this.port;
 
       function loadURL(callback) {
@@ -1564,7 +1565,14 @@ define("oasis",
         document.head.appendChild(style);
       }
 
-      requiredUrls.forEach(loadURL(processJavaScript));
+      requiredUrls.forEach( function( url ) {
+        var promise = port.request('get', url);
+        jsPromises.push( promise );
+        promises.push(promise);
+      });
+      Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
+        scripts.forEach(processJavaScript);
+      });
       requiredCSSUrls.forEach(loadURL(processCSS));
 
       Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); });

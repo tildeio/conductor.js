@@ -11,6 +11,11 @@
       '1': { videoId: '4d8ZDSyFS2g' },
       '2': { videoId: 'dJOn3jG5tUk' },
       '3': { videoId: 'EquPUW83D-Q' }
+    },
+    "../cards/slot_machine/card.js": {
+      '1': { coins: 1, insertCoinsLabel: 'Watch another ad'},
+      '2': { coins: 2, insertCoinsLabel: 'Watch another ad'},
+      '3': { coins: 3, insertCoinsLabel: 'Watch another ad'}
     }
   };
 

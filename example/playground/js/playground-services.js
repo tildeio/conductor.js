@@ -25,10 +25,23 @@
     }
   });
 
+  Playground.SlotMachine = Conductor.Oasis.Service.extend({
+    initialize: function (port) {
+      this.sandbox.slotMachine = port;
+    },
+
+    events: {
+      getCoins: function () {
+      }
+    }
+  });
+
+
   $.extend(Playground, {
     initializeServices: function () {
       Conductor.services.video = Playground.VideoService;
       Conductor.services.survey = Playground.SurveyService;
+      Conductor.services.slotMachine = Playground.SlotMachine;
     }
   });
 })();
