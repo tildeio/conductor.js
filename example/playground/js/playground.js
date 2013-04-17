@@ -27,7 +27,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/slot_machine/card.js', 2, ['slotMachine']);
+    this.addCard('../cards/ad-playlist/card.js', 1, ['survey']);
   }
 };
 
