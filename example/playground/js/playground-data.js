@@ -11,6 +11,9 @@
     "../cards/ad-playlist/card.js": {
         '1': VideoIds
     },
+    "../cards/superbowl/card.js": {
+        '1': VideoIds
+    },
     "../cards/slot_machine/card.js": {
       '1': { coins: 1, insertCoinsLabel: 'Watch another ad'},
       '2': { coins: 2, insertCoinsLabel: 'Watch another ad'},
