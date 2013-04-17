@@ -1643,9 +1643,17 @@ define("oasis",
   });
 
   /**
-    Passes all requests to `upstream`, a `Conductor.Oasis.Consumer`, and sends the
-    responses back to its own consumer.  This is useful inside card that cannot
-    fulfill a request, but whose containing environment can.
+    Passes requests from each instance to `upstream`, a
+    `Conductor.Oasis.Consumer`, and sends the responses back to the instance.
+    This differs from simply passing `upstream`'s port to nested cards in two
+    ways:
+
+      1. `upstream` can still be used within the current card and
+      2. requests from multiple nested cards can be sent to `upstream`.
+
+    This is useful for cards who cannot fulfill dependency requests of its child
+    cards, but whose containing environment can.
+  
 
     Example:
 
@@ -1655,8 +1663,8 @@ define("oasis",
 
           // nested conductor cannot load required resources, but its containing
           // environment can (possibly by passing the request up through its own
-          // passthrough service).
-          conductor.services.xhr =  Conductor.PassthroughService.extend({
+          // multiplex service).
+          conductor.services.xhr =  Conductor.MultiplexService.extend({
                                       upstream: this.consumers.xhr
                                     });
 
@@ -1665,7 +1673,7 @@ define("oasis",
         }
       });
   */
-  Conductor.PassthroughService = Conductor.Oasis.Service.extend({
+  Conductor.MultiplexService = Conductor.Oasis.Service.extend({
     initialize: function () {
       this.port.all(function (eventName, data) {
         if (eventName.substr(0, "@request:".length) === "@request:") {

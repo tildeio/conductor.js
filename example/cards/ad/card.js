@@ -34,7 +34,7 @@ var card = Conductor.card({
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
 
     this.conductor = new Conductor();
-    this.conductor.services.xhr = Conductor.PassthroughService.extend({ upstream: this.consumers.xhr });
+    this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
     this.conductor.services.video = VideoService;
     this.conductor.services.survey = SurveyService;
     this.videoId = data.videoId;
