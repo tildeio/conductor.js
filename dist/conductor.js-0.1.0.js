@@ -1301,6 +1301,8 @@ define("oasis",
     };
 
     Conductor.Card = function(options) {
+      var card = this;
+
       for (var prop in options) {
         this[prop] = options[prop];
       }
@@ -1323,6 +1325,11 @@ define("oasis",
       var dataPromise = this.promise();
 
       var activatePromise = this.activateWhen(dataPromise, [ xhrPromise ]);
+
+      this.promise = new RSVP.Promise();
+      activatePromise.then(function () {
+        card.promise.resolve(card);
+      });
 
       for (var capability in options.consumers) {
         var factory = options.consumers[capability];
@@ -1444,6 +1451,10 @@ define("oasis",
           service.send('ok', { bool: bool, message: message });
         };
 
+        window.equal = function(expected, actual, message) {
+          service.send('equal', { expected: expected, actual: actual, message: message });
+        };
+
         window.start = function() {
           service.send('start');
         };
@@ -1458,6 +1469,7 @@ define("oasis",
       }
     });
   };
+
   Conductor.dataConsumer = function(promise, card) {
     return Conductor.Oasis.Consumer.extend({
       events: {
@@ -1589,6 +1601,10 @@ define("oasis",
     events: {
       ok: function(data) {
         ok(data.bool, data.message);
+      },
+
+      equal: function (data) {
+        equal(data.expected, data.actual, data.message);
       },
 
       start: function() {
