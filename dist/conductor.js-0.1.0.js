@@ -1310,10 +1310,6 @@ define("oasis",
       this.consumers = Object.create(Conductor.Oasis.consumers);
       this.options = options = options || {};
 
-      var metadataPromise = this.promise(function(data) {
-        options.data = data;
-      });
-
       var renderPromise = this.promise();
 
       var xhrPromise = this.promise();
@@ -1340,7 +1336,7 @@ define("oasis",
         consumers: extend({
           xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),
           render: Conductor.renderConsumer(renderPromise, this),
-          metadata: Conductor.metadataConsumer(metadataPromise, this),
+          metadata: Conductor.metadataConsumer(this),
           // TODO: this should be a custom consumer provided in tests
           assertion: Conductor.assertionConsumer(assertionPromise, this),
           data: Conductor.dataConsumer(dataPromise, this),
@@ -1504,7 +1500,7 @@ define("oasis",
     });
   };
 
-  Conductor.metadataConsumer = function(promise, card) {
+  Conductor.metadataConsumer = function(card) {
     var options = card.options;
 
     options.requests.metadataFor = function(resolver, name) {
