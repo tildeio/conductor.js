@@ -2,6 +2,9 @@ Conductor.require('/example/libs/jquery-1.9.1.js');
 Conductor.requireCSS('/example/cards/ad/style.css');
 
 var VideoService = Conductor.Oasis.Service.extend({
+  initialize: function (port) {
+    this.sandbox.videoPort = port;
+  },
   events: {
     'videoWatched': function () {
       card.render('takeSurvey');
@@ -22,7 +25,20 @@ var SurveyService = Conductor.Oasis.Service.extend({
 
 var card = Conductor.card({
   consumers: {
-    survey: function (card) { return Conductor.Oasis.Consumer; }
+    survey: function (card) { return Conductor.Oasis.Consumer; },
+    video: function (card) {
+      return Conductor.Oasis.Consumer.extend({
+        events: {
+          play: function () {
+              card.promise.then(function () {
+                return card.videoCard.promise;
+              }).then(function () {
+                card.videoCard.sandbox.videoPort.send('play');
+              });
+            }
+          }
+      });
+    }
   },
 
   activate: function (data) {
@@ -34,11 +50,11 @@ var card = Conductor.card({
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
 
     this.conductor = new Conductor();
-    this.conductor.services.xhr = Conductor.PassthroughService.extend({ upstream: this.consumers.xhr });
+    this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
     this.conductor.services.video = VideoService;
     this.conductor.services.survey = SurveyService;
-    this.videoId = data.videoId;
 
+    this.videoId = data.videoId;
     this.loadCards();
   },
 
@@ -115,7 +131,5 @@ var card = Conductor.card({
         width: window.innerWidth
       };
     }
-
-    this.trigger('resize');
   }
 });

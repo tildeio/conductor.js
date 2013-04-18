@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 
     watch: {
       files: ['lib/**', 'vendor/*', 'test/tests/*'],
-      tasks: ['build', 'concat:tests']
+      tasks: ['build-dev', 'concat:tests']
     },
 
     transpile: {

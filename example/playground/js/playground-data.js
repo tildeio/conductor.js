@@ -1,16 +1,15 @@
 (function() {
   "use strict";
 
-  var CardData = {
-    "../cards/video/card.js": {
-      '1': { videoId: '4d8ZDSyFS2g' },
-      '2': { videoId: 'dJOn3jG5tUk' },
-      '3': { videoId: 'EquPUW83D-Q' }
-    },
-    "../cards/ad/card.js": {
-      '1': { videoId: '4d8ZDSyFS2g' },
-      '2': { videoId: 'dJOn3jG5tUk' },
-      '3': { videoId: 'EquPUW83D-Q' }
+  var VideoIds = {
+    '1': { videoId: '4d8ZDSyFS2g' },
+    '2': { videoId: 'dJOn3jG5tUk' },
+    '3': { videoId: 'EquPUW83D-Q' }
+  },  CardData = {
+    "../cards/video/card.js": VideoIds,
+    "../cards/ad/card.js": VideoIds,
+    "../cards/ad-playlist/card.js": {
+        '1': VideoIds
     },
     "../cards/slot_machine/card.js": {
       '1': { coins: 1, insertCoinsLabel: 'Watch another ad'},
