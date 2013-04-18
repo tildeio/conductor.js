@@ -19,15 +19,13 @@ var SurveyService = Conductor.Oasis.Service.extend({
 
 var card = Conductor.card({
   consumers: {
-    adPlaylist: function (card) {
-      return Conductor.Oasis.Consumer.extend({
-        events: {
-          nextAd: function() {
-            card.nextAd(true);
-          }
+    adPlaylist: Conductor.Oasis.Consumer.extend({
+      events: {
+        nextAd: function() {
+          card.nextAd(true);
         }
-      });
-    }
+      }
+    })
   },
 
   activate: function (data) {

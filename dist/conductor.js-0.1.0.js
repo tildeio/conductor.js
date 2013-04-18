@@ -1327,11 +1327,6 @@ define("oasis",
         card.promise.resolve(card);
       });
 
-      for (var capability in options.consumers) {
-        var factory = options.consumers[capability];
-        options.consumers[capability] = factory(this);
-      }
-
       var cardOptions = {
         consumers: extend({
           xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),

@@ -8,9 +8,7 @@ var voteResultTemplate = 'Your rating: {{vote}} <button id="changeVote">Change</
 
 Conductor.card({
   consumers: {
-    survey: function (card) {
-      return Conductor.Oasis.Consumer.extend();
-    }
+    survey: Conductor.Oasis.Consumer
   },
 
   vote: null,
