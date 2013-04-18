@@ -6,7 +6,7 @@ Conductor.require('/example/libs/jquery.jSlots.js');
 Conductor.require('/example/libs/jquery.easing.1.3.js');
 Conductor.requireCSS('/example/cards/slot_machine/style.css');
 
-var dashboardTemplate = '<div id="chances"></div>{{#if coins}}<button id="play">Play Now</button>{{/if}}';
+var dashboardTemplate = '<div id="chances"></div><button id="play">Play Now</button>';
 var playTemplate =  '<div id="chances"></div><div id="drawing" class="fancy"></div><input type="button" id="spin" value="Spin!"></div><div id="getCoins"><button>{{insertCoinsLabel}}</button><span>for another chance to win</span></div>';
 var chancesTemplate = '{{#if coins}}You have {{coins}} chances to win.{{else}}You have no more chances left.{{/if}}';
 
@@ -33,7 +33,7 @@ Conductor.card({
 
   activate: function(data) {
     if( data ) {
-      this.coins = data.coins || this.coins;
+      this.coins = typeof(data.coins) === 'number' ? data.coins : this.coins;
       this.insertCoinsLabel = data.insertCoinsLabel || this.insertCoinsLabel;
     }
     this.compileTemplates();
@@ -81,6 +81,9 @@ Conductor.card({
 
     $('body').html( dashboardTemplate( this ) );
     this.renderChances();
+    if( !this.coins ) {
+      $('#play').hide();
+    }
 
     $('#play').click( function( event ) {
       $(this).off('click');
@@ -154,6 +157,10 @@ Conductor.card({
       } else {
         $('#spin').hide();
         $('#getCoins').show();
+      }
+    } else {
+      if( this.coins ) {
+        $('#play').show();
       }
     }
   },

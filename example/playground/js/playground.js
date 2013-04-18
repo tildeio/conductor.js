@@ -27,7 +27,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/ad-playlist/card.js', 1, ['survey']);
+    this.addCard('../cards/superbowl/card.js', 1, []);
   }
 };
 

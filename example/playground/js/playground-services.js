@@ -27,11 +27,23 @@
 
   Playground.SlotMachine = Conductor.Oasis.Service.extend({
     initialize: function (port) {
-      this.sandbox.slotMachine = port;
+      this.sandbox.slotMachinePort = port;
     },
 
     events: {
       getCoins: function () {
+      }
+    }
+  });
+
+  Playground.AdPlaylistService = Conductor.Oasis.Service.extend({
+    initialize: function (port) {
+      this.sandbox.adPlaylistPort = port;
+    },
+
+    events: {
+      surveyTaken: function (data) {
+        this.sandbox.slotMachinePort.send('addCoin');
       }
     }
   });
