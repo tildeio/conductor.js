@@ -72,4 +72,33 @@ test("instances can add custom services", function() {
   card.appendTo(qunitFixture);
 });
 
+test("card references have a promise resolved when the sandbox is ready", function() {
+  expect(2);
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      card;
+
+  card = conductor.load("/test/fixtures/empty_card.js");
+
+  equal(undefined, card.sandbox.dataPort, "sandbox is not initially initialised");
+
+  card.promise.then(function () {
+    start();
+    notEqual(undefined, card.sandbox.dataPort, "sandbox is initialised when promise is resolved");
+  });
+  card.appendTo(qunitFixture);
+});
+
+test("cards have a promise resolved when the card is activated", function() {
+  expect(2);
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      card;
+
+  card = conductor.load("/test/fixtures/promise_card.js");
+  card.appendTo(qunitFixture);
+});
+
 })();

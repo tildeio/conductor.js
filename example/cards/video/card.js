@@ -9,7 +9,9 @@ Conductor.card({
       return Conductor.Oasis.Consumer.extend({
         events: {
           play: function () {
-            card.youtube.then(function () {
+            card.promise.then(function () {
+              return card.playerPromise();
+            }).then(function () {
               card.player.playVideo();
             });
           }
@@ -20,7 +22,6 @@ Conductor.card({
 
   activate: function (data) {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
-    this.youtube = this._youtubePromise();
 
     $('head').append('<script src="https://www.youtube.com/iframe_api"></script>');
     $('body').html('<img id="thumbnail" /><div id="player"></div>');
@@ -55,7 +56,7 @@ Conductor.card({
     var card = this;
 
     $('#thumbnail').attr('src', 'http://img.youtube.com/vi/' + videoId + '/0.jpg');
-    this.youtube.then( function (YT) {
+    this.youtubePromise().then( function (YT) {
       var dimensions = card.getDimensions();
       card.player = new YT.Player('player', {
         height: dimensions.height,
@@ -65,6 +66,9 @@ Conductor.card({
           rel: 0
         },
         events: {
+          onReady: function() {
+            card.playerPromise().resolve(card.player);
+          },
           onStateChange: function (event) {
             var playerState = event.data;
             if (playerState === 0) {
@@ -104,16 +108,26 @@ Conductor.card({
     this.trigger('resize');
   },
 
-  _youtubePromise: function () {
-    var promise = new Conductor.Oasis.RSVP.Promise();
-    if (window.YT) {
-      promise.resolve(window.YT);
-    } else {
-      window.onYouTubeIframeAPIReady = function () {
-        promise.resolve(window.YT);
-      };
+  playerPromise: function () {
+    if (!this._playerPromise) {
+      this._playerPromise = new Conductor.Oasis.RSVP.Promise();
     }
 
-    return promise;
+    return this._playerPromise;
+  },
+
+  youtubePromise: function () {
+    if (!this._youtubePromise) {
+      var promise = this._youtubePromise = new Conductor.Oasis.RSVP.Promise();
+      if (window.YT) {
+        promise.resolve(window.YT);
+      } else {
+        window.onYouTubeIframeAPIReady = function () {
+          promise.resolve(window.YT);
+        };
+      }
+    }
+
+    return this._youtubePromise;
   }
 });
