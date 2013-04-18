@@ -3,21 +3,19 @@ Conductor.require('/example/libs/jquery-1.9.1.js');
 //Conductor.require('https://www.youtube.com/iframe_api');
 Conductor.requireCSS('/example/cards/video/style.css');
 
-Conductor.card({
+var card = Conductor.card({
   consumers: {
-    video: function (card) {
-      return Conductor.Oasis.Consumer.extend({
-        events: {
-          play: function () {
-            card.promise.then(function () {
-              return card.playerPromise();
-            }).then(function () {
-              card.player.playVideo();
-            });
-          }
+    video: Conductor.Oasis.Consumer.extend({
+      events: {
+        play: function () {
+          card.promise.then(function () {
+            return card.playerPromise();
+          }).then(function () {
+            card.player.playVideo();
+          });
         }
-      });
-    }
+      }
+    })
   },
 
   activate: function (data) {
