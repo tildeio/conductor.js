@@ -10,21 +10,19 @@ var dashboardTemplate = '<div id="chances"></div><button id="play">Play Now</but
 var playTemplate =  '<div id="chances"></div><div id="drawing" class="fancy"></div><input type="button" id="spin" value="Spin!"></div><div id="getCoins"><button>{{insertCoinsLabel}}</button><span>for another chance to win</span></div>';
 var chancesTemplate = '{{#if coins}}You have {{coins}} chances to win.{{else}}You have no more chances left.{{/if}}';
 
-Conductor.card({
+var card = Conductor.card({
   consumers: {
-    slotMachine: function (card) {
-      return Conductor.Oasis.Consumer.extend({
-        events: {
-          addCoin: function() {
-            card.coins++;
+    slotMachine: Conductor.Oasis.Consumer.extend({
+      events: {
+        addCoin: function() {
+          card.coins++;
 
-            if( card.didInsertCoins ) {
-              card.didInsertCoins();
-            }
+          if( card.didInsertCoins ) {
+            card.didInsertCoins();
           }
         }
-      });
-    }
+      }
+    })
   },
   coins: 1,
   winnerNumber: 7,

@@ -1,4 +1,5 @@
 Conductor.require('/example/libs/jquery-1.9.1.js');
+Conductor.require('/example/playground/js/playground-nested-analytics.js');
 Conductor.requireCSS('/example/cards/ad/style.css');
 
 var VideoService = Conductor.Oasis.Service.extend({
@@ -25,20 +26,18 @@ var SurveyService = Conductor.Oasis.Service.extend({
 
 var card = Conductor.card({
   consumers: {
-    survey: function (card) { return Conductor.Oasis.Consumer; },
-    video: function (card) {
-      return Conductor.Oasis.Consumer.extend({
-        events: {
-          play: function () {
-              card.promise.then(function () {
-                return card.videoCard.promise;
-              }).then(function () {
-                card.videoCard.sandbox.videoPort.send('play');
-              });
-            }
-          }
-      });
-    }
+    survey: Conductor.Oasis.Consumer,
+    video: Conductor.Oasis.Consumer.extend({
+      events: {
+        play: function () {
+          card.promise.then(function () {
+            return card.videoCard.promise;
+          }).then(function () {
+            card.videoCard.sandbox.videoPort.send('play');
+          });
+        }
+      }
+    })
   },
 
   activate: function (data) {

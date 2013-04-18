@@ -1185,6 +1185,7 @@ define("oasis",
       this.data = {};
       this.cards = {};
       this.services = Object.create(Conductor.services);
+      this.capabilities = Conductor.capabilities.slice();
     };
 
     Conductor.Oasis = requireModule('oasis');
@@ -1236,9 +1237,8 @@ define("oasis",
         var datas = this.data[url],
             data = datas && datas[id],
             _options = options || {},
-            extraCapabilities = _options.capabilities || [];
-
-        var capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
+            extraCapabilities = _options.capabilities || [],
+            capabilities = this.capabilities.slice();
 
         capabilities.push.apply(capabilities, extraCapabilities);
 
@@ -1310,10 +1310,6 @@ define("oasis",
       this.consumers = Object.create(Conductor.Oasis.consumers);
       this.options = options = options || {};
 
-      var metadataPromise = this.promise(function(data) {
-        options.data = data;
-      });
-
       var renderPromise = this.promise();
 
       var xhrPromise = this.promise();
@@ -1331,16 +1327,11 @@ define("oasis",
         card.promise.resolve(card);
       });
 
-      for (var capability in options.consumers) {
-        var factory = options.consumers[capability];
-        options.consumers[capability] = factory(this);
-      }
-
       var cardOptions = {
         consumers: extend({
           xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),
           render: Conductor.renderConsumer(renderPromise, this),
-          metadata: Conductor.metadataConsumer(metadataPromise, this),
+          metadata: Conductor.metadataConsumer(this),
           // TODO: this should be a custom consumer provided in tests
           assertion: Conductor.assertionConsumer(assertionPromise, this),
           data: Conductor.dataConsumer(dataPromise, this),
@@ -1504,7 +1495,7 @@ define("oasis",
     });
   };
 
-  Conductor.metadataConsumer = function(promise, card) {
+  Conductor.metadataConsumer = function(card) {
     var options = card.options;
 
     options.requests.metadataFor = function(resolver, name) {
@@ -1739,5 +1730,7 @@ define("oasis",
     lifecycle: Conductor.LifecycleService,
     data: Conductor.DataService
   };
+
+  Conductor.capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
 
 })();
