@@ -1185,6 +1185,7 @@ define("oasis",
       this.data = {};
       this.cards = {};
       this.services = Object.create(Conductor.services);
+      this.capabilities = Conductor.capabilities.slice();
     };
 
     Conductor.Oasis = requireModule('oasis');
@@ -1236,9 +1237,8 @@ define("oasis",
         var datas = this.data[url],
             data = datas && datas[id],
             _options = options || {},
-            extraCapabilities = _options.capabilities || [];
-
-        var capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
+            extraCapabilities = _options.capabilities || [],
+            capabilities = this.capabilities.slice();
 
         capabilities.push.apply(capabilities, extraCapabilities);
 
@@ -1730,5 +1730,7 @@ define("oasis",
     lifecycle: Conductor.LifecycleService,
     data: Conductor.DataService
   };
+
+  Conductor.capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle'];
 
 })();

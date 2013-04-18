@@ -11,6 +11,7 @@ window.Playground = {
     // Create a new Conductor instance that will
     // manage all of the cards on the page.
     this.conductor = new Conductor();
+    this.conductor.services.nestedAnalytics = Playground.NestedAnalyticsService;
 
     // Wiretap the card and configure any events
     // to be displayed in the analytics panel on

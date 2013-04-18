@@ -1,4 +1,5 @@
 Conductor.require('/example/libs/jquery-1.9.1.js');
+Conductor.require('/example/playground/js/playground-nested-analytics.js');
 Conductor.requireCSS('/example/cards/ad/style.css');
 
 var VideoService = Conductor.Oasis.Service.extend({
