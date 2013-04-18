@@ -11,7 +11,7 @@ var VideoService = Conductor.Oasis.Service.extend({
 var SurveyService = Conductor.Oasis.Service.extend({
   events: {
     surveyTaken: function (data) {
-      card.consumers.survey.send('surveyTaken', data);
+      card.consumers.adPlaylist.send('surveyTaken', data);
       card.render('cta');
     }
   }
@@ -19,7 +19,15 @@ var SurveyService = Conductor.Oasis.Service.extend({
 
 var card = Conductor.card({
   consumers: {
-    survey: function (card) { return Conductor.Oasis.Consumer; }
+    adPlaylist: function (card) {
+      return Conductor.Oasis.Consumer.extend({
+        events: {
+          nextAd: function() {
+            card.nextAd(true);
+          }
+        }
+      });
+    }
   },
 
   activate: function (data) {
@@ -27,7 +35,7 @@ var card = Conductor.card({
 
     for (var prop in data) {
       if ( ! data.hasOwnProperty(prop)) { continue; }
-    
+
       this.conductor.loadData(AdCardUrl, prop, data[prop]);
     }
     this.adIds = Object.keys(data);
