@@ -13,6 +13,7 @@ var SlotMachineService = Conductor.Oasis.Service.extend({
   events: {
     getCoins: function() {
       card.adPlaylistCard.sandbox.adPlaylistPort.send('nextAd');
+      card.slotMachineCard.render('small', { width: 600, height: 200 });
     }
   }
 });
@@ -26,6 +27,10 @@ var AdPlaylistService = Conductor.Oasis.Service.extend({
     surveyTaken: function (data) {
       $('#slot_machine').show();
       card.slotMachineCard.sandbox.slotMachinePort.send('addCoin');
+    },
+    play: function(data) {
+      card.slotMachineCard.render('large', { width: 600, height: 200 });
+      card.slotMachineCard.sandbox.slotMachinePort.send('play');
     }
   }
 });
@@ -48,7 +53,7 @@ var card = Conductor.card({
     this.adPlaylistCard.appendTo($('#playlist')[0]);
     this.adPlaylistCard.render('thumbnail', { width: 600, height: 400 });
     this.slotMachineCard.appendTo($('#slot_machine')[0]);
-    this.slotMachineCard.render('thumbnail', { width: 600, height: 200 });
+    this.slotMachineCard.render('small', { width: 600, height: 200 });
     $('#slot_machine').hide();
   },
 

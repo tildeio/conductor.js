@@ -20,6 +20,9 @@ var card = Conductor.card({
           if( card.didInsertCoins ) {
             card.didInsertCoins();
           }
+        },
+        play: function() {
+          card.renderPlay();
         }
       }
     })
@@ -47,8 +50,10 @@ var card = Conductor.card({
     this.resize( dimensions );
 
     switch( intent ) {
-      case "thumbnail":
       case "small":
+        this.renderDashboard();
+        break;
+      case "thumbnail":
       case "large":
         if( this.renderMode === 'dashboard' ) {
           this.renderDashboard();
@@ -135,12 +140,16 @@ var card = Conductor.card({
       onStart: function() {
         self.coins--;
         $('.slot').removeClass('winner');
-        self.didInsertCoins();
+        $('#spin').hide();
       },
       onWin: function(winCount, winners, finalNumbers) {
         $.each( winners, function() {
           this.addClass('winner');
         });
+        self.didInsertCoins();
+      },
+      onLose: function(finalNumbers) {
+        self.didInsertCoins();
       }
     });
   },
