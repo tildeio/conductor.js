@@ -14,6 +14,7 @@ var SurveyService = Conductor.Oasis.Service.extend({
     surveyTaken: function (data) {
       card.consumers.adPlaylist.send('surveyTaken', data);
       card.render('cta');
+      $('#try-luck').show();
     }
   }
 });
@@ -24,6 +25,7 @@ var card = Conductor.card({
       events: {
         nextAd: function() {
           card.nextAd(true);
+          $('#try-luck').hide();
         }
       }
     })
@@ -81,12 +83,21 @@ var card = Conductor.card({
       '<div id="cta">' +
         '<button id="watch-another">Watch Another Ad</button>' +
         '<label for="watch-another">for another chance to win</label>' +
+      '</div>' +
+      '<div id="try-luck">' +
+        "<button id='ready'>I'm ready</button>" +
+        '<label for="ready">to try my luck now!</label>' +
       '</div>'
     );
     $('#watch-another').click(function () {
       card.nextAd(true);
     });
     $('#cta').hide();
+    $('#ready').click(function () {
+      card.consumers.adPlaylist.send('play');
+      $('#try-luck').hide();
+    });
+    $('#try-luck').hide();
   },
 
   nextAd: function (autoplay) {

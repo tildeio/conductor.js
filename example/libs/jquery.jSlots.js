@@ -40,6 +40,7 @@
             onStart : $.noop,    // Function: runs on spin start,
             onEnd : $.noop,      // Function: run on spin end. It is passed (finalNumbers:Array). finalNumbers gives the index of the li each slot stopped on in order.
             onWin : $.noop,      // Function: run on winning number. It is passed (winCount:Number, winners:Array)
+            onLose : $.noop,     // Function: run on losing number. It is passed (finalNumbers:Array)
             easing : 'swing',    // String: easing type for final spin
             time : 7000,         // Number: total time of spin animation
             loops : 6            // Number: times it will spin during the animation
@@ -206,8 +207,14 @@
                     base.options.onEnd(finalNumbers);
                 }
 
-                if ( base.winCount && $.isFunction(base.options.onWin) ) {
+                if ( base.winCount ) {
+                  if( $.isFunction(base.options.onWin) ) {
                     base.options.onWin(base.winCount, base.winners, finalNumbers);
+                  }
+                } else {
+                  if( $.isFunction(base.options.onLose) ) {
+                    base.options.onLose(finalNumbers);
+                  }
                 }
                 base.isSpinning = false;
             }
