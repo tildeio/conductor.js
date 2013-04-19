@@ -21,8 +21,8 @@ var card = Conductor.card({
   activate: function (data) {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
 
-    $('head').append('<script src="https://www.youtube.com/iframe_api"></script>');
     $('body').html('<img id="thumbnail" /><div id="player"></div>');
+    $('head').append('<script src="https://www.youtube.com/iframe_api"></script>');
 
     this.on('resize', this.resizeThumbnail);
     this.loadVideo(data.videoId);
@@ -69,7 +69,7 @@ var card = Conductor.card({
           },
           onStateChange: function (event) {
             var playerState = event.data;
-            if (playerState === 0) {
+            if (playerState === YT.PlayerState.ENDED) {
               card.consumers.video.send('videoWatched');
             }
           }
