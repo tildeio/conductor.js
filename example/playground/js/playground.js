@@ -11,7 +11,6 @@ window.Playground = {
     // Create a new Conductor instance that will
     // manage all of the cards on the page.
     this.conductor = new Conductor();
-    this.conductor.services.nestedAnalytics = Playground.NestedAnalyticsService;
 
     // Wiretap the card and configure any events
     // to be displayed in the analytics panel on
@@ -83,7 +82,8 @@ $(function() {
       yellow: '#aa0',
       teal: '#0aa',
       magenta: '#a0a',
-      lightGrey: '#aaa'
+      lightGrey: '#aaa',
+      veryLightGrey: '#666'
     };
 
     Object.keys(colors).forEach(function(color) {

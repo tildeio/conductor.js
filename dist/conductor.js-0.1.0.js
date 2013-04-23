@@ -1271,6 +1271,20 @@ define("oasis",
         sandbox.conductor = this;
         sandbox.card = card;
 
+        // TODO: it would be better to access the consumer from
+        // `conductor.parentCard` after the child card refactoring is in master.
+        if (Conductor.Oasis.consumers.nestedWiretapping) {
+          card.wiretap(function (service, messageEvent) {
+            Conductor.Oasis.consumers.nestedWiretapping.send(messageEvent.type, {
+              data: messageEvent.data,
+              service: service+"",
+              direction: messageEvent.direction,
+              url: url,
+              id: id
+            });
+          });
+        }
+
         return card;
       }
     };
@@ -1355,7 +1369,8 @@ define("oasis",
           assertion: Conductor.assertionConsumer(assertionPromise, this),
           data: Conductor.dataConsumer(dataPromise, this),
           lifecycle: Conductor.lifecycleConsumer(activatePromise),
-          height: Conductor.heightConsumer(this)
+          height: Conductor.heightConsumer(this),
+          nestedWiretapping: Conductor.nestedWiretapping(this)
         }, options.consumers)
       };
 
@@ -1660,6 +1675,10 @@ define("oasis",
     return Conductor.Oasis.Consumer.extend(options);
   };
 
+  Conductor.nestedWiretapping = function (card) {
+    return Conductor.Oasis.Consumer;
+  };
+
   Conductor.renderConsumer = function(promise, card) {
     var options = Object.create(card.options);
 
@@ -1856,6 +1875,12 @@ define("oasis",
     }
   });
 
+  Conductor.NestedWiretappingService = Conductor.Oasis.Service.extend({
+    initialize: function (port) {
+      this.sandbox.nestedWiretappingPort = port;
+    }
+  });
+
   Conductor.RenderService = Conductor.Oasis.Service.extend({
     initialize: function(port) {
       this.sandbox.renderPort = port;
@@ -1889,9 +1914,13 @@ define("oasis",
     render: Conductor.RenderService,
     lifecycle: Conductor.LifecycleService,
     data: Conductor.DataService,
-    height: Conductor.HeightService
+    height: Conductor.HeightService,
+    nestedWiretapping: Conductor.NestedWiretappingService
   };
 
-  Conductor.capabilities = ['xhr', 'metadata', 'render', 'data', 'lifecycle', 'height'];
+  Conductor.capabilities = [
+    'xhr', 'metadata', 'render', 'data', 'lifecycle', 'height',
+    'nestedWiretapping'
+  ];
 
 })();
