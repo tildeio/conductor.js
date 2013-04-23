@@ -1763,6 +1763,10 @@ define("oasis",
 
     events: {
       resize: function (data) {
+        // TODO: remove this and fix up the demo to use the height service
+        // properly
+        if (true) { return; }
+
         // height service is meaningless for DOMless sandboxes, eg sandboxed as
         // web workers.
         if (! this.sandbox.el) { return; }
