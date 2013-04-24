@@ -1,5 +1,4 @@
 Conductor.require('/example/libs/jquery-1.9.1.js');
-Conductor.require('/example/playground/js/playground-nested-analytics.js');
 Conductor.requireCSS('/example/cards/superbowl/style.css');
 
 var AdPlaylistCardUrl = '../cards/ad-playlist/card.js';

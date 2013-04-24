@@ -22,15 +22,44 @@
 
       this.print("✔ Analytics monitoring active".green);
       this.print("");
-      this.print("%@ %@ %@ %@".fmt(padLeft("Service", 15).blue.bold, "↔".teal.bold, pad("Event", 14).magenta.bold, "Data".lightGrey.bold));
+      this.print("%@ %@ %@ %@".fmt(padLeft("Service", 11).blue.bold, "↔".teal.bold, pad("Event", 14).magenta.bold, "Data".lightGrey.bold));
       this.print("");
     },
 
     printWiretapEvent: function(service, event) {
+      if (service === "nestedWiretapping") {
+        this.printNestedWiretapEvent(service, event);
+      } else {
+        this.printNonNestedWiretapEvent(service, event);
+      }
+    },
+
+    printNonNestedWiretapEvent: function(service, event) {
       var direction = (event.direction === "sent" ? "→" : "←");
       var data = JSON.stringify(event.data) || "";
 
-      this.print("%@ %@ %@ %@".fmt(padLeft(service, 15).blue, direction.teal, pad(event.type, 14).magenta, htmlEscape(data).lightGrey));
+      this.print("%@ %@ %@ %@".fmt(padLeft(service, 11).blue, direction.teal, pad(event.type, 14).magenta, htmlEscape(data).lightGrey));
+    },
+
+    printNestedWiretapEvent: function (service, event) {
+      var i, data, dataStr, direction;
+
+      for(i = 1, data = event.data;
+          data.service === "nestedWiretapping";
+          data = data.data, ++i);
+
+      direction = (data.direction === "sent" ? "→" : "←");
+      this.print("%@ %@ %@ %@ %@ %@".fmt(
+        padLeft(i + "/" + data.service, 11).blue,
+        direction.teal,
+        pad(event.type, 14).magenta,
+        data.url.veryLightGrey,
+        data.id.veryLightGrey));
+
+      if (data.data) {
+        dataStr = JSON.stringify(data.data);
+        this.print("%@ %@".fmt(padLeft("", 28).lightGrey, htmlEscape(dataStr).lightGrey));
+      }
     },
 
     print: function(string) {
