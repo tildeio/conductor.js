@@ -7,6 +7,8 @@ var gradingTemplate = '<div><form>{{#each grades}}<input type="radio" name="surv
 var gradeResultTemplate = '<div>Your rating: {{grade}} <button id="changeGrade">Change</button></div>';
 
 Conductor.card({
+  consumers: { survey: Conductor.Oasis.Consumer },
+
   grade: null,
   grades: ["A", "B", "C", "D", "F"],
   renderMode: 'survey',
@@ -55,6 +57,13 @@ Conductor.card({
       var grade = $('input:radio[name=survey]:checked').val();
       if (grade) {
         $(this).off('click');
+        if (card.consumers.survey) {
+          if (!card.grade) {
+            card.consumers.survey.send('surveyTaken', grade);
+          } else {
+            card.consumers.survey.send('gradeChanged', grade);
+          }
+        }
         card.grade = grade;
         card.renderReport();
       }
