@@ -37,7 +37,12 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/tutorial/survey_card.js', 1, ['survey']);
+    this.conductor.loadData(
+      Playground.crossOriginHtmlUrl('../cards/tutorial/youtube_card.js'),
+      '1',
+      { videoId: '4d8ZDSyFS2g'}
+    );
+    this.addCard('../cards/tutorial/youtube_card.js', 1, []);
   }
 };
 
