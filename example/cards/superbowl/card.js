@@ -35,22 +35,25 @@ var AdPlaylistService = Conductor.Oasis.Service.extend({
 });
 
 var card = Conductor.card({
-  activate: function(data) {
-    this.conductor = new Conductor();
+  childCards: [
+    {url: SlotMachineCardUrl,  id: '1', options: { capabilities: ['slotMachine']},  data: { coins: 0, insertCoinsLabel: 'Watch another ad' } },
+    {url: AdPlaylistCardUrl,   id: '1', options: { capabilities: ['adPlaylist']} }
+  ],
+  services: {
+    adPlaylist: AdPlaylistService,
+    slotMachine: SlotMachineService
+  },
 
-    this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
-    this.conductor.services.adPlaylist = AdPlaylistService;
-    this.conductor.services.slotMachine = SlotMachineService;
+  loadDataForChildCards: function( data) {
+    this.childCards[1].data = data;
+  },
 
-    this.conductor.loadData(AdPlaylistCardUrl, '1', data);
-    this.conductor.loadData(SlotMachineCardUrl, '1', { coins: 0, insertCoinsLabel: 'Watch another ad' });
-
-    this.adPlaylistCard = this.conductor.load(AdPlaylistCardUrl, 1, { capabilities: ['adPlaylist']});
-    this.slotMachineCard = this.conductor.load(SlotMachineCardUrl, 1, { capabilities: ['slotMachine']});
-
+  initializeDOM: function() {
     $('body').html('<div id="playlist"></div><div id="slot_machine"></div>');
+    this.adPlaylistCard = this.childCards[1].card;
     this.adPlaylistCard.appendTo($('#playlist')[0]);
     this.adPlaylistCard.render('thumbnail', { width: 600, height: 400 });
+    this.slotMachineCard = this.childCards[0].card;
     this.slotMachineCard.appendTo($('#slot_machine')[0]);
     this.slotMachineCard.render('small', { width: 600, height: 200 });
     $('#slot_machine').hide();

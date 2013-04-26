@@ -40,4 +40,17 @@ test("The render method on a card is always invoked after activate", function() 
   });
 });
 
+test("A card can initialize the DOM before rendering the first time", function() {
+  expect(1);
+  var card = conductor.load('/test/fixtures/render/initialize_dom_card.js');
+
+  stop();
+
+  card.appendTo('#qunit-fixture').then(function() {
+    card.render('thumbnail');
+    card.render('thumbnail');
+    start();
+  });
+});
+
 })();
