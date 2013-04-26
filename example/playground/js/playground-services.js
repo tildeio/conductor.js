@@ -12,6 +12,11 @@
   Playground.SurveyService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.surveyPort = port;
+    },
+    events: {
+      surveyTaken: function (data) {
+        console.log("User took a survey:", data);
+      }
     }
   });
 

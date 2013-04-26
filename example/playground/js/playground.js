@@ -33,7 +33,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/tutorial/survey_card.js', 1, []);
+    this.addCard('../cards/tutorial/survey_card.js', 1, ['survey']);
   }
 };
 
