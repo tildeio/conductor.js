@@ -6,6 +6,12 @@
   Playground.VideoService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.videoPort = port;
+      window.videoPort = port;
+    },
+    events: {
+      videoWatched: function () {
+        console.log("User watched a video");
+      }
     }
   });
 
