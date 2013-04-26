@@ -33,8 +33,8 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.conductor.loadData('../cards/tutorial/youtube_card.js', '1', { videoId: '4d8ZDSyFS2g'});
-    this.addCard('../cards/tutorial/youtube_card.js', 1, ['video']);
+    this.conductor.loadData('../cards/tutorial/ad_card.js', '1', { videoId: '4d8ZDSyFS2g'});
+    this.addCard('../cards/tutorial/ad_card.js', 1, ['video', 'survey']);
   }
 };
 
