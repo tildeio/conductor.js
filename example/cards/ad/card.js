@@ -39,21 +39,31 @@ var card = Conductor.card({
     })
   },
 
-  activate: function (data) {
-    var conductor,
-        videoCard,
-        videoCardId = data.videoId,
-        surveyCard;
+  childCards: [
+    {url: '../cards/video/card.js', options: { capabilities: ['video']}},
+    {url: '../cards/survey/card.js', options: { capabilities: ['survey']}}
+  ],
+  services: {
+    video: VideoService,
+    survey: SurveyService
+  },
 
+  loadDataForChildCards: function(data) {
+    var videoCardOptions = this.childCards[0],
+        surveyCardOptions = this.childCards[1];
+
+    videoCardOptions.id = data.videoId;
+    videoCardOptions.data = { videoId: data.videoId };
+
+    surveyCardOptions.id = data.videoId;
+  },
+
+  activate: function (data) {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
 
-    this.conductor = new Conductor();
-    this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
-    this.conductor.services.video = VideoService;
-    this.conductor.services.survey = SurveyService;
-
     this.videoId = data.videoId;
-    this.loadCards();
+    this.videoCard = this.childCards[0].card;
+    this.surveyCard = this.childCards[1].card;
   },
 
   render: function (intent, _dimensions) {
@@ -92,27 +102,9 @@ var card = Conductor.card({
     }
   },
 
-  loadCards: function () {
-    this.loadVideoCard();
-    this.loadSurveyCard();
-  },
-
-  loadVideoCard: function () {
-    var videoCard,
-        videoCardUrl = '../cards/video/card.js';
-
-    this.conductor.loadData(videoCardUrl, this.videoId, { videoId: this.videoId});
-
-    videoCard = this.videoCard = this.conductor.load(videoCardUrl, this.videoId, { capabilities: ['video']});
-    videoCard.appendTo(document.body);
-  },
-
-  loadSurveyCard: function () {
-    var surveyCard,
-        surveyCardUrl = '../cards/survey/card.js';
-
-    surveyCard = this.surveyCard = this.conductor.load(surveyCardUrl, this.videoId, { capabilities: ['survey']});
-    surveyCard.appendTo(document.body);
+  initializeDOM: function () {
+    this.videoCard.appendTo(document.body);
+    this.surveyCard.appendTo(document.body);
   },
 
   getDimensions: function () {

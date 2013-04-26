@@ -30,22 +30,33 @@ var card = Conductor.card({
     })
   },
 
+  childCards: [
+    {url: AdCardUrl,  id: '1', options: { capabilities: ['video', 'survey'] } }
+  ],
+  services: {
+    survey: SurveyService,
+    video: VideoService
+  },
+
   activate: function (data) {
-    this.conductor = new Conductor();
+    // this may need to go in loadDataForChildCards
+    this.adIds = Object.keys(data);
+  },
+
+  loadDataForChildCards: function( data) {
+    this.childCards[0].data = data[ this.childCards[0].id ];
 
     for (var prop in data) {
       if ( ! data.hasOwnProperty(prop)) { continue; }
-
       this.conductor.loadData(AdCardUrl, prop, data[prop]);
     }
-    this.adIds = Object.keys(data);
+  },
 
-    this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
-    this.conductor.services.survey = SurveyService;
-    this.conductor.services.video = VideoService;
-
+  initializeDOM: function() {
     this.setupDom();
-    this.nextAd(false);
+    this.videoAdCard = this.childCards[0].card;
+    this.videoAdCard.appendTo($('#ads')[0]);
+    this.videoAdCard.render('video', this.getVideoDimensions());
   },
 
   render: function (intent, dimensions) {
@@ -101,7 +112,7 @@ var card = Conductor.card({
 
   nextAd: function (autoplay) {
     if (typeof this.currentAdIndex === 'undefined') {
-      this.currentAdIndex = 0;
+      this.currentAdIndex = 1;
     } else {
       this.currentAdIndex = ((this.currentAdIndex + 1) % this.adIds.length);
     }
