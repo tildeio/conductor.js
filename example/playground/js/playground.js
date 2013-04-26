@@ -31,7 +31,17 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/tutorial/survey_card.js', 1, []);
+    this.conductor.services.survey = Conductor.Oasis.Service.extend({
+      initialize: function (port) {
+        this.sandbox.surveyPort = port;
+      },
+      events: {
+        surveyTaken: function (data) {
+          console.log("User took a survey:", data);
+        }
+      }
+    });
+    this.addCard('../cards/tutorial/survey_card.js', 1, ['survey']);
   }
 };
 
