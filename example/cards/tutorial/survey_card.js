@@ -3,19 +3,61 @@
 Conductor.require('/vendor/jquery.js');
 Conductor.require('/example/libs/handlebars-1.0.0-rc.3.js');
 
-var template = '<div>{{message}}</div>';
+var gradingTemplate = '<div><form>{{#each grades}}<input type="radio" name="survey" value="{{this}}">{{this}}</br>{{/each}}<input id="grade" type="button" value="Grade"></div>';
+var gradeResultTemplate = '<div>Your rating: {{grade}} <button id="changeGrade">Change</button></div>';
 
 Conductor.card({
+  grade: null,
+  grades: ["A", "B", "C", "D", "F"],
+  renderMode: 'survey',
 
   activate: function( data ) {
+    this.consumers.height.autoUpdate = false;
     this.compileTemplates();
   },
 
   compileTemplates: function() {
-    template = Handlebars.compile(template);
+    gradingTemplate = Handlebars.compile(gradingTemplate);
+    gradeResultTemplate = Handlebars.compile(gradeResultTemplate);
   },
 
   render: function () {
-    $('body').html(template({ message: "Hello again, world!" }));
+    if (this.renderMode === 'survey') {
+      this.renderSurvey();
+    } else {
+      this.renderReport();
+    }
+  },
+
+  renderReport: function() {
+    var card = this;
+    this.renderMode = 'report';
+
+    $('body').html(gradeResultTemplate( this ));
+
+    $('#changeGrade').click( function( event ) {
+      $(this).off('click');
+      card.renderSurvey();
+    });
+  },
+
+  renderSurvey: function() {
+    var card = this;
+    this.renderMode = 'survey';
+
+    $('body').html(gradingTemplate(this));
+
+    if (this.grade) {
+      $('input:radio[name=survey][value="' + this.grade + '"]').attr('checked', 'checked');
+    }
+
+    $('#grade').click( function( event ) {
+      var grade = $('input:radio[name=survey]:checked').val();
+      if (grade) {
+        $(this).off('click');
+        card.grade = grade;
+        card.renderReport();
+      }
+    });
   }
 });
