@@ -2,6 +2,18 @@ Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('/example/cards/tutorial/youtube_card.css');
 
 Conductor.card({
+  consumers: {
+    video: Conductor.Oasis.Consumer.extend({
+      events: {
+        play: function () {
+          this.card.loadPlayer().then(function (player) {
+            player.playVideo();
+          });
+        }
+      }
+    })
+  },
+
   videoId: null,
 
   activate: function (data) {
@@ -34,7 +46,7 @@ Conductor.card({
         $('#player').show();
         break;
       default:
-        throw new Error("Unuspported intent '" + intent + "'");
+        throw new Error("Unsupported intent '" + intent + "'");
     }
   },
 
@@ -102,6 +114,14 @@ Conductor.card({
           events: {
             onReady: function() {
               promise.resolve(player);
+            },
+            onStateChange: function (event) {
+              var playerState = event.data;
+              if (playerState === YT.PlayerState.ENDED &&
+                  card.consumers.video) {
+
+                card.consumers.video.send('videoWatched');
+              }
             }
           }
         });
