@@ -6,33 +6,18 @@
   Playground.VideoService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.videoPort = port;
-    },
-
-    events: {
-      videoWatched: function () {
-      }
     }
   });
 
   Playground.SurveyService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.surveyPort = port;
-    },
-
-    events: {
-      surveyTaken: function () {
-      }
     }
   });
 
   Playground.SlotMachine = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.slotMachinePort = port;
-    },
-
-    events: {
-      getCoins: function () {
-      }
     }
   });
 
