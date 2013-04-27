@@ -97,7 +97,7 @@ Conductor.card({
 ### Loading Dependencies
 
 While a card starts off as a single JavaScript file, it can load
-additional dependencies by using the `Conductor.require` method:
+additional javascript dependencies by using the `Conductor.require` method:
 
 ```js
 Conductor.require('alert.js');
@@ -127,6 +127,11 @@ Conductor.card({
     createModel();
   }
 });
+```
+You can include CSS files in your card using the `Conductor.requireCSS` method:
+
+```js
+Conductor.requireCSS('card.css');
 ```
 
 ## Build Tools
