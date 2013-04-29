@@ -1,4 +1,4 @@
-Conductor.require('/test/fixtures/render/dep.js');
+Conductor.require('dep.js');
 
 var activated;
 
