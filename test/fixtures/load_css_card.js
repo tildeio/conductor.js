@@ -1,4 +1,4 @@
-Conductor.requireCSS("/test/fixtures/load_css.css");
+Conductor.requireCSS("load_css.css");
 
 Conductor.card({
   activate: function() {

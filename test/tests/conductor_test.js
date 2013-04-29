@@ -174,4 +174,14 @@ test("A card with child cards loads the data and the associated card", function(
   card.appendTo(qunitFixture);
 });
 
+test("`Conductor.require` uses relative path to the card", function() {
+  expect(1);
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      card = conductor.load("/test/fixtures/require_relative_card.js");
+
+  card.appendTo(qunitFixture);
+});
+
 })();

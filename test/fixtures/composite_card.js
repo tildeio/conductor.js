@@ -1,4 +1,4 @@
-Conductor.require("/test/fixtures/alert.js");
+Conductor.require("alert.js");
 
 Conductor.card({
   activate: function () {

@@ -134,6 +134,8 @@ You can include CSS files in your card using the `Conductor.requireCSS` method:
 Conductor.requireCSS('card.css');
 ```
 
+The path is relative to the card.
+
 ## Build Tools
 
 Conductor.js uses [Grunt](http://gruntjs.com/) to automate building and
