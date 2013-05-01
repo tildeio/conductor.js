@@ -1,8 +1,13 @@
+/*global Handlebars */
+
 Conductor.require('/vendor/jquery.js');
+Conductor.require('/example/libs/handlebars-1.0.0-rc.3.js');
 Conductor.requireCSS('/example/cards/tutorial/ad_card.css');
 
 var RSVP = Conductor.Oasis.RSVP;
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 2);
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 2),
+    videoCardUrl = crossOrigin + '/example/cards/tutorial/youtube_card.html';
+var videoSelectTemplate = '<div id="selectWrapper">Load Video: <select id="videoSelect">{{#each videoIds}}<option value="{{this}}">{{this}}</option>{{/each}}</select></div>';
 
 var card = Conductor.card({
   videoIds: ['4d8ZDSyFS2g', 'EquPUW83D-Q'],
@@ -52,21 +57,23 @@ var card = Conductor.card({
   },
 
   childCards: [
-    {url: destinationUrl + '/example/cards/tutorial/youtube_card.html', id: '1', options: { capabilities: ['video']}},
-    {url: destinationUrl + '/example/cards/tutorial/survey_card.html', id: '1',  options: { capabilities: ['survey']}}
+    {url: videoCardUrl, id: '1', options: { capabilities: ['video']}},
+    {url: crossOrigin + '/example/cards/tutorial/survey_card.html', id: '1',  options: { capabilities: ['survey']}}
   ],
 
   loadDataForChildCards: function(data) {
     var videoCardOptions = this.childCards[0],
         surveyCardOptions = this.childCards[1];
 
-    videoCardOptions.data = { videoId: data.videoId };
+    this.videoId = this.videoIds[0];
+    videoCardOptions.data = { videoId: this.videoId };
   },
 
-  activate: function (data) {
+  activate: function () {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
+    this.consumers.height.autoUpdate = false;
 
-    this.videoId = data.videoId;
+    videoSelectTemplate = Handlebars.compile(videoSelectTemplate);
     this.videoCard = this.childCards[0].card;
     this.surveyCard = this.childCards[1].card;
   },
@@ -107,8 +114,25 @@ var card = Conductor.card({
   },
 
   initializeDOM: function () {
-    this.videoCard.appendTo(document.body);
-    this.surveyCard.appendTo(document.body);
+    var card = this;
+
+    $(videoSelectTemplate(this)).appendTo('body');
+    $('#videoSelect').change(function () {
+      card.changeVideo($(this).val());
+    });
+
+    this.selectWrapperDiv = $('#selectWrapper');
+    this.cardWrapperDiv = $('<div id="cardWrapper"></div>');
+    this.cardWrapperDiv.appendTo('body');
+    this.videoCard.appendTo(this.cardWrapperDiv[0]);
+    this.surveyCard.appendTo(this.cardWrapperDiv[0]);
+  },
+
+  changeVideo: function (videoId) {
+    this.videoId = videoId;
+    console.log('Change the video to ' + videoId);
+    this.conductor.loadData(videoCardUrl, '1', { videoId: this.videoId });
+    this.render('video');
   },
 
   getDimensions: function () {
@@ -125,5 +149,7 @@ var card = Conductor.card({
         width: window.innerWidth
       };
     }
+
+    this.cardWrapperDiv.height(this._dimensions.height - this.selectWrapperDiv.height());
   }
 });
