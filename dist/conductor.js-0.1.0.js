@@ -1987,7 +1987,7 @@ define("oasis",
     requests: {
       get: function(promise, url) {
         var xhr = new XMLHttpRequest(),
-            absoluteURL = this.absPath( url );
+            absoluteURL = this.expandPath( url );
         xhr.onload = function(a1, a2, a3, a4) {
           if (this.status === 200) {
             promise.resolve(this.responseText);
@@ -2000,14 +2000,16 @@ define("oasis",
       }
     },
 
-    absPath: function(url){
-      var Loc = this.sandbox.options.url;
-      Loc = Loc.substring(0, Loc.lastIndexOf('/'));
+    expandPath: function(url){
+      var loc = this.sandbox.options.url;
+
+      loc = loc.substring(0, loc.lastIndexOf('/'));
+
       while (/^\.\./.test(url)){
-        Loc = Loc.substring(0, Loc.lastIndexOf('/'));
+        loc = loc.substring(0, loc.lastIndexOf('/'));
         url= url.substring(3);
       }
-      return Loc + '/' + url;
+      return loc + '/' + url;
     }
   });
 
