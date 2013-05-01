@@ -19,17 +19,23 @@ Conductor.card({
   activate: function (data) {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
     this.consumers.height.autoUpdate = false;
-    this.loadYouTubeAPI();
     this.videoId = data.videoId;
+    this.loadYouTubeAPI();
+  },
+
+  didUpdateData: function (bucket, data) {
+    this.videoId = data.videoId;
+    this.trigger('videoChanged');
   },
 
   initializeDOM: function () {
     $('body').html('<img id="thumbnail" /><div id="player"></div>');
     $('head').append('<script src="https://www.youtube.com/iframe_api"></script>');
 
-    $('#thumbnail').attr('src', 'http://img.youtube.com/vi/' + this.videoId + '/0.jpg');
+    this.updateThumbnail();
     this.on('resize', this.resizeThumbnail);
-    this.loadVideo(this.videoId);
+    this.on('videoChanged', this.updateThumbnail);
+    this.loadVideo();
   },
 
   render: function (intent, dimensions) {
@@ -55,6 +61,10 @@ Conductor.card({
     $('#thumbnail').css( dimensions );
   },
 
+  updateThumbnail: function () {
+    $('#thumbnail').attr('src', 'http://img.youtube.com/vi/' + this.videoId + '/0.jpg');
+  },
+
   getDimensions: function () {
     if (!this._dimensions) { this.setDimensions(); }
     return this._dimensions;
@@ -73,7 +83,7 @@ Conductor.card({
     this.trigger('resize');
   },
 
-  loadVideo: function (videoId) {
+  loadVideo: function () {
     var card = this;
 
     this.loadYouTubeAPI().then(function (YT) {
@@ -124,6 +134,10 @@ Conductor.card({
               }
             }
           }
+        });
+
+        card.on('videoChanged', function () {
+          card.player.cueVideoById(card.videoId, 0);
         });
 
         card.on('resize', function () {
