@@ -1770,10 +1770,33 @@ define("oasis",
     var options = Object.create(card.options);
     var domInitialized = false;
 
+    function resetCSS() {
+      var newScript = document.createElement('style');
+
+      var css = "";
+      css += "html, body {";
+      css += "  margin: 0;";
+      css += "  padding: 0;";
+      css += "}";
+
+      css += "iframe {";
+      css += "  display: block;";
+      css += "}";
+
+      newScript.innerHTML = css;
+
+      document.head.appendChild( newScript );
+    };
+
     options.events.render = function(args) {
-      if(!domInitialized && card.initializeDOM) {
+      if(!domInitialized) {
+        resetCSS();
+
+        if(card.initializeDOM) {
+          card.initializeDOM();
+        }
+
         domInitialized = true;
-        card.initializeDOM();
       }
       card.render.apply(card, args);
     };
