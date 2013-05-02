@@ -1,5 +1,4 @@
 Conductor.require('/example/libs/jquery-1.9.1.js');
-Conductor.requireCSS('/example/cards/ad-playlist/style.css');
 
 var AdCardUrl = '../cards/ad/card.js';
 
