@@ -56,8 +56,6 @@
       }).data('card', card);
 
       card.appendTo($card.find('.card')[0]).then(function() {
-        //card.sandbox.el.seamless = true;
-
         card.render('thumbnail', {
           width: 600,
           height: 600
