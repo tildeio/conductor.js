@@ -136,6 +136,10 @@ Conductor.requireCSS('card.css');
 
 The path is relative to the card.
 
+### Tutorial
+
+Learn more about authoring cards in [the tutorial](doc/Tutorial.md).
+
 ## Build Tools
 
 Conductor.js uses [Grunt](http://gruntjs.com/) to automate building and
