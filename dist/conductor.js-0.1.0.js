@@ -1771,7 +1771,7 @@ define("oasis",
     var domInitialized = false;
 
     function resetCSS() {
-      var newScript = document.createElement('style');
+      var newStyle = document.createElement('style');
 
       var css = "";
       css += "html, body {";
@@ -1783,10 +1783,10 @@ define("oasis",
       css += "  display: block;";
       css += "}";
 
-      newScript.innerHTML = css;
+      newStyle.innerHTML = css;
 
-      document.head.appendChild( newScript );
-    };
+      document.head.appendChild( newStyle );
+    }
 
     options.events.render = function(args) {
       if(!domInitialized) {
