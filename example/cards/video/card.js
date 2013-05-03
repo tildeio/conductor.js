@@ -1,7 +1,7 @@
-Conductor.require('/example/libs/jquery-1.9.1.js');
+Conductor.require('../../libs/jquery-1.9.1.js');
 // Youtube doesn't allow iframe_api via CORS
 //Conductor.require('https://www.youtube.com/iframe_api');
-Conductor.requireCSS('/example/cards/video/style.css');
+Conductor.requireCSS('style.css');
 
 var card = Conductor.card({
   consumers: {

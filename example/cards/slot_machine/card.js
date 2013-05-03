@@ -1,10 +1,10 @@
 /*global Handlebars*/
 
-Conductor.require('/example/libs/jquery-1.9.1.js');
-Conductor.require('/example/libs/handlebars-1.0.0-rc.3.js');
-Conductor.require('/example/libs/jquery.jSlots.js');
-Conductor.require('/example/libs/jquery.easing.1.3.js');
-Conductor.requireCSS('/example/cards/slot_machine/style.css');
+Conductor.require('../../libs/jquery-1.9.1.js');
+Conductor.require('../../libs/handlebars-1.0.0-rc.3.js');
+Conductor.require('../../libs/jquery.jSlots.js');
+Conductor.require('../../libs/jquery.easing.1.3.js');
+Conductor.requireCSS('style.css');
 
 var dashboardTemplate = '<div id="chances"></div><button id="play">Play Now</button>';
 var playTemplate =  '<div id="chances"></div><div id="drawing" class="fancy"></div><input type="button" id="spin" value="Spin!"></div><div id="getCoins"><button>{{insertCoinsLabel}}</button><span>for another chance to win</span></div>';

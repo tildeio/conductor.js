@@ -1,5 +1,5 @@
-Conductor.require('/example/libs/jquery-1.9.1.js');
-Conductor.requireCSS('/example/cards/ad/style.css');
+Conductor.require('../../libs/jquery-1.9.1.js');
+Conductor.requireCSS('style.css');
 
 var VideoService = Conductor.Oasis.Service.extend({
   initialize: function (port) {

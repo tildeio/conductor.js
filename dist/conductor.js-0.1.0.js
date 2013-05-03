@@ -1310,6 +1310,40 @@ define("oasis",
     }
   }
 
+  var PathUtils = window.PathUtils = {
+    dirname: function (path) {
+      return path.substring(0, path.lastIndexOf('/'));
+    },
+
+    expandPath: function (path) {
+      var parts = path.split('/');
+      for (var i = 0; i < parts.length; ++i) {
+        if (parts[i] === '..') {
+          for (var j = i-1; j >= 0; --j) {
+            if (parts[j] !== undefined) {
+              parts[i] = parts[j] = undefined;
+              break;
+            }
+          }
+        }
+      }
+      return parts.filter(function (part) { return part !== undefined; }).join('/');
+    },
+
+    cardResourceUrl: function(baseUrl, resourceUrl) {
+      var url;
+      if (/^((http(s?):)|\/)/.test(resourceUrl)) {
+        url = resourceUrl;
+      } else {
+        url = PathUtils.dirname(baseUrl) + '/' + resourceUrl;
+      }
+
+      return PathUtils.expandPath(url);
+    }
+  };
+
+  /*global PathUtils */
+
   (function() {
     var requiredUrls = [],
         requiredCSSUrls = [],
@@ -1442,7 +1476,20 @@ define("oasis",
 
         if(this.childCards) {
           this.conductor = new Conductor();
-          this.conductor.services.xhr = Conductor.MultiplexService.extend({ upstream: this.consumers.xhr });
+          this.conductor.services.xhr = Conductor.MultiplexService.extend({
+            upstream: this.consumers.xhr,
+            transformRequest: function (requestEventName, data) {
+              var base = this.sandbox.options.url;
+              if (requestEventName === 'get') {
+                data.args = data.args.map(function (resourceUrl) {
+                  var url = PathUtils.cardResourceUrl(base, resourceUrl);
+                  return PathUtils.cardResourceUrl(document.baseURI, url);
+                });
+              }
+
+              return data;
+            }
+          });
 
           // A child card may not need new services
           if( this.services ) {
@@ -1973,13 +2020,15 @@ define("oasis",
       }, this);
     },
 
-    propagateEvent: function (eventName, data) {
+    propagateEvent: function (eventName, _data) {
+      var data = (typeof this.transformEvent === 'function') ? this.transformEvent(eventName, _data) : _data;
       this.upstream.send(eventName, data);
     },
 
-    propagateRequest: function (eventName, data) {
+    propagateRequest: function (eventName, _data) {
       var requestEventName = eventName.substr("@request:".length),
           port = this.upstream.port,
+          data = (typeof this.transformRequest === 'function') ? this.transformRequest(requestEventName, _data) : _data,
           requestId = data.requestId,
           args = data.args,
           self = this;
@@ -2006,11 +2055,14 @@ define("oasis",
     }
   });
 
+  /*global PathUtils */
+
   Conductor.XHRService = Conductor.Oasis.Service.extend({
     requests: {
       get: function(promise, url) {
         var xhr = new XMLHttpRequest(),
-            absoluteURL = this.expandPath( url );
+            resourceUrl = PathUtils.cardResourceUrl(this.sandbox.options.url, url);
+
         xhr.onload = function(a1, a2, a3, a4) {
           if (this.status === 200) {
             promise.resolve(this.responseText);
@@ -2018,21 +2070,9 @@ define("oasis",
             promise.reject({status: this.status});
           }
         };
-        xhr.open("get", absoluteURL, true);
+        xhr.open("get", resourceUrl, true);
         xhr.send();
       }
-    },
-
-    expandPath: function(url){
-      var loc = this.sandbox.options.url;
-
-      loc = loc.substring(0, loc.lastIndexOf('/'));
-
-      while (/^\.\./.test(url)){
-        loc = loc.substring(0, loc.lastIndexOf('/'));
-        url= url.substring(3);
-      }
-      return loc + '/' + url;
     }
   });
 

@@ -1,4 +1,4 @@
-Conductor.require('/example/libs/jquery-1.9.1.js');
+Conductor.require('../../libs/jquery-1.9.1.js');
 
 var AdCardUrl = '../cards/ad/card.js';
 
