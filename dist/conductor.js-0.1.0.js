@@ -1832,7 +1832,7 @@ define("oasis",
 
       newStyle.innerHTML = css;
 
-      document.head.appendChild( newStyle );
+      document.head.insertBefore(newStyle, document.head.children[0]);
     }
 
     options.events.render = function(args) {
