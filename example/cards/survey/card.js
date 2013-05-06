@@ -2,6 +2,7 @@
 
 Conductor.require('../../libs/jquery-1.9.1.js');
 Conductor.require('../../libs/handlebars-1.0.0-rc.3.js');
+Conductor.requireCSS('style.css');
 
 var defaultTemplate = '<div><form>{{#each grades}}<input type="radio" name="survey" value="{{this}}">{{this}}</br>{{/each}}<input id="vote" type="button" value="Vote"></div>';
 var voteResultTemplate = 'Your rating: {{vote}} <button id="changeVote">Change</button></div>';
@@ -16,7 +17,7 @@ Conductor.card({
   renderMode: 'survey',
 
   activate: function( data ) {
-    this.self = this;
+    this.consumers.height.autoUpdate = false;
     this.compileTemplates();
   },
 

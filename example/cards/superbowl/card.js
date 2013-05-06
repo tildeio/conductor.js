@@ -43,6 +43,10 @@ var card = Conductor.card({
     slotMachine: SlotMachineService
   },
 
+  activate: function () {
+    this.consumers.height.autoUpdate = false;
+  },
+
   loadDataForChildCards: function( data) {
     this.childCards[1].data = data;
   },

@@ -33,6 +33,7 @@ var card = Conductor.card({
   renderMode: 'dashboard',
 
   activate: function(data) {
+    this.consumers.height.autoUpdate = false;
     if( data ) {
       this.coins = typeof(data.coins) === 'number' ? data.coins : this.coins;
       this.insertCoinsLabel = data.insertCoinsLabel || this.insertCoinsLabel;
