@@ -1,28 +1,6 @@
 Conductor.require('../../libs/jquery-1.9.1.js');
 Conductor.requireCSS('style.css');
 
-var VideoService = Conductor.Oasis.Service.extend({
-  initialize: function (port) {
-    this.sandbox.videoPort = port;
-  },
-  events: {
-    'videoWatched': function () {
-      card.render('takeSurvey');
-    }
-  }
-});
-
-var SurveyService = Conductor.Oasis.Service.extend({
-  events: {
-    'surveyTaken': function (grade) {
-      card.consumers.survey.send('surveyTaken', {
-        videoId: card.videoId,
-        grade: grade
-      });
-    }
-  }
-});
-
 var card = Conductor.card({
   consumers: {
     survey: Conductor.Oasis.Consumer,
@@ -43,9 +21,28 @@ var card = Conductor.card({
     {url: '../cards/video/card.js', options: { capabilities: ['video']}},
     {url: '../cards/survey/card.js', options: { capabilities: ['survey']}}
   ],
+
   services: {
-    video: VideoService,
-    survey: SurveyService
+    video: Conductor.Oasis.Service.extend({
+      initialize: function (port) {
+        this.sandbox.videoPort = port;
+      },
+      events: {
+        'videoWatched': function () {
+          card.render('takeSurvey');
+        }
+      }
+    }),
+    survey: Conductor.Oasis.Service.extend({
+      events: {
+        'surveyTaken': function (grade) {
+          card.consumers.survey.send('surveyTaken', {
+            videoId: card.videoId,
+            grade: grade
+          });
+        }
+      }
+    })
   },
 
   loadDataForChildCards: function(data) {
@@ -61,9 +58,17 @@ var card = Conductor.card({
   activate: function (data) {
     Conductor.Oasis.RSVP.EventTarget.mixin(this);
 
+    this.consumers.height.autoUpdate = false;
+
     this.videoId = data.videoId;
     this.videoCard = this.childCards[0].card;
     this.surveyCard = this.childCards[1].card;
+
+    this.videoCard.sandbox.then(function () {
+      card.videoCard.sandbox.el.on('resize', function (dimensions) {
+        card.videoCardDidResize(dimensions);
+      });
+    });
   },
 
   render: function (intent, _dimensions) {
@@ -83,22 +88,32 @@ var card = Conductor.card({
         $(this.surveyCard.sandbox.el).hide();
         break;
       case "takeSurvey":
-        var videoWidth = dimensions.height * (267/200),
-            surveyWidth = dimensions.width - videoWidth;
+        var width = dimensions.width * (1/2);
         $(this.videoCard.sandbox.el).css({
-          width: videoWidth,
+          width: width,
           height: dimensions.height
         });
         $(this.surveyCard.sandbox.el).css({
-          width: surveyWidth,
+          width: width,
           height: dimensions.height
         });
-        this.videoCard.render('thumbnail', {width: videoWidth,    height: dimensions.height });
-        this.surveyCard.render('small', {width: surveyWidth, height: dimensions.height });
+        this.videoCard.render('thumbnail', {width: width, height: dimensions.height });
+        this.surveyCard.render('small', {width: width, height: dimensions.height });
         $(this.surveyCard.sandbox.el).show();
         break;
       case "summary":
         break;
+    }
+  },
+
+  videoCardDidResize: function (videoCardDimensions) {
+    if (this.renderIntent === "takeSurvey") {
+      var surveyWidth = this.getDimensions().width - videoCardDimensions.width;
+      this.surveyCard.render('small', {width: surveyWidth, height: videoCardDimensions.height });
+      $(this.surveyCard.sandbox.el).css({
+        width: surveyWidth,
+        height: videoCardDimensions.height
+      });
     }
   },
 

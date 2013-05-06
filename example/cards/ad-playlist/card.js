@@ -38,6 +38,7 @@ var card = Conductor.card({
   },
 
   activate: function (data) {
+    this.consumers.height.autoUpdate = false;
     // this may need to go in loadDataForChildCards
     this.adIds = Object.keys(data);
   },

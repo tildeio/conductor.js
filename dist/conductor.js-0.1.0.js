@@ -1688,7 +1688,8 @@ define("oasis",
     ```
   */
   Conductor.heightConsumer = function (card) {
-    return Conductor.Oasis.Consumer.extend({ autoUpdate: true,
+    return Conductor.Oasis.Consumer.extend({
+      autoUpdate: true,
 
       initialize: function () {
         var consumer = this;
@@ -1939,15 +1940,15 @@ define("oasis",
 
   Conductor.HeightService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
+      var el;
+      if (el = this.sandbox.el) {
+        Conductor.Oasis.RSVP.EventTarget.mixin(el);
+      }
       this.sandbox.heightPort = port;
     },
 
     events: {
       resize: function (data) {
-        // TODO: remove this and fix up the demo to use the height service
-        // properly
-        if (true) { return; }
-
         // height service is meaningless for DOMless sandboxes, eg sandboxed as
         // web workers.
         if (! this.sandbox.el) { return; }
@@ -1960,6 +1961,8 @@ define("oasis",
 
         el.style.width = width + "px";
         el.style.height = height + "px";
+
+        el.trigger('resize', { width: width, height: height });
       }
     }
   });
