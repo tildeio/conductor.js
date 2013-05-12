@@ -29,6 +29,9 @@ cd conductor.js
 # Install grunt-cli
 npm install -g grunt-cli
 
+# Install conductor.js dependencies
+npm install
+
 # Start the server
 grunt server
 ```
