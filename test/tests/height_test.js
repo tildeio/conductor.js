@@ -57,7 +57,7 @@ test("HeightConsumer's `update` without dimensions sends the dimensions of the d
   stop();
 
   card = conductor.load('/test/fixtures/resize_implicit_dimensions_card.js');
-  card.appendTo(document.body);
+  card.appendTo('#qunit-fixture');
 
   card.then(function () {
     card.sandbox.heightPort.on('resize', function () {
@@ -72,7 +72,7 @@ test("HeightConsumer will not autoupdate if autoupdate is set to false during ca
   stop();
 
   card = conductor.load('/test/fixtures/resize_no_auto_card.js');
-  card.appendTo(document.body);
+  card.appendTo('#qunit-fixture');
 
   card.then(function () {
     card.sandbox.heightPort.on('resize', function () {
@@ -91,7 +91,7 @@ test("HeightConsumer will autoupdate by default", function() {
   stop();
 
   card = conductor.load('/test/fixtures/resize_auto_card.js');
-  card.appendTo(document.body);
+  card.appendTo('#qunit-fixture');
 
   card.then(function () {
     card.sandbox.heightPort.on('resize', function () {
