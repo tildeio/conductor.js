@@ -68,6 +68,21 @@ test("HeightConsumer's `update` without dimensions sends the dimensions of the d
   });
 });
 
+test("HeightConsumer's `update` without dimensions sends the computed dimensions of the document in a resize event", function() {
+  stop();
+
+  card = conductor.load('/test/fixtures/resize_no_dimensions_card.js');
+  card.appendTo('#qunit-fixture');
+
+  card.then(function () {
+    card.sandbox.heightPort.on('resize', function () {
+      equal($(card.sandbox.el).width(), 300, "HeightService updated width");
+      equal($(card.sandbox.el).height(), 32, "HeightService updated height");
+      start();
+    });
+  });
+});
+
 test("HeightConsumer will not autoupdate if autoupdate is set to false during card activation", function() {
   stop();
 

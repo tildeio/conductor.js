@@ -1726,6 +1726,9 @@ define("oasis",
             extraHSpace += parseInt(DomUtils.getComputedStyleProperty(document.body, hspaceProps[i]), 10);
           }
 
+          height = parseInt(DomUtils.getComputedStyleProperty(document.body, 'height'), 10) + extraVSpace;
+          width = parseInt(DomUtils.getComputedStyleProperty(document.body, 'width'), 10) + extraHSpace;
+
           for (i = 0; i < len; ++i) {
             childNode = childNodes[i];
             if (childNode.nodeType !== Node.ELEMENT_NODE ) { continue; }
