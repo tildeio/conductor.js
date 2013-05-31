@@ -48,8 +48,7 @@ test("A card can initialize the DOM before rendering the first time", function()
 
   card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
-    card.render('thumbnail');
-    start();
+    card.render('start');
   });
 });
 
