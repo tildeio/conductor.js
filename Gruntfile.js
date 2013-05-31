@@ -96,7 +96,7 @@ module.exports = function(grunt) {
       },
 
       dist: {
-        src: ['lib/loader.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'tmp/conductor.browser.js'],
+        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'tmp/conductor.browser.js'],
         dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
       }
     },
