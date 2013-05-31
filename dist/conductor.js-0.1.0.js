@@ -2589,6 +2589,19 @@ define("oasis",
     }
   }
 
+  DomUtils.createStyleElement = function(css) {
+    var style = document.createElement('style');
+
+    style.type = 'text/css';
+    if (style.styleSheet){
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+
+    return style;
+  };
+
   var PathUtils = window.PathUtils = {
     dirname: function (path) {
       return path.substring(0, path.lastIndexOf('/'));
@@ -2992,8 +3005,8 @@ define("oasis",
               len = childNodes.length,
               extraVSpace = 0,
               extraHSpace = 0,
-              vspaceProps = ['margin-top', 'margin-bottom', 'padding-top', 'padding-bottom', 'border-top-width', 'border-bottom-width'],
-              hspaceProps = ['margin-left', 'margin-right', 'padding-left', 'padding-right', 'border-left-width', 'border-right-width'],
+              vspaceProps = ['marginTop', 'marginBottom', 'paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'],
+              hspaceProps = ['marginLeft', 'marginRight', 'paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'],
               i,
               childNode;
 
@@ -3098,19 +3111,19 @@ define("oasis",
     var domInitialized = false;
 
     function resetCSS() {
-      var newStyle = document.createElement('style');
+      var css = "",
+          newStyle;
 
-      var css = "";
       css += "html, body {";
-      css += "  margin: 0;";
-      css += "  padding: 0;";
+      css += "  margin: 0px;";
+      css += "  padding: 0px;";
       css += "}";
 
       css += "iframe {";
       css += "  display: block;";
       css += "}";
 
-      newStyle.innerHTML = css;
+      newStyle = DomUtils.createStyleElement(css);
 
       document.head.insertBefore(newStyle, document.head.children[0]);
     }
@@ -3154,8 +3167,7 @@ define("oasis",
       }
 
       function processCSS(data) {
-        var style = document.createElement('style');
-        style.innerText = data;
+        var style = DomUtils.createStyleElement(data);
         document.head.appendChild(style);
       }
 
@@ -3213,7 +3225,7 @@ define("oasis",
   /*global DomUtils*/
 
   function maxDim(element, dim) {
-    var max = DomUtils.getComputedStyleProperty(element, 'max-' + dim);
+    var max = DomUtils.getComputedStyleProperty(element, 'max' + dim);
     return (max === "none") ? Infinity : parseInt(max, 10);
   }
 
@@ -3233,8 +3245,8 @@ define("oasis",
         if (! this.sandbox.el) { return; }
 
         var el = this.sandbox.el,
-            maxWidth = maxDim(el, 'width'),
-            maxHeight = maxDim(el, 'height'),
+            maxWidth = maxDim(el, 'Width'),
+            maxHeight = maxDim(el, 'Height'),
             width = Math.min(data.width, maxWidth),
             height = Math.min(data.height, maxHeight);
 
