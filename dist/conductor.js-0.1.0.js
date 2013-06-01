@@ -1742,8 +1742,7 @@ define("oasis",
         return "importScripts('" + base + url + "'); ";
       }
 
-      var src = "";
-      src += importScriptsString("oasis.js");
+      var src = importScriptsString("oasis.js");
       dependencyURLs.forEach(function(url) {
         src += importScriptsString(url);
       });
@@ -2980,6 +2979,8 @@ define("oasis",
     ```
   */
   Conductor.heightConsumer = function (card) {
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
     return Conductor.Oasis.Consumer.extend({
       autoUpdate: true,
 
@@ -3106,6 +3107,8 @@ define("oasis",
     return Conductor.Oasis.Consumer;
   };
 
+  /*global DomUtils*/
+
   Conductor.renderConsumer = function(promise, card) {
     var options = Object.create(card.options);
     var domInitialized = false;
@@ -3143,6 +3146,8 @@ define("oasis",
 
     return Conductor.Oasis.Consumer.extend(options);
   };
+
+  /*global DomUtils*/
 
   Conductor.xhrConsumer = function(requiredUrls, requiredCSSUrls, promise, card) {
     var options = Object.create(card.options);
