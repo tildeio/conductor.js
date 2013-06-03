@@ -3,6 +3,8 @@ define("oasis",
   function(RSVP) {
     "use strict";
 
+    var URL = this.URL || this.webkitURL;
+
     function assert(assertion, string) {
       if (!assertion) {
         throw new Error(string);
@@ -90,7 +92,7 @@ define("oasis",
 
       connectPorts: function(sandbox, ports) {
         var rawPorts = ports.map(function(port) { return port.port; });
-        sandbox.el.contentWindow.postMessage({ isOasisInitialization: true, capabilities: sandbox.capabilities }, rawPorts, '*');
+        Window.postMessage(sandbox.el.contentWindow, { isOasisInitialization: true, capabilities: sandbox.capabilities }, '*', rawPorts);
       },
 
       startSandbox: function(sandbox) {
@@ -178,7 +180,7 @@ define("oasis",
 
       connectPorts: function(sandbox, ports) {
         var rawPorts = ports.map(function(port) { return port.port; });
-        sandbox.worker.postMessage({ isOasisInitialization: true, capabilities: sandbox.capabilities }, rawPorts, '*');
+        Worker.postMessage(sandbox.worker, { isOasisInitialization: true, capabilities: sandbox.capabilities }, rawPorts);
       },
 
       startSandbox: function(sandbox) { },

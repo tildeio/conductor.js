@@ -7,6 +7,9 @@ Conductor.card({
 
   render: function(intent) {
     rendered = true;
+    if( intent === 'start' ) {
+      start();
+    }
   }
 });
 
