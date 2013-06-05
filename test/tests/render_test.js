@@ -48,13 +48,12 @@ test("A card can initialize the DOM before rendering the first time", function()
 
   card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
-    card.render('thumbnail');
-    start();
+    card.render('start');
   });
 });
 
 test("A card adjusts the css to maximize the space", function() {
-  expect(5);
+  expect(17);
   var card = conductor.load('/test/fixtures/render/reset_css_card.js');
 
   stop();
