@@ -65,7 +65,7 @@
           width: 600,
           height: 600
         });
-      });
+      }, Conductor.error);
 
       $card.find('button').on('click', function() {
         $card.animate({

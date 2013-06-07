@@ -2466,6 +2466,18 @@ define("oasis",
       this.capabilities = Conductor.capabilities.slice();
     };
 
+    Conductor.error = function (error) {
+      if (typeof console === 'object' && console.assert && console.error) {
+        // chrome does not (yet) link the URLs in `console.assert`
+        console.error(error.stack);
+        console.assert(false, error.message);
+      } else {
+        setTimeout( function () {
+          throw error;
+        }, 1);
+      }
+    };
+
     Conductor.Oasis = requireModule('oasis');
 
     var requiredUrls = [],
@@ -2683,7 +2695,7 @@ define("oasis",
       this.promise = new RSVP.Promise();
       activatePromise.then(function () {
         card.promise.resolve(card);
-      });
+      }, Conductor.error);
 
       var cardOptions = {
         consumers: extend({
@@ -2705,7 +2717,7 @@ define("oasis",
     Conductor.Card.prototype = {
       promise: function(callback) {
         var promise = new Promise();
-        if (callback) { promise.then(callback); }
+        if (callback) { promise.then(callback, Conductor.error) };
         return promise;
       },
 
@@ -2836,7 +2848,7 @@ define("oasis",
 
     sandbox.then(function() {
       promise.resolve(card);
-    });
+    }, Conductor.error);
 
     return this;
   };
@@ -2867,14 +2879,14 @@ define("oasis",
 
       this.sandbox.activatePromise.then(function() {
         card.sandbox.renderPort.send('render', [intent, dimensions]);
-      });
+      }, Conductor.error);
     },
 
     updateData: function(bucket, data) {
       var sandbox = this.sandbox;
       sandbox.activatePromise.then(function() {
         sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
-      });
+      }, Conductor.error);
     },
 
     then: function() {
