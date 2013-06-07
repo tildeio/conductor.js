@@ -33,7 +33,7 @@
 
         $('.report.popover .metadata').empty().append(table);
         Playground.repositionPopover();
-      });
+      }, Conductor.error);
     },
 
     unbindReportPopover: function(card) { }
