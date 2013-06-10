@@ -106,7 +106,49 @@ module.exports = function(grunt) {
         jshintrc: './.jshintrc'
       },
       all: ['Gruntfile.js', 'lib/**/*.js', 'test/tests/**/*.js']
+    },
+
+    'saucelabs-qunit': {
+      all: {
+        options: {
+          urls: [
+            'http://localhost:8000/test/index.html'
+          ],
+          tunnelTimeout: 5,
+          build: process.env.TRAVIS_JOB_ID,
+          concurrency: 3,
+          browsers: [{
+            browserName: 'internet explorer',
+            version: '8',
+            platform: 'Windows XP'
+          },{
+            browserName: 'internet explorer',
+            version: '9',
+            platform: 'Windows 7'
+          },{
+            browserName: 'internet explorer',
+            version: '10',
+            platform: 'Windows 8'
+          },{
+            browserName: 'chrome',
+            version: '27',
+            platform: 'Windows 8'
+          },{
+            browserName: 'firefox',
+            version: '21',
+            platform: 'Windows 8'
+          },{
+            browserName: 'safari',
+            version: '6',
+            platform: 'OS X 10.8'
+          }],
+          testname: "Conductor.js qunit tests",
+          testTimeout: 15000,
+          testInterval: 5000
+        }
+      }
     }
+
   });
 
   // Load tasks from npm
@@ -115,6 +157,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-saucelabs');
 
   // Multi-task for es6-module-transpiler
   this.registerMultiTask('transpile', "Transpile ES6 modules into AMD, CJS or globals", function() {
@@ -148,5 +191,5 @@ module.exports = function(grunt) {
     });
   });
 
-
+  grunt.registerTask('test', ['concat:tests', 'connect', 'saucelabs-qunit']);
 };

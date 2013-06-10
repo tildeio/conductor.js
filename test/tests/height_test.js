@@ -1,6 +1,6 @@
 var conductor, card;
 
-QUnit.config.testTimeout = 10000;
+QUnit.config.testTimeout = QUnit.config.testTimeout > 10000 ? QUnit.config.testTimeout : 10000;
 
 module('Height Service', {
   setup: function() {

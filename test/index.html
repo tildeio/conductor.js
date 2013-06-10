@@ -4,13 +4,28 @@
   <meta charset="utf-8">
   <title>QUnit Example</title>
   <link rel="stylesheet" href="lib/qunit-1.11.0.css">
-</head>
-<body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
   <script src="lib/qunit-1.11.0.js"></script>
   <script src="vendor/jquery-1.9.1.js"></script>
   <script src="/dist/conductor.js-0.1.0.js"></script>
   <script src="/tmp/conductor_tests.js"></script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script type="text/javascript">
+    $(document)
+    .ready(function(){
+        $('#qunit-tests').addClass('hidepass');
+    })
+    .delegate("#qunit-testrunner-toolbar", "DOMNodeInserted", function(e){
+        $('#qunit-tests').addClass('hidepass');
+        $("#qunit-filter-pass").attr("checked", true)
+    })
+    .delegate("#qunit-filter-pass", "click", function(e){
+        e.stopPropagation();
+        var newValue = $(this).is(":checked");
+        $('#qunit-tests').toggleClass('hidepass', newValue);
+        });
+  </script>
 </body>
 </html>
