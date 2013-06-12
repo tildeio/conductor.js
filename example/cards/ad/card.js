@@ -7,6 +7,8 @@ var card = Conductor.card({
     video: Conductor.Oasis.Consumer.extend({
       events: {
         play: function () {
+          var card = this.card;
+
           card.promise.then(function () {
             return card.videoCard.promise;
           }).then(function () {

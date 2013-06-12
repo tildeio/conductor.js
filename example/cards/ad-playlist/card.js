@@ -22,7 +22,7 @@ var card = Conductor.card({
     adPlaylist: Conductor.Oasis.Consumer.extend({
       events: {
         nextAd: function() {
-          card.nextAd(true);
+          this.card.nextAd(true);
           $('#try-luck').hide();
         }
       }
