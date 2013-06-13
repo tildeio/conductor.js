@@ -115,6 +115,7 @@ module.exports = function(grunt) {
             'http://localhost:8000/test/index.html'
           ],
           tunnelTimeout: 5,
+          /*global process */
           build: process.env.TRAVIS_JOB_ID,
           concurrency: 3,
           browsers: [{

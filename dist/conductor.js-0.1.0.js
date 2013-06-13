@@ -2717,7 +2717,7 @@ define("oasis",
     Conductor.Card.prototype = {
       promise: function(callback) {
         var promise = new Promise();
-        if (callback) { promise.then(callback, Conductor.error) };
+        if (callback) { promise.then(callback, Conductor.error); }
         return promise;
       },
 
