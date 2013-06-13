@@ -9,10 +9,10 @@ module.exports = function(grunt) {
   this.registerTask('default', ['build']);
 
   // Build a new version of the library
-  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist']);
+  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist', 'copy']);
 
   // Build a dev version of the library
-  this.registerTask('build-dev', "Builds a development version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist']);
+  this.registerTask('build-dev', "Builds a development version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist', 'copy']);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
   this.registerTask('server', ['concat:tests', 'build-dev', 'connect', 'watch']);
@@ -62,23 +62,24 @@ module.exports = function(grunt) {
 
     transpile: {
       amd: {
-        options: {
-          format: 'amd',
-          name: 'conductor'
-        },
-
-        src: "tmp/conductor.js",
-        dest: "tmp/conductor.amd.js"
+        type: "amd",
+        files: [{
+          expand: true,
+          cwd: 'tmp/',
+          src: ['conductor.js'],
+          dest: 'tmp/amd'
+        }]
       },
 
       globals: {
-        options: {
-          name: 'conductor',
-          format: 'globals'
-        },
-
-        src: "tmp/conductor.js",
-        dest: "tmp/conductor.browser.js"
+        type: "globals",
+        imports: {oasis: 'Oasis'},
+        files: [{
+          expand: true,
+          cwd: 'tmp/',
+          src: ['conductor.js'],
+          dest: 'tmp/browser'
+        }]
       }
     },
 
@@ -96,8 +97,16 @@ module.exports = function(grunt) {
       },
 
       dist: {
-        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'tmp/conductor.browser.js'],
+        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/conductor.js'],
         dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
+      }
+    },
+
+    copy: {
+      amd: {
+        files: [
+          {src: ['tmp/amd/conductor.js'], dest: 'dist/conductor.amd.js'}
+        ]
       }
     },
 
@@ -147,38 +156,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-saucelabs');
+  grunt.loadNpmTasks('grunt-es6-module-transpiler');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
-  // Multi-task for es6-module-transpiler
-  this.registerMultiTask('transpile', "Transpile ES6 modules into AMD, CJS or globals", function() {
-    var Compiler = require("es6-module-transpiler/lib/compiler");
-
-    var options = this.options({
-      format: 'amd'
-    });
-
-    this.files.forEach(function(f) {
-      var contents = f.src.map(function(path) {
-        var compiler = new Compiler(grunt.file.read(path), options.name, options);
-        var format;
-
-        switch (options.format) {
-          case 'amd':
-            console.log("Compiling " + path + " to AMD");
-            format = compiler.toAMD;
-            break;
-          case 'globals':
-            format = compiler.toGlobals;
-            break;
-          case 'commonjs':
-            format = compiler.toCJS;
-            break;
-        }
-        return format.call(compiler);
-      });
-
-      grunt.file.write(f.dest, contents);
-    });
-  });
 
   grunt.registerTask('test', ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
 };
