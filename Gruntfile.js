@@ -180,5 +180,5 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('test', ['concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test', ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
 };
