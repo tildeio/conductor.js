@@ -85,14 +85,13 @@ define("conductor",
         var sandbox = Conductor.Oasis.createSandbox({
           url: url,
           capabilities: capabilities,
-          oasisURL: '/dist/conductor.js-0.1.0.js',
+          oasisURL: '/dist/conductor.js-0.1.0.js.html',
           services: this.services
         });
 
         sandbox.data = data;
-        sandbox.activatePromise = new Promise();
-
-        sandbox.start();
+        sandbox.activateDefered = RSVP.defer();
+        sandbox.activatePromise = sandbox.activateDefered.promise;
 
         var card = new Conductor.CardReference(sandbox);
 
@@ -206,6 +205,14 @@ define("conductor",
         return a;
       }
 
+      function getBase () {
+        var link = document.createElement("a");
+        link.href = "!";
+        var base = link.href.slice(0, -1);
+
+        return base;
+      }
+
       Conductor.require = function(url) {
         requiredUrls.push(url);
       };
@@ -224,31 +231,32 @@ define("conductor",
         this.consumers = Object.create(Conductor.Oasis.consumers);
         this.options = options = options || {};
 
-        var renderPromise = this.promise();
+        var renderDefered = this.defer();
 
-        var xhrPromise = this.promise();
+        var xhrDefered = this.defer();
 
         options.events = options.events || {};
         options.requests = options.requests || {};
 
-        var assertionPromise = this.promise();
-        var dataPromise = this.promise();
+        var assertionDefered = this.defer();
+        var dataDefered = this.defer();
 
-        var activatePromise = this.activateWhen(dataPromise, [ xhrPromise ]);
+        var activatePromise = this.activateWhen(dataDefered.promise, [ xhrDefered.promise ]);
 
-        this.promise = new RSVP.Promise();
-        activatePromise.then(function () {
-          card.promise.resolve(card);
-        }, Conductor.error);
+        this.promise = new Promise(function (resolve, reject) {
+          activatePromise.then(function () {
+            resolve(card);
+          }, Conductor.error);
+        });
 
         var cardOptions = {
           consumers: extend({
-            xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrPromise, this),
-            render: Conductor.renderConsumer(renderPromise, this),
+            xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrDefered, this),
+            render: Conductor.renderConsumer(renderDefered, this),
             metadata: Conductor.metadataConsumer(this),
             // TODO: this should be a custom consumer provided in tests
-            assertion: Conductor.assertionConsumer(assertionPromise, this),
-            data: Conductor.dataConsumer(dataPromise, this),
+            assertion: Conductor.assertionConsumer(assertionDefered, this),
+            data: Conductor.dataConsumer(dataDefered, this),
             lifecycle: Conductor.lifecycleConsumer(activatePromise),
             height: Conductor.heightConsumer(this),
             nestedWiretapping: Conductor.nestedWiretapping(this)
@@ -263,10 +271,10 @@ define("conductor",
       };
 
       Conductor.Card.prototype = {
-        promise: function(callback) {
-          var promise = new Promise();
-          if (callback) { promise.then(callback, Conductor.error); }
-          return promise;
+        defer: function(callback) {
+          var defered = RSVP.defer();
+          if (callback) { defered.promise.then(callback, Conductor.error); }
+          return defered;
         },
 
         updateData: function(name, hash) {
@@ -290,8 +298,8 @@ define("conductor",
               ]
             });
 
-         Any `Conductor.Oasis.Service` needed for a child card can be simply declared with the `services` attribute
-         A card can contain other cards.
+         Any `Conductor.Oasis.Service` needed for a child card can be simply
+         declared with the `services` attribute A card can contain other cards.
 
          Example:
 
@@ -304,9 +312,11 @@ define("conductor",
               ]
             });
 
-         `loadDataForChildCards` can be defined when a child card needs data passed to the parent card.
+         `loadDataForChildCards` can be defined when a child card needs data passed
+         to the parent card.
 
-         Once `initializeChildCards` has been called, the loaded card can be accessed through the `childCards` attribute.
+         Once `initializeChildCards` has been called, the loaded card can be
+         accessed through the `childCards` attribute.
 
          Example:
 
@@ -320,7 +330,9 @@ define("conductor",
             // After `initializeChildCards` has been called
             var surveyCard = card.childCards[0].card;
 
-          The easy way to add a child card to the DOM is through the `initializeDOM` hook from the `render` service.
+          Child cards can be added to the DOM by overriding `initializeDOM`.  The
+          default behavior of `initializeDOM` is to add all child cards to the body
+          element.
          */
         initializeChildCards: function( data ) {
           var prop;
@@ -334,7 +346,7 @@ define("conductor",
                 if (requestEventName === 'get') {
                   data.args = data.args.map(function (resourceUrl) {
                     var url = PathUtils.cardResourceUrl(base, resourceUrl);
-                    return PathUtils.cardResourceUrl(document.baseURI, url);
+                    return PathUtils.cardResourceUrl(getBase(), url);
                   });
                 }
 
@@ -368,6 +380,16 @@ define("conductor",
           }
         },
 
+        initializeDOM: function () {
+          if (this.childCards) {
+            this.childCards.forEach(function(cardInfo) {
+              cardInfo.card.appendTo(document.body);
+            });
+          }
+        },
+
+        render: function () {},
+
         activateWhen: function(dataPromise, otherPromises) {
           var card = this;
 
@@ -389,14 +411,18 @@ define("conductor",
 
     (function() {
 
+    var Promise = Conductor.Oasis.RSVP.Promise;
+
     var CardReference = Conductor.CardReference = function(sandbox) {
       this.sandbox = sandbox;
+      var card = this;
 
-      var promise = this.promise = new Conductor.Oasis.RSVP.Promise(), card = this;
-
-      sandbox.then(function() {
-        promise.resolve(card);
-      }, Conductor.error);
+      // TODO: can we just resolve(sandbox.promise)?
+      this.promise = new Promise(function (resolve, reject) {
+        sandbox.promise.then(function() {
+          resolve(card);
+        }, Conductor.error);
+      });
 
       return this;
     };
@@ -435,10 +461,6 @@ define("conductor",
         sandbox.activatePromise.then(function() {
           sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
         }, Conductor.error);
-      },
-
-      then: function() {
-        return this.promise.then.apply(this.promise, arguments);
       },
 
       wiretap: function(callback, binding) {
@@ -503,6 +525,7 @@ define("conductor",
         }
       });
     };
+
     /*global DomUtils*/
 
     /**
@@ -633,12 +656,12 @@ define("conductor",
 
       options.requests.metadataFor = function(resolver, name) {
         if (name === '*') {
-          var promises = [], names = [], promise;
+          var promises = [], names = [], defered;
 
           for (var metadataName in options.metadata) {
-            promise = new Conductor.Oasis.RSVP.Promise();
-            card.metadata[metadataName].call(card, promise);
-            promises.push(promise);
+            defered = Conductor.Oasis.RSVP.defer();
+            card.metadata[metadataName].call(card, defered);
+            promises.push(defered.promise);
             names.push(metadataName);
           }
 
@@ -826,7 +849,7 @@ define("conductor",
     Conductor.LifecycleService = Conductor.Oasis.Service.extend({
       events: {
         activated: function() {
-          this.sandbox.activatePromise.resolve();
+          this.sandbox.activateDefered.resolve();
         }
       }
     });

@@ -11,6 +11,6 @@ Conductor.card({
         return data;
       }
     });
-    conductor.load("/test/fixtures/load_card.js");
+    conductor.load("/test/fixtures/load_card.js").appendTo(document.body);
   }
 });

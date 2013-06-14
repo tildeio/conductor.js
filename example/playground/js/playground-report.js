@@ -9,7 +9,7 @@
     bindReportPopover: function(card) {
       $('.report.popover .metadata').empty();
 
-      card.then(function() {
+      card.promise.then(function() {
         return card.metadataFor('*');
       }).then(function(metadata) {
         var table = $('<table>'),

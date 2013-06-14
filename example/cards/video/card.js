@@ -10,7 +10,7 @@ Conductor.card({
         play: function () {
           var card = this.card;
           card.promise.then(function () {
-            return card.playerPromise();
+            return card.playerDefered().promise;
           }).then(function () {
             card.player.playVideo();
           });
@@ -66,7 +66,7 @@ Conductor.card({
         },
         events: {
           onReady: function() {
-            card.playerPromise().resolve(card.player);
+            card.playerDefered().resolve(card.player);
           },
           onStateChange: function (event) {
             var playerState = event.data;
@@ -107,24 +107,25 @@ Conductor.card({
     this.trigger('resize');
   },
 
-  playerPromise: function () {
-    if (!this._playerPromise) {
-      this._playerPromise = new Conductor.Oasis.RSVP.Promise();
+  playerDefered: function () {
+    if (!this._playerDefered) {
+      this._playerDefered = new Conductor.Oasis.RSVP.defer();
     }
 
-    return this._playerPromise;
+    return this._playerDefered;
   },
 
   youtubePromise: function () {
     if (!this._youtubePromise) {
-      var promise = this._youtubePromise = new Conductor.Oasis.RSVP.Promise();
-      if (window.YT) {
-        promise.resolve(window.YT);
-      } else {
-        window.onYouTubeIframeAPIReady = function () {
-          promise.resolve(window.YT);
-        };
-      }
+      this._youtubePromise = new Conductor.Oasis.RSVP.Promise(function (resolve, reject) {
+        if (window.YT) {
+          resolve(window.YT);
+        } else {
+          window.onYouTubeIframeAPIReady = function () {
+            resolve(window.YT);
+          };
+        }
+      });
     }
 
     return this._youtubePromise;
