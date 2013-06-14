@@ -184,4 +184,26 @@ test("`Conductor.require` uses relative path to the card", function() {
   card.appendTo(qunitFixture);
 });
 
+test("Cards' consumers have access to the card", function() {
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      CustomService = Conductor.Oasis.Service.extend({
+        events: {
+          result: function (result) {
+            start();
+            equal(result,"success", "Cards consumers have access to the card");
+          }
+        }
+      }),
+      card;
+
+  conductor.services.custom = CustomService;
+  card = conductor.load(  "/test/fixtures/consumer_access_card.js",
+                          1,
+                          { capabilities: ['custom'] });
+
+  card.appendTo(qunitFixture);
+});
+
 })();

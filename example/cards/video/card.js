@@ -3,11 +3,12 @@ Conductor.require('../../libs/jquery-1.9.1.js');
 //Conductor.require('https://www.youtube.com/iframe_api');
 Conductor.requireCSS('style.css');
 
-var card = Conductor.card({
+Conductor.card({
   consumers: {
     video: Conductor.Oasis.Consumer.extend({
       events: {
         play: function () {
+          var card = this.card;
           card.promise.then(function () {
             return card.playerPromise();
           }).then(function () {
