@@ -119,18 +119,6 @@ module.exports = function(grunt) {
           build: process.env.TRAVIS_JOB_ID,
           concurrency: 3,
           browsers: [{
-            browserName: 'internet explorer',
-            version: '8',
-            platform: 'Windows XP'
-          },{
-            browserName: 'internet explorer',
-            version: '9',
-            platform: 'Windows 7'
-          },{
-            browserName: 'internet explorer',
-            version: '10',
-            platform: 'Windows 8'
-          },{
             browserName: 'chrome',
             version: '27',
             platform: 'Windows 8'
