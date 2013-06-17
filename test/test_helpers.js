@@ -4,5 +4,5 @@ function async(callback, binding) {
   return function() {
     start();
     return callback.apply(binding, arguments);
-  }
+  };
 }
