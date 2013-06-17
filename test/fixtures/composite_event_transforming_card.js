@@ -10,6 +10,6 @@ Conductor.card({
         return "transformedData";
       }
     });
-    conductor.load("/test/fixtures/child/send_event_to_be_transformed_card.js");
+    conductor.load("/test/fixtures/child/send_event_to_be_transformed_card.js").appendTo(document.body);
   }
 });

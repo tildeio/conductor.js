@@ -1,5 +1,8 @@
 module.exports = function(grunt) {
-  var exec = require('child_process').exec;
+  var Globule = require('globule'),
+      File = require('fs'),
+      Path = require('path'),
+      exec = require('child_process').exec;
 
   // Alias tasks for the most common sets of tasks.
   // Most of the time, you will use these.
@@ -9,10 +12,12 @@ module.exports = function(grunt) {
   this.registerTask('default', ['build']);
 
   // Build a new version of the library
-  this.registerTask('build', "Builds a distributable version of Conductor.js", ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist', 'copy']);
+  this.registerTask('build', "Builds a distributable version of Conductor.js",
+                    ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
 
   // Build a dev version of the library
-  this.registerTask('build-dev', "Builds a development version of Conductor.js", ['clean', 'concat:conductor', 'transpile', 'concat:dist', 'copy']);
+  this.registerTask('build-dev', "Builds a development version of Conductor.js", 
+                    ['clean', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
   this.registerTask('server', ['concat:tests', 'build-dev', 'connect', 'watch']);
@@ -43,6 +48,25 @@ module.exports = function(grunt) {
     });
   });
 
+  this.registerMultiTask('jsframe', 'build polyglot files', function () {
+    var jsf = require('jsframe'),
+        dest = this.data.dest,
+        src = this.data.src;
+
+    src.forEach( function(pattern) {
+      var files = Globule.find(pattern);
+      files.forEach( function(filePath) {
+        var basename = Path.basename(filePath),
+            targetName = Path.join(dest, basename) + '.html',
+            outFd = File.openSync(targetName, 'w');
+
+        console.log(filePath + " → " + targetName);
+        jsf.process(filePath, outFd);
+        File.close(outFd);
+      });
+    });
+  });
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
@@ -51,12 +75,14 @@ module.exports = function(grunt) {
 
       options: {
         port: 8000,
+        //hostname: 'your.host',    // hostname: '*' is broken in
+                                    // grunt-contrib-connect at the moment
         base: '.'
       }
     },
 
     watch: {
-      files: ['lib/**', 'vendor/*', 'test/tests/*'],
+      files: ['lib/**', 'vendor/*', 'test/tests/*', 'node_modules/jsframe/*'],
       tasks: ['build-dev', 'concat:tests']
     },
 
@@ -110,6 +136,13 @@ module.exports = function(grunt) {
       }
     },
 
+    jsframe: {
+      conductor: {
+        src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+        dest: 'dist'
+      }
+    },
+
     jshint: {
       options: {
         jshintrc: './.jshintrc'
@@ -132,6 +165,14 @@ module.exports = function(grunt) {
             version: '27',
             platform: 'Windows 8'
           },{
+            browserName: 'internet explorer',
+            version: '10',
+            platform: 'Windows 8'
+          }, {
+            browserName: 'internet explorer',
+            version: '9',
+            platform: 'Windows 7'
+          },{
             browserName: 'firefox',
             version: '21',
             platform: 'Windows 8'
@@ -141,12 +182,35 @@ module.exports = function(grunt) {
             platform: 'OS X 10.8'
           }],
           testname: "Conductor.js qunit tests",
-          testTimeout: 15000,
+          testTimeout: 60 * 1000,
+          testInterval: 5000
+        }
+      },
+
+      ie: {
+        options: {
+          urls: [
+            'http://localhost:8000/test/index.html'
+          ],
+          tunnelTimeout: 5,
+          /*global process */
+          build: process.env.TRAVIS_JOB_ID,
+          concurrency: 3,
+          browsers: [{
+            browserName: 'internet explorer',
+            version: '10',
+            platform: 'Windows 8'
+          }, {
+            browserName: 'internet explorer',
+            version: '9',
+            platform: 'Windows 7'
+          }],
+          testname: "Conductor.js qunit tests (ie only)",
+          testTimeout: 60 * 1000,
           testInterval: 5000
         }
       }
     }
-
   });
 
   // Load tasks from npm
@@ -160,5 +224,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
 
-  grunt.registerTask('test', ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test', "Run full test suite", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test:ie', "Run tests suite in IE", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
 };

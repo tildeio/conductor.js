@@ -18,7 +18,7 @@ module("Metadata Service", {
 });
 
 test("A card can return metadata for some type", function() {
-  card.then(async(function() {
+  card.promise.then(async(function() {
     return card.metadataFor('document');
   })).then(async(function(documentMetadata) {
     equal(documentMetadata.title, "Rails is omakase");
@@ -26,7 +26,7 @@ test("A card can return metadata for some type", function() {
 });
 
 test("A card carn return all of its metadata at once", function() {
-  card.then(async(function() {
+  card.promise.then(async(function() {
     return card.metadataFor('*');
   })).then(async(function(metadata) {
     equal(metadata['document:title'], "Rails is omakase");

@@ -55,7 +55,7 @@
         $(this).css('height', '');
       }).data('card', card);
 
-      card.appendTo($card.find('.card')[0]).then(function() {
+      card.appendTo($card.find('.card')[0]).promise.then(function() {
         card.render('thumbnail', {
           width: 600,
           height: 600

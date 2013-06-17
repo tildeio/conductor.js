@@ -48,7 +48,7 @@ test("Multiplexed services can transform event data", function() {
   var conductor = new Conductor({ testing: true }),
       card = conductor.load("/test/fixtures/composite_event_transforming_card.js");
 
-  card.then(function () {
+  card.promise.then(function () {
     card.sandbox.assertionPort.on('go', function (data) {
       equal(data, 'transformedData', "data was transformed");
     });

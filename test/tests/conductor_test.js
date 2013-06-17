@@ -111,6 +111,7 @@ test("A child card can require files through his parent", function() {
   card = conductor.load("/test/fixtures/child/require_parent_card.js");
 
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 // Better way to test if no new services were declared?
@@ -125,6 +126,7 @@ test("A card with child cards loads the needed services", function() {
   card = conductor.load("/test/fixtures/child/service_parent_card.js");
 
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 test("A card with child cards loads without new services", function() {
@@ -136,6 +138,7 @@ test("A card with child cards loads without new services", function() {
 
   card = conductor.load("/test/fixtures/child/no_service_parent_card.js");
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 test("A card with child cards can load without defining `loadDataForChildCards`", function() {
@@ -147,6 +150,7 @@ test("A card with child cards can load without defining `loadDataForChildCards`"
 
   card = conductor.load("/test/fixtures/child/no_custom_data_parent_card.js");
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 test("A card with child cards calls `loadDataForChildCards` if available before loading the child cards", function() {
@@ -160,6 +164,7 @@ test("A card with child cards calls `loadDataForChildCards` if available before 
   conductor.loadData(parentCardUrl, 1, "food for cards");
   card = conductor.load(parentCardUrl, 1);
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 test("A card with child cards loads the data and the associated card", function() {
@@ -172,6 +177,7 @@ test("A card with child cards loads the data and the associated card", function(
 
   card = conductor.load(parentCardUrl, 1);
   card.appendTo(qunitFixture);
+  card.render();
 });
 
 test("`Conductor.require` uses relative path to the card", function() {
