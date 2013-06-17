@@ -165,6 +165,14 @@ module.exports = function(grunt) {
             version: '27',
             platform: 'Windows 8'
           },{
+            browserName: 'internet explorer',
+            version: '10',
+            platform: 'Windows 8'
+          }, {
+            browserName: 'internet explorer',
+            version: '9',
+            platform: 'Windows 7'
+          },{
             browserName: 'firefox',
             version: '21',
             platform: 'Windows 8'
@@ -174,7 +182,31 @@ module.exports = function(grunt) {
             platform: 'OS X 10.8'
           }],
           testname: "Conductor.js qunit tests",
-          testTimeout: 15000,
+          testTimeout: 60 * 1000,
+          testInterval: 5000
+        }
+      },
+
+      ie: {
+        options: {
+          urls: [
+            'http://localhost:8000/test/index.html'
+          ],
+          tunnelTimeout: 5,
+          /*global process */
+          build: process.env.TRAVIS_JOB_ID,
+          concurrency: 3,
+          browsers: [{
+            browserName: 'internet explorer',
+            version: '10',
+            platform: 'Windows 8'
+          }, {
+            browserName: 'internet explorer',
+            version: '9',
+            platform: 'Windows 7'
+          }],
+          testname: "Conductor.js qunit tests (ie only)",
+          testTimeout: 60 * 1000,
           testInterval: 5000
         }
       }
@@ -192,5 +224,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
 
-  grunt.registerTask('test', ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test', "Run full test suite", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test:ie', "Run tests suite in IE", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
 };
