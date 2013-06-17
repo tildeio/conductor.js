@@ -85,7 +85,7 @@ define("conductor",
         var sandbox = Conductor.Oasis.createSandbox({
           url: url,
           capabilities: capabilities,
-          oasisURL: '/dist/conductor.js-0.1.0.js.html',
+          oasisURL: '/dist/conductor.js-0.2.0.js.html',
           services: this.services
         });
 

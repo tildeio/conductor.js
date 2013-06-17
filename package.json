@@ -1,6 +1,6 @@
 {
   "name": "conductor.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
   "main": "index.js",
   "scripts": {
