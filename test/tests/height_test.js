@@ -98,18 +98,28 @@ if (typeof MutationObserver !== 'undefined' || typeof WebkitMutationObserver !==
   test("HeightConsumer will autoupdate by default", function() {
     expect(3);
     stop();
+    stop();
 
     card = conductor.load('/test/fixtures/resize_auto_card.js');
 
     card.promise.then(function () {
       card.sandbox.heightPort.on('resize', function () {
-        start();
-        equal($(card.sandbox.el).width(), 614, "HeightService updated width");
-        equal($(card.sandbox.el).height(), 714, "HeightService updated height");
+        var width = $(card.sandbox.el).width(),
+            height = $(card.sandbox.el).height();
+
+        // mutation observer will race and sometimes send us two events: one pre
+        // dom enlargement and one post.  This is fine in real life as losing
+        // the race only means a benign resize, but we work around it here.
+        if (width > 100) {
+          equal(width, 614, "HeightService updated width");
+          equal(height, 714, "HeightService updated height");
+          start();
+        }
       });
 
       card.sandbox.assertionPort.on('go', function () {
         ok(true, "Card activated");
+        start();
       });
     });
 
