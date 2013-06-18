@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                     ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
 
   // Build a dev version of the library
-  this.registerTask('build-dev', "Builds a development version of Conductor.js", 
+  this.registerTask('build-dev', "Builds a development version of Conductor.js",
                     ['clean', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
@@ -158,7 +158,7 @@ module.exports = function(grunt) {
           ],
           tunnelTimeout: 5,
           /*global process */
-          build: process.env.TRAVIS_JOB_ID,
+          build: process.env.TRAVIS_BUILD_NUMBER,
           concurrency: 3,
           browsers: [{
             browserName: 'chrome',
@@ -194,7 +194,7 @@ module.exports = function(grunt) {
           ],
           tunnelTimeout: 5,
           /*global process */
-          build: process.env.TRAVIS_JOB_ID,
+          build: process.env.TRAVIS_BUILD_NUMBER,
           concurrency: 3,
           browsers: [{
             browserName: 'internet explorer',
