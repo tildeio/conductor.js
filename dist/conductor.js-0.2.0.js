@@ -2904,6 +2904,10 @@ define("oasis",
 
   var Conductor = function(options) {
     this.options = options || {};
+    this.conductorURL = this.options.conductorURL || 
+                        Oasis.config.oasisURL ||
+                        '/dist/conductor.js-0.2.0.js.html';
+
     this.data = {};
     this.cards = {};
     this.services = Object.create(Conductor.services);
@@ -2984,7 +2988,7 @@ define("oasis",
       var sandbox = Conductor.Oasis.createSandbox({
         url: url,
         capabilities: capabilities,
-        oasisURL: '/dist/conductor.js-0.2.0.js.html',
+        oasisURL: this.conductorURL,
         services: this.services
       });
 
@@ -3198,7 +3202,7 @@ define("oasis",
           });
 
        Any `Conductor.Oasis.Service` needed for a child card can be simply
-       declared with the `services` attribute A card can contain other cards.
+       declared with the `services` attribute.  A card can contain other cards.
 
        Example:
 
