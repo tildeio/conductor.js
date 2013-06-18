@@ -1,5 +1,7 @@
 Conductor.card({
   activate: function () {
+    this.consumers.height.autoUpdate = false;
+
     var bigNode = document.createElement("div");
     bigNode.style.width = "600px";
     bigNode.style.height = "700px";
