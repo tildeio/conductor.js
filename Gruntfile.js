@@ -2,7 +2,29 @@ module.exports = function(grunt) {
   var Globule = require('globule'),
       File = require('fs'),
       Path = require('path'),
-      exec = require('child_process').exec;
+      exec = require('child_process').exec,
+      ieBrowsers = [{
+        browserName: 'internet explorer',
+        version: '10',
+        platform: 'Windows 8'
+      }, {
+        browserName: 'internet explorer',
+        version: '9',
+        platform: 'Windows 7'
+      }],
+      browsers = [{
+        browserName: 'chrome',
+        version: '27',
+        platform: 'Windows 8'
+      },{
+        browserName: 'firefox',
+        version: '21',
+        platform: 'Windows 8'
+      },{
+        browserName: 'safari',
+        version: '6',
+        platform: 'OS X 10.8'
+      }].concat( ieBrowsers );
 
   // Alias tasks for the most common sets of tasks.
   // Most of the time, you will use these.
@@ -151,63 +173,29 @@ module.exports = function(grunt) {
     },
 
     'saucelabs-qunit': {
+      options: {
+        urls: [
+          'http://localhost:8000/test/index.html'
+        ],
+        tunnelTimeout: 5,
+        /*global process */
+        build: process.env.TRAVIS_BUILD_NUMBER,
+        concurrency: 3,
+        testTimeout: 60 * 1000,
+        testInterval: 5000
+      },
+
       all: {
         options: {
-          urls: [
-            'http://localhost:8000/test/index.html'
-          ],
-          tunnelTimeout: 5,
-          /*global process */
-          build: process.env.TRAVIS_BUILD_NUMBER,
-          concurrency: 3,
-          browsers: [{
-            browserName: 'chrome',
-            version: '27',
-            platform: 'Windows 8'
-          },{
-            browserName: 'internet explorer',
-            version: '10',
-            platform: 'Windows 8'
-          }, {
-            browserName: 'internet explorer',
-            version: '9',
-            platform: 'Windows 7'
-          },{
-            browserName: 'firefox',
-            version: '21',
-            platform: 'Windows 8'
-          },{
-            browserName: 'safari',
-            version: '6',
-            platform: 'OS X 10.8'
-          }],
-          testname: "Conductor.js qunit tests",
-          testTimeout: 60 * 1000,
-          testInterval: 5000
+          browsers: browsers,
+          testname: "Conductor.js qunit tests"
         }
       },
 
       ie: {
         options: {
-          urls: [
-            'http://localhost:8000/test/index.html'
-          ],
-          tunnelTimeout: 5,
-          /*global process */
-          build: process.env.TRAVIS_BUILD_NUMBER,
-          concurrency: 3,
-          browsers: [{
-            browserName: 'internet explorer',
-            version: '10',
-            platform: 'Windows 8'
-          }, {
-            browserName: 'internet explorer',
-            version: '9',
-            platform: 'Windows 7'
-          }],
-          testname: "Conductor.js qunit tests (ie only)",
-          testTimeout: 60 * 1000,
-          testInterval: 5000
+          browsers: ieBrowsers,
+          testname: "Conductor.js qunit tests (ie only)"
         }
       }
     }
@@ -224,6 +212,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
 
-  grunt.registerTask('test', "Run full test suite", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit']);
+  grunt.registerTask('test', "Run full test suite", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:all']);
   grunt.registerTask('test:ie', "Run tests suite in IE", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
 };
