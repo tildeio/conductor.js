@@ -118,7 +118,6 @@ test("Child cards reuse `Conductor.config.conductorURL`", function() {
   card.appendTo(qunitFixture);
 });
 
-
 test("`Conductor.require` uses relative path to the card", function() {
   expect(1);
   stop();

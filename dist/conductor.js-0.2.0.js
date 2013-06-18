@@ -2924,6 +2924,7 @@ define("oasis",
         throw error;
       }, 1);
     }
+    throw error;
   };
 
   Conductor.Oasis = Oasis;
@@ -3125,9 +3126,10 @@ define("oasis",
     };
 
     Conductor.Card = function(options) {
-      var card = this;
+      var card = this,
+          prop;
 
-      for (var prop in options) {
+      for (prop in options) {
         this[prop] = options[prop];
       }
 
@@ -3146,11 +3148,9 @@ define("oasis",
 
       var activatePromise = this.activateWhen(dataDefered.promise, [ xhrDefered.promise ]);
 
-      this.promise = new Promise(function (resolve, reject) {
-        activatePromise.then(function () {
-          resolve(card);
-        }, Conductor.error);
-      });
+      this.promise = activatePromise.then(function () {
+        return card;
+      }).then(null, Conductor.error);
 
       var cardOptions = {
         consumers: extend({
@@ -3166,9 +3166,9 @@ define("oasis",
         }, options.consumers)
       };
 
-      for (var prop in cardOptions.consumers) {
+      for (prop in cardOptions.consumers) {
         cardOptions.consumers[prop] = cardOptions.consumers[prop].extend({card: this});
-      };
+      }
 
       Conductor.Oasis.connect(cardOptions);
     };
@@ -3176,7 +3176,7 @@ define("oasis",
     Conductor.Card.prototype = {
       defer: function(callback) {
         var defered = RSVP.defer();
-        if (callback) { defered.promise.then(callback, Conductor.error); }
+        if (callback) { defered.promise.then(callback).then(null, Conductor.error); }
         return defered;
       },
 
@@ -3320,12 +3320,9 @@ define("oasis",
     this.sandbox = sandbox;
     var card = this;
 
-    // TODO: can we just resolve(sandbox.promise)?
-    this.promise = new Promise(function (resolve, reject) {
-      sandbox.promise.then(function() {
-        resolve(card);
-      }, Conductor.error);
-    });
+    this.promise = sandbox.promise.then(function () {
+      return card;
+    }).then(null, Conductor.error);
 
     return this;
   };
@@ -3356,14 +3353,14 @@ define("oasis",
 
       this.sandbox.activatePromise.then(function() {
         card.sandbox.renderPort.send('render', [intent, dimensions]);
-      }, Conductor.error);
+      }).then(null, Conductor.error);
     },
 
     updateData: function(bucket, data) {
       var sandbox = this.sandbox;
       sandbox.activatePromise.then(function() {
         sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
-      }, Conductor.error);
+      }).then(null, Conductor.error);
     },
 
     wiretap: function(callback, binding) {

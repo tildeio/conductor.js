@@ -25,6 +25,7 @@
     "grunt-es6-module-transpiler": "~0.3.0",
     "grunt-contrib-copy": "~0.4.1",
     "jsframe": "~0.1.0-3",
-    "globule": "~0.1.0"
+    "globule": "~0.1.0",
+    "sinon": "~1.7.2"
   }
 }

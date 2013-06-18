@@ -2,7 +2,7 @@
 
 var qunitFixture;
 
-module("Conductor", {
+module("Child Cards", {
   setup: function() {
     qunitFixture = document.getElementById('qunit-fixture');
   }
