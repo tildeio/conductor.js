@@ -2,8 +2,6 @@
 
 [![Build Status](https://secure.travis-ci.org/tildeio/conductor.js.png?branch=master)](http://travis-ci.org/tildeio/conductor.js)
 
-[![Selenium Test Status](https://saucelabs.com/browser-matrix/conductorjs.svg)](https://saucelabs.com/u/conductorjs)
-
 Conductor.js is a library for creating sandboxed, re-usable apps that
 can be embedded inside a host application.
 
