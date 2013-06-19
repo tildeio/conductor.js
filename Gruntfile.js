@@ -94,8 +94,7 @@ module.exports = function(grunt) {
 
     connect: {
       options: {
-        //hostname: 'your.host',    // hostname: '*' is broken in
-                                    // grunt-contrib-connect at the moment
+        hostname: '*',
         base: '.'
       },
 
