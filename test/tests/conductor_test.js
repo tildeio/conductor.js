@@ -101,6 +101,52 @@ test("cards have a promise resolved when the card is activated", function() {
   card.appendTo(qunitFixture);
 });
 
+test("A custom conductorURL can be specified in `Conductor.config.conductorURL`", function() {
+  expect(1);
+  stop();
+
+  var conductor = new Conductor({
+    testing: true,
+    conductorURL: '/test/vendor/conductor-custom-url.js.html'
+  });
+  conductor.services.urlChecker = Conductor.Oasis.Service.extend({
+    events: {
+      checkURL: function (conductorURL) {
+        var expected = 'conductor-custom-url.js.html';
+        start();
+        equal(conductorURL.substring(conductorURL.length - expected.length), expected, "Cards are loaded with correct conductor url");
+      }
+    }
+  });
+  var card = conductor.load("/test/fixtures/check_conductor_url.js",
+                            1,
+                            { capabilities: ['urlChecker']});
+  card.appendTo(qunitFixture);
+});
+
+test("Child cards reuse `Conductor.config.conductorURL`", function() {
+  expect(1);
+  stop();
+
+  var conductor = new Conductor({
+    testing: true,
+    conductorURL: '/test/vendor/conductor-custom-url.js.html'
+  });
+  conductor.services.urlChecker = Conductor.Oasis.Service.extend({
+    events: {
+      checkURL: function (conductorURL) {
+        var expected = 'conductor-custom-url.js.html';
+        start();
+        equal(conductorURL.substring(conductorURL.length - expected.length), expected, "Cards are loaded with correct conductor url");
+      }
+    }
+  });
+  var card = conductor.load("/test/fixtures/check_conductor_url_parent.js",
+                            1,
+                            { capabilities: ['urlChecker']});
+  card.appendTo(qunitFixture);
+});
+
 test("A child card can require files through his parent", function() {
   expect(1);
   stop();
