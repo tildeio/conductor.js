@@ -117,7 +117,7 @@
       dispatchEvent: function( event ) {
         var listeners = this._listeners.message;
         if( listeners ) {
-          for (var i=0; i < listeners.length; i++){
+          for (var i=0, len=listeners.length; i < len; i++){
             listeners[i].call(this, event);
           }
         }

@@ -95,6 +95,30 @@ test("A custom conductorURL can be specified in `Conductor.config.conductorURL`"
   card.appendTo(qunitFixture);
 });
 
+test("A custom conductorURL can be hosted on a separate domain", function() {
+  expect(1);
+  stop();
+  var otherDomain = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+
+  var conductor = new Conductor({
+    testing: true,
+    conductorURL: otherDomain + '/test/vendor/conductor-custom-url.js.html'
+  });
+  conductor.services.urlChecker = Conductor.Oasis.Service.extend({
+    events: {
+      checkURL: function (conductorURL) {
+        var expected = 'conductor-custom-url.js.html';
+        start();
+        equal(conductorURL.substring(conductorURL.length - expected.length), expected, "Cards are loaded with correct conductor url");
+      }
+    }
+  });
+  var card = conductor.load("/test/fixtures/check_conductor_url.js",
+                            1,
+                            { capabilities: ['urlChecker']});
+  card.appendTo(qunitFixture);
+});
+
 test("Child cards reuse `Conductor.config.conductorURL`", function() {
   expect(1);
   stop();

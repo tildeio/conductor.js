@@ -93,13 +93,22 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     connect: {
-      server: {},
-
       options: {
-        port: 8000,
         //hostname: 'your.host',    // hostname: '*' is broken in
                                     // grunt-contrib-connect at the moment
         base: '.'
+      },
+
+      server: {
+        options: {
+          port: 8000
+        }
+      },
+
+      otherDomain: {
+        options: {
+          port: 8001,
+        }
       }
     },
 
