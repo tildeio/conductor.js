@@ -40,7 +40,7 @@
         // we will not receive and process events in the correct order
         setTimeout( function() {
           self.log('draining ' + self._messageQueue.length + ' queued messages');
-          while( (event = self._messageQueue.shift()) ) {
+          while( self._messageQueueEnabled && (event = self._messageQueue.shift()) ) {
             self.dispatchEvent( event );
           }
         });
@@ -105,7 +105,7 @@
       removeEventListener: function( type, listener) {
         if (this._listeners[type] instanceof Array){
           var listeners = this._listeners[type];
-          for (var i=0, len=listeners.length; i < len; i++){
+          for (var i=0; i < listeners.length; i++){
             if (listeners[i] === listener){
               listeners.splice(i, 1);
               break;
@@ -117,7 +117,7 @@
       dispatchEvent: function( event ) {
         var listeners = this._listeners.message;
         if( listeners ) {
-          for (var i=0, len=listeners.length; i < len; i++){
+          for (var i=0; i < listeners.length; i++){
             listeners[i].call(this, event);
           }
         }
@@ -327,6 +327,14 @@
       return messageEvent;
     };
 
+    var propagationHandler = function( event ) {
+      var messageEvent = decodeEvent( event, true );
+
+      if( messageEvent.messageChannel ) {
+        MessageChannel.propagateEvent( messageEvent );
+      }
+    };
+
     // Add the default message event handler
     // This is useful so that a user agent can pass ports
     // without declaring any event handler.
@@ -342,14 +350,6 @@
     //    we need a default handler to receive MessagePorts' events
     //    and to propagate them
     var _addMessagePortEventHandler = function( target ) {
-      var propagationHandler = function( event ) {
-        var messageEvent = decodeEvent( event, true );
-
-        if( messageEvent.messageChannel ) {
-          MessageChannel.propagateEvent( messageEvent );
-        }
-      };
-
       if( target.addEventListener ) {
         target.addEventListener( 'message', propagationHandler, false );
       } else if( target.attachEvent ) {
@@ -398,7 +398,6 @@
 
         originalAddEventListener.apply( this, args );
       };
-      target._addEventListener = originalAddEventListener;
 
       target[removeEventListenerName] = function() {
         var args = Array.prototype.slice.call( arguments ),
@@ -409,7 +408,9 @@
           delete originalHandler.messageHandlerWrapper;
         }
 
-        targetRemoveEventListener.apply( this, args );
+        if( args[1] ) {
+          targetRemoveEventListener.apply( this, args );
+        }
       };
     };
 
@@ -463,6 +464,9 @@
       Window.postMessage = function( otherWindow, message, targetOrigin, ports ) {
         var data, entangledPort;
 
+        // Internet Explorer requires the `ports` parameter
+        ports = ports || [];
+
         data = MessageChannel.encodeEvent( message, ports, false );
 
         if( ports ) {
@@ -489,18 +493,20 @@
     }
 
     if( self.Worker ) {
-      var  OriginalWorker = Worker;
+      var OriginalWorker = Worker,
+          originalAddEventListener;
+
+      if( OriginalWorker.prototype.addEventListener ) {
+        originalAddEventListener = OriginalWorker.prototype.addEventListener;
+      } else if( OriginalWorker.prototype.attachEvent ) {
+        originalAddEventListener = OriginalWorker.prototype.attachEvent;
+      }
 
       self.Worker = function() {
-        var worker = new OriginalWorker(arguments[0]);
+        var worker = new OriginalWorker(arguments[0]),
+            _addEventListener = originalAddEventListener;
 
-        worker._addEventListener('message', function(event) {
-          var messageEvent = MessageChannel.decodeEvent( event );
-
-          if( messageEvent.messageChannel ) {
-            MessageChannel.propagateEvent( messageEvent );
-          }
-        });
+        _addEventListener.call(worker, 'message', propagationHandler);
 
         return worker;
       };
@@ -524,6 +530,8 @@
   } else {
     if( Window ) {
       Window.postMessage = function( source, message, targetOrigin, ports ) {
+        // Internet Explorer requires the `ports` parameter
+        ports = ports || [];
         source.postMessage( message, targetOrigin, ports );
       };
     } else {
