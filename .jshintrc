@@ -28,7 +28,8 @@
         "module",
         "expect",
         "minispade",
-        "async"
+        "async",
+        "within"
     ],
 
     "node" : false,

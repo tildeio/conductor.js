@@ -1,7 +1,5 @@
 var conductor, card, qunitFixture;
 
-QUnit.config.testTimeout = QUnit.config.testTimeout > 10000 ? QUnit.config.testTimeout : 10000;
-
 module('Height Service', {
   setup: function() {
     conductor = new Conductor({ testing: true });
@@ -15,8 +13,8 @@ test("on a resize event, HeightService resizes the sandbox", function() {
   card = conductor.load('/test/fixtures/resize_card.js');
   card.promise.then(function () {
     card.sandbox.heightPort.on('resize', function () {
-      equal($(card.sandbox.el).width(), 55, "HeightService updated width");
-      equal($(card.sandbox.el).height(), 55, "HeightService updated height");
+      within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
+      within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
       start();
     });
   });
@@ -34,8 +32,8 @@ test("HeightService does not resize beyond the sandbox's max-{width, height} pro
     });
 
     card.sandbox.heightPort.on('resize', function () {
-      equal($(card.sandbox.el).width(), 35, "HeightService updated width");
-      equal($(card.sandbox.el).height(), 25, "HeightService updated height");
+      within($(card.sandbox.el).width(), 30, 40, "HeightService updated width");
+      within($(card.sandbox.el).height(), 20, 30, "HeightService updated height");
       start();
     });
   });
@@ -50,8 +48,8 @@ test("HeightConsumer's `update` with dimensions sends those dimensions in a resi
   card = conductor.load('/test/fixtures/resize_explicit_dimensions_card.js');
   card.promise.then(function () {
     card.sandbox.heightPort.on('resize', function () {
-      equal($(card.sandbox.el).width(), 55, "HeightService updated width");
-      equal($(card.sandbox.el).height(), 55, "HeightService updated height");
+      within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
+      within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
       start();
     });
   });
@@ -66,8 +64,8 @@ test("HeightConsumer's `update` without dimensions sends the dimensions of the d
 
   card.promise.then(function () {
     card.sandbox.heightPort.on('resize', function () {
-      equal($(card.sandbox.el).width(), 614, "HeightService updated width");
-      equal($(card.sandbox.el).height(), 714, "HeightService updated height");
+      within($(card.sandbox.el).width(), 610, 620, "HeightService updated width");
+      within($(card.sandbox.el).height(), 700, 720, "HeightService updated height");
       start();
     });
   });

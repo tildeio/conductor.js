@@ -40,7 +40,12 @@ var card = Conductor.card({
   activate: function (data) {
     this.consumers.height.autoUpdate = false;
     // this may need to go in loadDataForChildCards
-    this.adIds = Object.keys(data);
+    this.adIds = [];
+    for (var prop in data) {
+      if ( ! data.hasOwnProperty(prop)) { continue; }
+    
+      this.adIds.push(data[prop]);
+    }
   },
 
   loadDataForChildCards: function( data) {
