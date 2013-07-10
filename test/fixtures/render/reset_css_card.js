@@ -7,19 +7,8 @@ Conductor.card({
   },
 
   render: function() {
-    var $html = $('html'),
-        $body = $('body'),
+    var $body = $('body'),
         $iframe = $('iframe');
-
-    equal($html.css('marginTop'),'0px', "iFrame's html top margin");
-    equal($html.css('marginRight'),'0px', "iFrame's html right margin");
-    equal($html.css('marginBottom'),'0px', "iFrame's html bottom margin");
-    equal($html.css('marginLeft'),'0px', "iFrame's html left margin");
-
-    equal($html.css('paddingTop'),'0px', "iFrame's html top padding");
-    equal($html.css('paddingRight'),'0px', "iFrame's html right padding");
-    equal($html.css('paddingBottom'),'0px', "iFrame's html bottom padding");
-    equal($html.css('paddingLeft'),'0px', "iFrame's html left padding");
 
     equal($body.css('marginTop'),'0px', "iFrame's body top margin");
     equal($body.css('marginRight'),'0px', "iFrame's body right margin");

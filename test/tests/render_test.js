@@ -53,7 +53,7 @@ test("A card can initialize the DOM before rendering the first time", function()
 });
 
 test("A card adjusts the css to maximize the space", function() {
-  expect(17);
+  expect(9);
   var card = conductor.load('/test/fixtures/render/reset_css_card.js');
 
   stop();

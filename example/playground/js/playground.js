@@ -42,6 +42,20 @@ $(function() {
 (function() {
   "use strict";
 
+  var hasDefineProperty = (function () {
+    if (!Object.defineProperty) {
+      return false;
+    } else {
+      // Catch IE8 where Object.defineProperty exists but only works on DOM elements
+      try {
+        Object.defineProperty({}, 'a',{get:function(){}});
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+  })();
+
   addStringExtensions();
 
   function addStringExtensions() {
@@ -62,9 +76,14 @@ $(function() {
     };
 
     function extend(prop, getter) {
-      Object.defineProperty(stringProto, prop, {
-        get: getter
-      });
+      if (hasDefineProperty) {
+        Object.defineProperty(stringProto, prop, {
+          get: getter
+        });
+      } else {
+        // ie8 fallback
+        stringProto[prop] = getter;
+      }
     }
 
     extend('p', function() {
@@ -86,10 +105,16 @@ $(function() {
       veryLightGrey: '#666'
     };
 
-    Object.keys(colors).forEach(function(color) {
-      extend(color, function() {
-        return "<span style='color: "+colors[color]+";'>"+this+"</span>";
+    function extendColor(colorName, colorValue) {
+      extend(colorName, function() {
+        return "<span style='color: "+colorValue+";'>"+this+"</span>";
       });
-    });
+    }
+
+    for (var color in colors) {
+      if ( ! colors.hasOwnProperty(color)) { continue; }
+
+      extendColor(color, colors[color]);
+    }
   }
 })();
