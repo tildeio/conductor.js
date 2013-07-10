@@ -3263,7 +3263,7 @@ define("oasis",
 
   var Conductor = function(options) {
     this.options = options || {};
-    this.conductorURL = this.options.conductorURL || 
+    this.conductorURL = this.options.conductorURL ||
                         Oasis.config.oasisURL ||
                         '/dist/conductor.js-0.2.0.js.html';
 
@@ -3383,6 +3383,17 @@ define("oasis",
       }
 
       return card;
+    },
+
+    unload: function(card) {
+      var cardArray = this.cards[card.url][card.id],
+          cardIndex = cardArray.indexOf(card);
+
+      card.sandbox.conductor = null;
+
+      card.sandbox.terminate();
+      delete cardArray[cardIndex];
+      cardArray.splice(cardIndex, 1);
     }
   };
 
@@ -3726,6 +3737,10 @@ define("oasis",
       this.sandbox.wiretap(function() {
         callback.apply(binding, arguments);
       });
+    },
+
+    destroy: function() {
+      this.sandbox.conductor.unload(this);
     }
   };
 
