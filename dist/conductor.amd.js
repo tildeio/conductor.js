@@ -309,6 +309,17 @@ define("conductor.js-0.2.0",
         }
 
         return card;
+      },
+
+      unload: function(card) {
+        var cardArray = this.cards[card.url][card.id],
+            cardIndex = cardArray.indexOf(card);
+
+        card.sandbox.conductor = null;
+
+        card.sandbox.terminate();
+        delete cardArray[cardIndex];
+        cardArray.splice(cardIndex, 1);
       }
     };
 
@@ -655,6 +666,10 @@ define("conductor.js-0.2.0",
         this.sandbox.wiretap(function() {
           callback.apply(binding, arguments);
         });
+      },
+
+      destroy: function() {
+        this.sandbox.conductor.unload(this);
       }
     };
 

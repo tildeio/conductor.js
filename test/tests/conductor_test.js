@@ -27,6 +27,44 @@ test("the conductor will load cards", function() {
   equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
 });
 
+test("the conductor can unload cards", function() {
+  var conductor = new Conductor({ testing: true }),
+      card = conductor.load("/test/fixtures/test_card.js");
+
+  stop();
+
+  card.appendTo(qunitFixture);
+
+  card.promise.then( function() {
+    equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
+
+    conductor.unload(card);
+
+    equal(document.querySelectorAll('#qunit-fixture iframe').length, 0, "The card is removed from the DOM");
+
+    start();
+  });
+});
+
+test("card.destroy unloads the card", function() {
+  var conductor = new Conductor({ testing: true }),
+      card = conductor.load("/test/fixtures/test_card.js");
+
+  stop();
+
+  card.appendTo(qunitFixture);
+
+  card.promise.then( function() {
+    equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
+
+    card.destroy();
+
+    equal(document.querySelectorAll('#qunit-fixture iframe').length, 0, "The card is removed from the DOM");
+
+    start();
+  });
+});
+
 test("cards can require dependencies", function() {
   expect(3);
 
