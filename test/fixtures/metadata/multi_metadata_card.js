@@ -1,16 +1,16 @@
 Conductor.card({
   metadata: {
-    document: function(resolver) {
-      resolver.resolve({
+    document: function() {
+      return {
         title: "Rails is omakase"
-      });
+      };
     },
 
     image: function(resolver) {
-      resolver.resolve({
+      return {
         width: 100,
         height: 100
-      });
+      };
     }
   }
 });

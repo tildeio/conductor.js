@@ -858,18 +858,16 @@ define("conductor.js-0.2.0",
     Conductor.metadataConsumer = function(card) {
       var options = card.options;
 
-      options.requests.metadataFor = function(resolver, name) {
+      options.requests.metadataFor = function(name) {
         if (name === '*') {
-          var promises = [], names = [], defered;
+          var values = [], names = [], defered;
 
           for (var metadataName in options.metadata) {
-            defered = Conductor.Oasis.RSVP.defer();
-            card.metadata[metadataName].call(card, defered);
-            promises.push(defered.promise);
+            values.push(card.metadata[metadataName].call(card));
             names.push(metadataName);
           }
 
-          Conductor.Oasis.RSVP.all(promises).then(function(sources) {
+          return Conductor.Oasis.RSVP.all(values).then(function(sources) {
             var metadata = {};
 
             for (var i = 0; i < sources.length; i++) {
@@ -879,11 +877,11 @@ define("conductor.js-0.2.0",
               }
             }
 
-            resolver.resolve(metadata);
+            return metadata;
           });
 
         } else {
-          card.metadata[name].call(card, resolver);
+          return card.metadata[name].call(card);
         }
       };
 
@@ -1153,21 +1151,25 @@ define("conductor.js-0.2.0",
 
     Conductor.XHRService = Conductor.Oasis.Service.extend({
       requests: {
-        get: function(promise, url) {
-          var xhr = new XMLHttpRequest(),
-              resourceUrl = PathUtils.cardResourceUrl(this.sandbox.options.url, url);
+        get: function(url) {
+          var service = this;
 
-          xhr.onreadystatechange = function (a1, a2, a3, a4) {
-            if (this.readyState === 4) {
-              if (this.status === 200) {
-                promise.resolve(this.responseText);
-              } else {
-                promise.reject({status: this.status});
+          return new Conductor.Oasis.RSVP.Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest(),
+                resourceUrl = PathUtils.cardResourceUrl(service.sandbox.options.url, url);
+
+            xhr.onreadystatechange = function (a1, a2, a3, a4) {
+              if (this.readyState === 4) {
+                if (this.status === 200) {
+                  resolve(this.responseText);
+                } else {
+                  reject({status: this.status});
+                }
               }
-            }
-          };
-          xhr.open("get", resourceUrl, true);
-          xhr.send();
+            };
+            xhr.open("get", resourceUrl, true);
+            xhr.send();
+          });
         }
       }
     });

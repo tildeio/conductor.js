@@ -37,6 +37,20 @@ test("cards have a promise resolved when the card is activated", function() {
   card.appendTo(qunitFixture);
 });
 
+test("consumers' `error` functions are invoked if their capabilities are not provided by the environment", function() {
+  expect(2);
+  stop();
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      card;
+
+  conductor.services.fulfilledCapability = Conductor.Oasis.Service;
+  conductor.services.unfulfilledCapability = Conductor.Oasis.Service;
+  card = conductor.load("/test/fixtures/unfulfilled_capability_card.js", 1, { capabilities: ['fulfilledCapability']});
+  card.appendTo(qunitFixture);
+});
+
 test("errors in `activate` cause the card's promise to fail", function() {
   var conductor = new Conductor({ testing: true }),
       card;
