@@ -1,5 +1,6 @@
 ### 0.2.0
 
+- cards may defer their activation by returning a promise from `activate`.
 - custom services will have `error` invoked if the environment did not provide
   the capability.  For example:
 ```js
