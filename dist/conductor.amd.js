@@ -601,7 +601,9 @@ define("conductor.js-0.2.0",
             // we don't rely on some initializations done in activate
             if (card.initializeChildCards) { card.initializeChildCards(resolutions[0]); }
 
-            if (card.activate) { card.activate(resolutions[0]); }
+            if (card.activate) {
+              return card.activate(resolutions[0]);
+            }
           });
         }
       };

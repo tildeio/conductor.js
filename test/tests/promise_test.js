@@ -37,6 +37,17 @@ test("cards have a promise resolved when the card is activated", function() {
   card.appendTo(qunitFixture);
 });
 
+test("cards may return a promise in `activate` to defer activation", function() {
+  expect(2);
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      card;
+
+  card = conductor.load("/test/fixtures/card_defer_activation_with_promise.js");
+  card.appendTo(qunitFixture);
+});
+
 test("consumers' `error` functions are invoked if their capabilities are not provided by the environment", function() {
   expect(2);
   stop();
