@@ -126,7 +126,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'tmp/',
-          src: ['<%= pkg.name %>-<%= pkg.version %>.js'],
+          src: ['<%= pkg.name %>.js'],
           dest: 'tmp/amd'
         }]
       },
@@ -137,18 +137,18 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'tmp/',
-          src: ['<%= pkg.name %>-<%= pkg.version %>.js'],
+          src: ['<%= pkg.name %>.js'],
           dest: 'tmp/browser'
         }]
       }
     },
 
-    clean: ["dist"],
+    clean: ["dist/*"],
 
     concat: {
       conductor: {
         src: ['lib/shims.js', 'lib/conductor.js', 'lib/utils/*.js', 'lib/conductor/*.js', 'lib/consumers/*.js', 'lib/services/*.js', 'lib/services.js'],
-        dest: 'tmp/<%= pkg.name %>-<%= pkg.version %>.js'
+        dest: 'tmp/<%= pkg.name %>.js'
       },
 
       tests: {
@@ -157,7 +157,7 @@ module.exports = function(grunt) {
       },
 
       dist: {
-        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/<%= pkg.name %>-<%= pkg.version %>.js'],
+        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/<%= pkg.name %>.js'],
         dest: 'tmp/dist/<%= pkg.name %>-<%= pkg.version %>.js'
       }
     },
@@ -165,7 +165,7 @@ module.exports = function(grunt) {
     copy: {
       amd: {
         files: [
-          {src: ['tmp/amd/<%= pkg.name %>-<%= pkg.version %>.js'], dest: 'dist/conductor.amd.js'}
+          {src: ['tmp/amd/<%= pkg.name %>.js'], dest: 'dist/conductor-<%= pkg.version %>.amd.js'}
         ]
       }
     },
