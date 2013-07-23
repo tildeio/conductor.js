@@ -262,7 +262,9 @@ define("conductor.js-0.2.0",
             data = datas && datas[id],
             _options = options || {},
             extraCapabilities = _options.capabilities || [],
-            capabilities = this.capabilities.slice();
+            capabilities = this.capabilities.slice(),
+            cardServices = o_create(this.services),
+            prop;
 
         capabilities.push.apply(capabilities, extraCapabilities);
 
@@ -271,11 +273,18 @@ define("conductor.js-0.2.0",
           capabilities.push('assertion');
         }
 
+        // It is possible to add services when loading the card
+        if( _options.services ) {
+          for( prop in _options.services) {
+            cardServices[prop] = _options.services[prop];
+          }
+        }
+
         var sandbox = Conductor.Oasis.createSandbox({
           url: url,
           capabilities: capabilities,
           oasisURL: this.conductorURL,
-          services: this.services
+          services: cardServices
         });
 
         sandbox.data = data;
