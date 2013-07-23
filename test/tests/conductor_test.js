@@ -110,6 +110,34 @@ test("instances can add custom services", function() {
   card.appendTo(qunitFixture);
 });
 
+test("instances can add custom services when loading a card", function() {
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      CustomService = Conductor.Oasis.Service.extend({
+        events: {
+          result: function (result) {
+            start();
+            equal(result,"success", "Custom Service received message");
+          }
+        }
+      }),
+      card;
+
+  card = conductor.load(  "/test/fixtures/custom_consumer_card.js",
+                          1,
+                          {
+                            capabilities: ['custom'],
+                            services: {
+                              custom: CustomService
+                            }
+                          });
+
+  ok(!conductor.services.custom, "The service isn't added to the default services of the conductor");
+
+  card.appendTo(qunitFixture);
+});
+
 test("A custom conductorURL can be specified in `Conductor.config.conductorURL`", function() {
   expect(1);
   stop();
