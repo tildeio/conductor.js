@@ -1,20 +1,20 @@
 define("oasis",
-  ["oasis/util", "oasis/connect", "rsvp", "oasis/logger", "oasis/state", "oasis/config", "oasis/sandbox", "oasis/sandbox_init", "oasis/service", "oasis/iframe_adapter", "oasis/webworker_adapter"],
-  function(__dependency1__, __dependency2__, RSVP, Logger, State, configuration, Sandbox, initializeSandbox, Service, iframeAdapter, webworkerAdapter) {
+  ["oasis/util", "oasis/config", "oasis/connect", "rsvp", "oasis/logger", "oasis/state", "oasis/sandbox", "oasis/sandbox_init", "oasis/service", "oasis/iframe_adapter", "oasis/webworker_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, RSVP, Logger, State, Sandbox, initializeSandbox, Service, iframeAdapter, webworkerAdapter) {
     "use strict";
     var assert = __dependency1__.assert;
     var verifySandbox = __dependency1__.verifySandbox;
-    var registerHandler = __dependency2__.registerHandler;
-    var connect = __dependency2__.connect;
-    var portFor = __dependency2__.portFor;
+    var configuration = __dependency2__.configuration;
+    var configure = __dependency2__.configure;
+    var registerHandler = __dependency3__.registerHandler;
+    var connect = __dependency3__.connect;
+    var portFor = __dependency3__.portFor;
 
 
 
     var Oasis = {};
 
-    //Logger.enable();
-
-    //verifySandbox();
+    // Logger.enable();
 
     Oasis.adapters = {
       iframe: iframeAdapter,
@@ -51,6 +51,7 @@ define("oasis",
     Oasis.reset();
 
     Oasis.config = configuration;
+    Oasis.configure = configure;
 
 
     /**
@@ -84,15 +85,16 @@ define("oasis",
 
     return Oasis;
   });define("oasis/base_adapter",
-  ["oasis/util", "oasis/shims", "oasis/globals", "oasis/connect", "oasis/message_channel", "oasis/logger", "oasis/config"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, Logger, configuration) {
+  ["oasis/util", "oasis/shims", "oasis/config", "oasis/globals", "oasis/connect", "oasis/message_channel", "oasis/logger"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, Logger) {
     "use strict";
     var mustImplement = __dependency1__.mustImplement;
     var addEventListener = __dependency2__.addEventListener;
     var removeEventListener = __dependency2__.removeEventListener;
-    var handlers = __dependency3__.handlers;
-    var connectCapabilities = __dependency4__.connectCapabilities;
-    var PostMessageMessageChannel = __dependency5__.PostMessageMessageChannel;
+    var configuration = __dependency3__.configuration;
+    var handlers = __dependency4__.handlers;
+    var connectCapabilities = __dependency5__.connectCapabilities;
+    var PostMessageMessageChannel = __dependency6__.PostMessageMessageChannel;
 
 
     function getBase () {
@@ -142,16 +144,19 @@ define("oasis",
         function initializeOasisSandbox(event) {
           if (!event.data.isOasisInitialization) { return; }
 
-          Logger.log("Sandbox initializing.");
-
-          configuration.oasisURL = event.data.oasisURL;
-
           removeEventListener(receiver, 'message', initializeOasisSandbox);
-          adapter.loadScripts(event.data.base, event.data.scriptURLs);
 
-          connectCapabilities(event.data.capabilities, event.ports);
+          configuration.eventCallback(function () {
+            Logger.log("Sandbox initializing.");
 
-          adapter.didConnect();
+            configuration.oasisURL = event.data.oasisURL;
+
+            adapter.loadScripts(event.data.base, event.data.scriptURLs);
+
+            connectCapabilities(event.data.capabilities, event.ports);
+
+            adapter.didConnect();
+          });
         }
         addEventListener(receiver, 'message', initializeOasisSandbox);
 
@@ -174,18 +179,26 @@ define("oasis",
 
     return BaseAdapter;
   });define("oasis/config",
-  [],
-  function() {
+  ["exports"],
+  function(__exports__) {
     "use strict";
     /**
       Stores Oasis configuration.  Options include:
 
-      `oasisURL` - the default URL to use for sandboxes.
+      - `oasisURL` - the default URL to use for sandboxes.
+      - `eventCallback` - a function that wraps `message` event handlers.  By
+        default the event hanlder is simply invoked.
     */
     var configuration = {
+      eventCallback: function (callback) { callback(); }
     };
 
-    return configuration;
+    function configure(name, value) {
+      configuration[name] = value;
+    }
+
+    __exports__.configuration = configuration;
+    __exports__.configure = configure;
   });define("oasis/connect",
   ["oasis/util", "oasis/shims", "oasis/globals", "oasis/message_channel", "rsvp", "oasis/logger", "oasis/state", "exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, RSVP, Logger, State, __exports__) {
@@ -291,7 +304,6 @@ define("oasis",
           var consumer = new Consumer(port);
           State.consumers[name] = consumer;
           consumer.initialize(port, name);
-          port.start();
         };
       }
 
@@ -328,6 +340,7 @@ define("oasis",
         promise: defered.promise,
         setupCapability: function(port) {
           defered.resolve(port);
+          return defered.promise;
         },
         rejectCapability: function () {
           defered.reject();
@@ -344,8 +357,9 @@ define("oasis",
         if (handler) {
           Logger.log("Invoking handler for '" + capability + "'");
 
-          handler.setupCapability(port);
-          port.start();
+          RSVP.resolve(handler.setupCapability(port)).then(function () {
+            port.start();
+          });
         }
 
         ports[capability] = port;
@@ -376,13 +390,14 @@ define("oasis",
     __exports__.handlers = handlers;
     __exports__.ports = ports;
   });define("oasis/iframe_adapter",
-  ["oasis/util", "oasis/shims", "rsvp", "oasis/logger", "oasis/base_adapter"],
-  function(__dependency1__, __dependency2__, RSVP, Logger, BaseAdapter) {
+  ["oasis/util", "oasis/config", "oasis/shims", "rsvp", "oasis/logger", "oasis/base_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, RSVP, Logger, BaseAdapter) {
     "use strict";
     var extend = __dependency1__.extend;
-    var addEventListener = __dependency2__.addEventListener;
-    var removeEventListener = __dependency2__.removeEventListener;
-    var a_map = __dependency2__.a_map;
+    var configuration = __dependency2__.configuration;
+    var addEventListener = __dependency3__.addEventListener;
+    var removeEventListener = __dependency3__.removeEventListener;
+    var a_map = __dependency3__.a_map;
 
 
     var IframeAdapter = extend(BaseAdapter, {
@@ -392,7 +407,7 @@ define("oasis",
             oasisURL = this.oasisURL(sandbox);
 
         iframe.name = sandbox.options.url;
-        iframe.sandbox = 'allow-same-origin allow-scripts';
+        iframe.sandbox = 'allow-scripts';
         iframe.seamless = true;
         iframe.src = 'about:blank';
 
@@ -406,10 +421,12 @@ define("oasis",
         iframe.oasisLoadHandler = function () {
           removeEventListener(iframe, 'load', iframe.oasisLoadHandler);
 
-          sandbox.iframeLoaded = true;
+          configuration.eventCallback(function () {
+            sandbox.iframeLoaded = true;
 
-          Logger.log("iframe loading oasis");
-          iframe.contentWindow.location.href = oasisURL;
+            Logger.log("iframe loading oasis");
+            iframe.contentWindow.location.href = oasisURL;
+          });
         };
         addEventListener(iframe, 'load', iframe.oasisLoadHandler);
 
@@ -420,9 +437,10 @@ define("oasis",
             if( event.source !== iframe.contentWindow ) {return;}
             removeEventListener(window, 'message', iframe.initializationHandler);
 
-
-            Logger.log("iframe sandbox initialized");
-            resolve(sandbox);
+            configuration.eventCallback(function () {
+              Logger.log("iframe sandbox initialized");
+              resolve(sandbox);
+            });
           };
           addEventListener(window, 'message', iframe.initializationHandler);
         });
@@ -436,8 +454,10 @@ define("oasis",
             if( event.source !== iframe.contentWindow ) {return;}
             removeEventListener(window, 'message', iframe.loadHandler);
 
-            Logger.log("iframe sandbox loaded");
-            resolve(sandbox);
+            configuration.eventCallback(function () {
+              Logger.log("iframe sandbox loaded");
+              resolve(sandbox);
+            });
           };
           addEventListener(window, 'message', iframe.loadHandler);
         });
@@ -543,12 +563,13 @@ define("oasis",
 
     return logger;
   });define("oasis/message_channel",
-  ["oasis/util", "rsvp", "oasis/state", "exports"],
-  function(__dependency1__, RSVP, OasisState, __exports__) {
+  ["oasis/util", "oasis/config", "rsvp", "oasis/state", "exports"],
+  function(__dependency1__, __dependency2__, RSVP, OasisState, __exports__) {
     "use strict";
     var extend = __dependency1__.extend;
     var mustImplement = __dependency1__.mustImplement;
     var rsvpErrorHandler = __dependency1__.rsvpErrorHandler;
+    var configuration = __dependency2__.configuration;
 
     /**
       OasisPort is an interface that adapters can use to implement ports.
@@ -688,14 +709,15 @@ define("oasis",
           var requestId = data.requestId,
               args = data.args,
               getResponse = new RSVP.Promise(function (resolve, reject) {
-                try {
-                  resolve(callback.apply(binding, data.args));
-                } catch (error) {
-                  reject(error);
+                var value = callback.apply(binding, data.args);
+                if (undefined !== value) {
+                  resolve(value);
+                } else {
+                  reject("@request:" + eventName + " [" + data.requestId + "] did not return a value.  If you want to return a literal `undefined` return `RSVP.resolve(undefined)`");
                 }
               });
 
-          RSVP.resolve(getResponse).then(function (value) {
+          getResponse.then(function (value) {
             self.send('@response:' + eventName, {
               requestId: requestId,
               data: value
@@ -755,7 +777,9 @@ define("oasis",
       on: function(eventName, callback, binding) {
         function wrappedCallback(event) {
           if (event.data.type === eventName) {
-            callback.call(binding, event.data.data);
+            configuration.eventCallback(function () {
+              return callback.call(binding, event.data.data);
+            });
           }
         }
 
@@ -764,9 +788,13 @@ define("oasis",
       },
 
       all: function(callback, binding) {
-        this.port.addEventListener('message', function(event) {
-          callback.call(binding, event.data.type, event.data.data);
-        });
+        function wrappedCallback(event) {
+          configuration.eventCallback(function () {
+            callback.call(binding, event.data.type, event.data.data);
+          });
+        }
+
+        this.port.addEventListener('message', wrappedCallback);
       },
 
       off: function(eventName, callback) {
@@ -808,14 +836,15 @@ define("oasis",
     __exports__.PostMessageMessageChannel = PostMessageMessageChannel;
     __exports__.PostMessagePort = PostMessagePort;
   });define("oasis/sandbox",
-  ["oasis/util", "oasis/shims", "oasis/message_channel", "rsvp", "oasis/logger", "oasis/state", "oasis/config", "oasis/iframe_adapter"],
-  function(__dependency1__, __dependency2__, __dependency3__, RSVP, Logger, State, configuration, iframeAdapter) {
+  ["oasis/util", "oasis/shims", "oasis/message_channel", "oasis/config", "rsvp", "oasis/logger", "oasis/state", "oasis/iframe_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, RSVP, Logger, State, iframeAdapter) {
     "use strict";
     var assert = __dependency1__.assert;
     var rsvpErrorHandler = __dependency1__.rsvpErrorHandler;
     var a_forEach = __dependency2__.a_forEach;
     var a_reduce = __dependency2__.a_reduce;
     var OasisPort = __dependency3__.OasisPort;
+    var configuration = __dependency4__.configuration;
 
 
     var OasisSandbox = function(options) {
@@ -841,6 +870,7 @@ define("oasis",
       this.envPortDefereds = {};
       this.sandboxPortDefereds = {};
       this.channels = {};
+      this.ports = {};
       this.options = options;
 
       var loadPromise = adapter.initializeSandbox(this);
@@ -930,6 +960,7 @@ define("oasis",
             // Law of Demeter violation
             port = sandboxPort;
 
+            this.ports[capability] = environmentPort;
             this.envPortDefereds[capability].resolve(environmentPort);
           }
 
@@ -992,7 +1023,22 @@ define("oasis",
 
     function initializeSandbox () {
       if (typeof window !== 'undefined') {
-        iframeAdapter.connectSandbox(ports);
+        if (/PhantomJS/.test(navigator.userAgent)) {
+          // We don't support phantomjs for several reasons, including
+          //  - window.constructor vs Window
+          //  - postMessage must not have ports (but recall in IE postMessage must
+          //    have ports)
+          //  - because of the above we need to polyfill, but we fail to do so
+          //    because we see MessageChannel in global object
+          //  - we erroneously try to decode the oasis load message; alternatively
+          //    we should just encode the init message
+          //  - all the things we haven't noticed yet
+          return;
+        }
+
+        if (window.parent && window.parent !== window) {
+          iframeAdapter.connectSandbox(ports);
+        }
       } else {
         webworkerAdapter.connectSandbox(ports);
       }
@@ -1344,9 +1390,11 @@ define("oasis",
     __exports__.addEventListener = addEventListener;
     __exports__.removeEventListener = removeEventListener;
   });define("oasis/state",
-  [],
-  function() {
+  ["oasis/config"],
+  function(__dependency1__) {
     "use strict";
+    var configuration = __dependency1__.configuration;
+
     function State () {
       this.reset();
     };
@@ -1358,6 +1406,8 @@ define("oasis",
 
       this.consumers = {};
       this.services = [];
+
+      configuration.eventCallback = function (callback) { callback(); };
     }
 
     return new State;
@@ -1371,15 +1421,6 @@ define("oasis",
       if (!assertion) {
         throw new Error(string);
       }
-    }
-
-    function verifySandbox() {
-      var iframe = document.createElement('iframe');
-
-      iframe.sandbox = 'allow-scripts';
-      assert(iframe.getAttribute('sandbox') === 'allow-scripts', "The current version of Oasis requires Sandboxed iframes, which are not supported on your current platform. See http://caniuse.com/#feat=iframe-sandbox");
-
-      assert(typeof MessageChannel !== 'undefined', "The current version of Oasis requires MessageChannel, which is not supported on your current platform. A near-future version of Oasis will polyfill MessageChannel using the postMessage API");
     }
 
     function mustImplement(className, name) {
@@ -1421,16 +1462,16 @@ define("oasis",
     __exports__.assert = assert;
     __exports__.extend = extend;
     __exports__.mustImplement = mustImplement;
-    __exports__.verifySandbox = verifySandbox;
     __exports__.rsvpErrorHandler = rsvpErrorHandler;
   });define("oasis/webworker_adapter",
-  ["oasis/util", "oasis/shims", "rsvp", "oasis/logger", "oasis/base_adapter"],
-  function(__dependency1__, __dependency2__, RSVP, Logger, BaseAdapter) {
+  ["oasis/util", "oasis/config", "oasis/shims", "rsvp", "oasis/logger", "oasis/base_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, RSVP, Logger, BaseAdapter) {
     "use strict";
     var extend = __dependency1__.extend;
-    var a_forEach = __dependency2__.a_forEach;
-    var addEventListener = __dependency2__.addEventListener;
-    var removeEventListener = __dependency2__.removeEventListener;
+    var configuration = __dependency2__.configuration;
+    var a_forEach = __dependency3__.a_forEach;
+    var addEventListener = __dependency3__.addEventListener;
+    var removeEventListener = __dependency3__.removeEventListener;
 
 
     var WebworkerAdapter = extend(BaseAdapter, {
@@ -1441,22 +1482,26 @@ define("oasis",
 
         sandbox.promise = new RSVP.Promise( function(resolve, reject) {
           worker.initializationHandler = function (event) {
-            if( event.data !== sandbox.adapter.sandboxInitializedMessage ) {return;}
-            removeEventListener(worker, 'message', worker.initializationHandler);
+            configuration.eventCallback(function () {
+              if( event.data !== sandbox.adapter.sandboxInitializedMessage ) {return;}
+              removeEventListener(worker, 'message', worker.initializationHandler);
 
-            Logger.log("worker sandbox initialized");
-            resolve(sandbox);
+              Logger.log("worker sandbox initialized");
+              resolve(sandbox);
+            });
           };
           addEventListener(worker, 'message', worker.initializationHandler);
         });
 
         return new RSVP.Promise(function (resolve, reject) {
           worker.loadHandler = function (event) {
-            if( event.data !== sandbox.adapter.oasisLoadedMessage ) {return;}
-            removeEventListener(worker, 'message', worker.loadHandler);
+            configuration.eventCallback(function () {
+              if( event.data !== sandbox.adapter.oasisLoadedMessage ) {return;}
+              removeEventListener(worker, 'message', worker.loadHandler);
 
-            Logger.log("worker sandbox initialized");
-            resolve(sandbox);
+              Logger.log("worker sandbox initialized");
+              resolve(sandbox);
+            });
           };
           addEventListener(worker, 'message', worker.loadHandler);
         });
