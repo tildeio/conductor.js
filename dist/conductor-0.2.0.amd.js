@@ -1,4 +1,4 @@
-define("conductor.js-0.2.0",
+define("conductor",
   ["oasis"],
   function(Oasis) {
     "use strict";
@@ -183,12 +183,22 @@ define("conductor.js-0.2.0",
       this.options = options || {};
       this.conductorURL = this.options.conductorURL ||
                           Oasis.config.oasisURL ||
-                          '/dist/conductor.js-0.2.0.js.html';
+                          '/dist/conductor-0.2.0.js.html';
 
       this.data = {};
       this.cards = {};
       this.services = o_create(Conductor.services);
       this.capabilities = Conductor.capabilities.slice();
+    };
+
+    Conductor.configure = function (name, value) {
+      if (/(conductor|oasis)URL/.test(name)) {
+        Oasis.config.oasisURL = value;
+      } else if ('eventCallback' === name) {
+        Oasis.configure(name, value);
+      } else {
+        throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");
+      }
     };
 
     Conductor.error = function (error) {
