@@ -193,7 +193,7 @@ module.exports = function(grunt) {
         /*global process */
         build: process.env.TRAVIS_BUILD_NUMBER,
         concurrency: 3,
-        testTimeout: 60 * 1000,
+        testTimeout: 3 * 60 * 1000,
         testInterval: 5000
       },
 
