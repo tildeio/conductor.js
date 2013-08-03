@@ -454,15 +454,13 @@ define("conductor",
         this.consumers = o_create(Conductor.Oasis.consumers);
         this.options = options = options || {};
 
-        var renderDefered = this.defer();
-
-        var xhrDefered = this.defer();
+        var xhrDefered = this.defer(),
+            assertionDefered = this.defer(),
+            dataDefered = this.defer();
 
         options.events = options.events || {};
         options.requests = options.requests || {};
 
-        var assertionDefered = this.defer();
-        var dataDefered = this.defer();
 
         var activatePromise = this.activateWhen(dataDefered.promise, [ xhrDefered.promise ]);
 
@@ -472,15 +470,15 @@ define("conductor",
 
         var cardOptions = {
           consumers: extend({
-            xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrDefered, this),
-            render: Conductor.renderConsumer(renderDefered, this),
-            metadata: Conductor.metadataConsumer(this),
+            xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrDefered),
+            render: Conductor.renderConsumer(),
+            metadata: Conductor.MetadataConsumer,
             // TODO: this should be a custom consumer provided in tests
-            assertion: Conductor.assertionConsumer(assertionDefered, this),
-            data: Conductor.dataConsumer(dataDefered, this),
+            assertion: Conductor.assertionConsumer(assertionDefered),
+            data: Conductor.dataConsumer(dataDefered),
             lifecycle: Conductor.lifecycleConsumer(activatePromise),
-            height: Conductor.heightConsumer(this),
-            nestedWiretapping: Conductor.nestedWiretapping(this)
+            height: Conductor.HeightConsumer,
+            nestedWiretapping: Conductor.NestedWiretapping
           }, options.consumers)
         };
 
@@ -699,7 +697,7 @@ define("conductor",
     })();
 
 
-    Conductor.assertionConsumer = function(promise, card) {
+    Conductor.assertionConsumer = function(promise) {
       return Conductor.Oasis.Consumer.extend({
         initialize: function() {
           var service = this;
@@ -721,29 +719,29 @@ define("conductor",
 
         events: {
           instruct: function(info) {
-            card.instruct(info);
+            this.card.instruct(info);
           }
         }
       });
     };
 
-    Conductor.dataConsumer = function(promise, card) {
+    Conductor.dataConsumer = function(promise) {
       return Conductor.Oasis.Consumer.extend({
         events: {
           initializeData: function(data) {
-            card.data = data;
+            this.card.data = data;
             promise.resolve(data);
           },
 
           updateData: function(data) {
             if (data.bucket === '*') {
-              card.data = data.data;
+              this.card.data = data.data;
             } else {
-              card.data[data.bucket] = data.data;
+              this.card.data[data.bucket] = data.data;
             }
 
-            if (card.didUpdateData) {
-              card.didUpdateData(data.bucket, data.data);
+            if (this.card.didUpdateData) {
+              this.card.didUpdateData(data.bucket, data.data);
             }
           }
         }
@@ -785,84 +783,82 @@ define("conductor",
       card.consumers.height.update();
       ```
     */
-    Conductor.heightConsumer = function (card) {
-      var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
-      return Conductor.Oasis.Consumer.extend({
-        autoUpdate: true,
+    Conductor.HeightConsumer = Conductor.Oasis.Consumer.extend({
+      autoUpdate: true,
 
-        initialize: function () {
-          var consumer = this;
+      initialize: function () {
+        var consumer = this;
 
-          card.promise.then(function () {
-            if (!consumer.autoUpdate) {
-              return;
-            } else if (typeof MutationObserver === "undefined") {
-              Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
-              return;
-            }
-
-            consumer.setUpAutoupdate();
-          });
-        },
-
-        update: function (dimensions) {
-          if (typeof dimensions === "undefined") {
-            var width = 0,
-                height = 0,
-                childNodes = document.body.childNodes,
-                len = childNodes.length,
-                extraVSpace = 0,
-                extraHSpace = 0,
-                vspaceProps = ['marginTop', 'marginBottom', 'paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'],
-                hspaceProps = ['marginLeft', 'marginRight', 'paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'],
-                i,
-                childNode;
-
-            for (i=0; i < vspaceProps.length; ++i) {
-              extraVSpace += parseInt(DomUtils.getComputedStyleProperty(document.body, vspaceProps[i]), 10);
-            }
-
-            for (i=0; i < hspaceProps.length; ++i) {
-              extraHSpace += parseInt(DomUtils.getComputedStyleProperty(document.body, hspaceProps[i]), 10);
-            }
-
-            for (i = 0; i < len; ++i) {
-              childNode = childNodes[i];
-              if (childNode.nodeType !== 1 /* Node.ELEMENT_NODE */ ) { continue; }
-
-              width = Math.max(width, childNode.clientWidth + extraHSpace);
-              height = Math.max(height, childNode.clientHeight + extraVSpace);
-            }
-
-            dimensions = {
-              width: width,
-              height: height
-            };
+        this.card.promise.then(function () {
+          if (!consumer.autoUpdate) {
+            return;
+          } else if (typeof MutationObserver === "undefined") {
+            Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
+            return;
           }
 
-          this.send('resize', dimensions);
-        },
+          consumer.setUpAutoupdate();
+        });
+      },
 
-        setUpAutoupdate: function () {
-          var consumer = this;
+      update: function (dimensions) {
+        if (typeof dimensions === "undefined") {
+          var width = 0,
+              height = 0,
+              childNodes = document.body.childNodes,
+              len = childNodes.length,
+              extraVSpace = 0,
+              extraHSpace = 0,
+              vspaceProps = ['marginTop', 'marginBottom', 'paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'],
+              hspaceProps = ['marginLeft', 'marginRight', 'paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'],
+              i,
+              childNode;
 
-          var mutationObserver = new MutationObserver(function () {
-            consumer.update();
-          });
+          for (i=0; i < vspaceProps.length; ++i) {
+            extraVSpace += parseInt(DomUtils.getComputedStyleProperty(document.body, vspaceProps[i]), 10);
+          }
 
-          mutationObserver.observe(document.documentElement, {
-            childList: true,
-            attributes: true,
-            characterData: true,
-            subtree: true,
-            attributeOldValue: false,
-            characterDataOldValue: false,
-            attributeFilter: ['style', 'className']
-          });
+          for (i=0; i < hspaceProps.length; ++i) {
+            extraHSpace += parseInt(DomUtils.getComputedStyleProperty(document.body, hspaceProps[i]), 10);
+          }
+
+          for (i = 0; i < len; ++i) {
+            childNode = childNodes[i];
+            if (childNode.nodeType !== 1 /* Node.ELEMENT_NODE */ ) { continue; }
+
+            width = Math.max(width, childNode.clientWidth + extraHSpace);
+            height = Math.max(height, childNode.clientHeight + extraVSpace);
+          }
+
+          dimensions = {
+            width: width,
+            height: height
+          };
         }
-      });
-    };
+
+        this.send('resize', dimensions);
+      },
+
+      setUpAutoupdate: function () {
+        var consumer = this;
+
+        var mutationObserver = new MutationObserver(function () {
+          consumer.update();
+        });
+
+        mutationObserver.observe(document.documentElement, {
+          childList: true,
+          attributes: true,
+          characterData: true,
+          subtree: true,
+          attributeOldValue: false,
+          characterDataOldValue: false,
+          attributeFilter: ['style', 'className']
+        });
+      }
+    });
 
     Conductor.lifecycleConsumer = function(promise) {
       return Conductor.Oasis.Consumer.extend({
@@ -876,49 +872,42 @@ define("conductor",
       });
     };
 
-    Conductor.metadataConsumer = function(card) {
-      var options = card.options;
+    Conductor.MetadataConsumer = Conductor.Oasis.Consumer.extend({
+      requests: {
+        metadataFor: function(name) {
+          if (name === '*') {
+            var values = [], names = [], defered;
 
-      options.requests.metadataFor = function(name) {
-        if (name === '*') {
-          var values = [], names = [], defered;
-
-          for (var metadataName in options.metadata) {
-            values.push(card.metadata[metadataName].call(card));
-            names.push(metadataName);
-          }
-
-          return Conductor.Oasis.RSVP.all(values).then(function(sources) {
-            var metadata = {};
-
-            for (var i = 0; i < sources.length; i++) {
-              var name = names[i];
-              for (var key in sources[i]) {
-                metadata[name+':'+key] = sources[i][key];
-              }
+            for (var metadataName in this.card.options.metadata) {
+              values.push(this.card.metadata[metadataName].call(this.card));
+              names.push(metadataName);
             }
 
-            return metadata;
-          });
+            return Conductor.Oasis.RSVP.all(values).then(function(sources) {
+              var metadata = {};
 
-        } else {
-          return card.metadata[name].call(card);
+              for (var i = 0; i < sources.length; i++) {
+                var name = names[i];
+                for (var key in sources[i]) {
+                  metadata[name+':'+key] = sources[i][key];
+                }
+              }
+
+              return metadata;
+            });
+
+          } else {
+            return this.card.metadata[name].call(this.card);
+          }
         }
-      };
+      }
+    });
 
-      return Conductor.Oasis.Consumer.extend(options);
-    };
-
-    Conductor.nestedWiretapping = function (card) {
-      return Conductor.Oasis.Consumer;
-    };
+    Conductor.NestedWiretapping = Conductor.Oasis.Consumer;
 
     /*global DomUtils ConductorShims*/
 
-    var o_create = ConductorShims.o_create;
-
-    Conductor.renderConsumer = function(promise, card) {
-      var options = o_create(card.options);
+    Conductor.renderConsumer = function() {
       var domInitialized = false;
 
       function resetCSS() {
@@ -940,70 +929,69 @@ define("conductor",
         head.insertBefore(newStyle, head.children[0]);
       }
 
-      options.events.render = function(args) {
-        if(!domInitialized) {
-          resetCSS();
+      return Conductor.Oasis.Consumer.extend({
+        events: {
+          render: function(args) {
+            if(!domInitialized) {
+              resetCSS();
 
-          if(card.initializeDOM) {
-            card.initializeDOM();
+              if(this.card.initializeDOM) {
+                this.card.initializeDOM();
+              }
+
+              domInitialized = true;
+            }
+            this.card.render.apply(this.card, args);
           }
-
-          domInitialized = true;
         }
-        card.render.apply(card, args);
-      };
-
-      return Conductor.Oasis.Consumer.extend(options);
+      });
     };
 
     /*global DomUtils ConductorShims*/
 
-    var o_create = ConductorShims.o_create,
-        a_forEach = ConductorShims.a_forEach;
+    var a_forEach = ConductorShims.a_forEach;
 
-    Conductor.xhrConsumer = function(requiredUrls, requiredCSSUrls, promise, card) {
-      var options = o_create(card.options);
+    Conductor.xhrConsumer = function(requiredUrls, requiredCSSUrls, promise) {
+      return Conductor.Oasis.Consumer.extend({
+        initialize: function() {
+          var promises = [],
+              jsPromises = [],
+              port = this.port;
 
-      options.initialize = function() {
-        var promises = [],
-            jsPromises = [],
-            port = this.port;
+          function loadURL(callback) {
+            return function(url) {
+              var promise = port.request('get', url);
+              promises.push(promise);
+              promise.then(callback);
+            };
+          }
 
-        function loadURL(callback) {
-          return function(url) {
+          function processJavaScript(data) {
+            var script = document.createElement('script');
+            // textContent is ie9+
+            script.text = script.textContent = data;
+            document.body.appendChild(script);
+          }
+
+          function processCSS(data) {
+            var head = document.head || document.documentElement.getElementsByTagName('head')[0],
+                style = DomUtils.createStyleElement(data);
+            head.appendChild(style);
+          }
+
+          a_forEach.call(requiredUrls, function( url ) {
             var promise = port.request('get', url);
+            jsPromises.push( promise );
             promises.push(promise);
-            promise.then(callback);
-          };
+          });
+          Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
+            a_forEach.call(scripts, processJavaScript);
+          }).then(null, Conductor.error);
+          a_forEach.call(requiredCSSUrls, loadURL(processCSS));
+
+          Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).then(null, Conductor.error);
         }
-
-        function processJavaScript(data) {
-          var script = document.createElement('script');
-          // textContent is ie9+
-          script.text = script.textContent = data;
-          document.body.appendChild(script);
-        }
-
-        function processCSS(data) {
-          var head = document.head || document.documentElement.getElementsByTagName('head')[0],
-              style = DomUtils.createStyleElement(data);
-          head.appendChild(style);
-        }
-
-        a_forEach.call(requiredUrls, function( url ) {
-          var promise = port.request('get', url);
-          jsPromises.push( promise );
-          promises.push(promise);
-        });
-        Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
-          a_forEach.call(scripts, processJavaScript);
-        }).then(null, Conductor.error);
-        a_forEach.call(requiredCSSUrls, loadURL(processCSS));
-
-        Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).then(null, Conductor.error);
-      };
-
-      return Conductor.Oasis.Consumer.extend(options);
+      });
     };
 
     Conductor.AssertionService = Conductor.Oasis.Service.extend({
