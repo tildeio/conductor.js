@@ -33,9 +33,7 @@ test("the conductor can unload cards", function() {
 
   stop();
 
-  card.appendTo(qunitFixture);
-
-  card.promise.then( function() {
+  card.appendTo(qunitFixture).then( function() {
     equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
 
     conductor.unload(card);
@@ -54,7 +52,7 @@ test("card.destroy unloads the card", function() {
 
   card.appendTo(qunitFixture);
 
-  card.promise.then( function() {
+  card.waitForLoad().then( function() {
     equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
 
     card.destroy();

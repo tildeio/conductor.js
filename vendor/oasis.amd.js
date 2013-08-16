@@ -87,8 +87,8 @@ define("oasis",
     return Oasis;
   });
 define("oasis/base_adapter",
-  ["oasis/util","oasis/shims","oasis/config","oasis/globals","oasis/connect","oasis/message_channel","rsvp","oasis/logger","oasis/state"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, RSVP, Logger, state) {
+  ["oasis/util","oasis/shims","oasis/config","oasis/globals","oasis/connect","oasis/message_channel","rsvp","oasis/logger"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, RSVP, Logger) {
     "use strict";
     var mustImplement = __dependency1__.mustImplement;
     var addEventListener = __dependency2__.addEventListener;
@@ -109,10 +109,6 @@ define("oasis/base_adapter",
     }
 
     function BaseAdapter() {
-      var adapter = this;
-      state.on('reset', function () {
-        delete adapter._loadDeferral;
-      });
     }
 
     BaseAdapter.prototype = {
@@ -120,10 +116,6 @@ define("oasis/base_adapter",
 
       oasisURL: function(sandbox) {
         return sandbox.options.oasisURL || configuration.oasisURL || 'oasis.js.html';
-      },
-
-      waitForLoad: function () {
-        return this._waitForLoadDeferral().promise;
       },
 
       createChannel: function(sandbox) {
@@ -187,15 +179,7 @@ define("oasis/base_adapter",
 
       // protected
       oasisLoadedMessage: "oasisSandboxLoaded",
-      sandboxInitializedMessage:  "oasisSandboxInitialized",
-
-      _waitForLoadDeferral: function () {
-        if (!this._loadDeferral) {
-          this._loadDeferral = RSVP.defer();
-        }
-
-        return this._loadDeferral;
-      }
+      sandboxInitializedMessage:  "oasisSandboxInitialized"
     };
 
 
@@ -491,7 +475,7 @@ define("oasis/iframe_adapter",
         Logger.log('Initializing sandbox ' + iframe.name);
 
         // Promise that sandbox is loaded and capabilities are connected
-        this._waitForLoadDeferral().resolve(new RSVP.Promise( function(resolve, reject) {
+        sandbox._waitForLoadDeferral().resolve(new RSVP.Promise( function(resolve, reject) {
           iframe.initializationHandler = function (event) {
             if( event.data !== sandbox.adapter.sandboxInitializedMessage ) {return;}
             try {
@@ -1009,7 +993,7 @@ define("oasis/sandbox",
 
     OasisSandbox.prototype = {
       waitForLoad: function () {
-        return this.adapter.waitForLoad();
+        return this._waitForLoadDeferral().promise;
       },
 
       wiretap: function(callback) {
@@ -1135,6 +1119,17 @@ define("oasis/sandbox",
           delete State.services[index];
         }
         State.services = [];
+      },
+
+      // Oasis internal
+
+      _waitForLoadDeferral: function () {
+        if (!this._loadDeferral) {
+          // the adapter will resolve this
+          this._loadDeferral = RSVP.defer();
+        }
+
+        return this._loadDeferral;
       }
     };
 
@@ -1519,17 +1514,12 @@ define("oasis/shims",
     __exports__.a_map = a_map;
   });
 define("oasis/state",
-  ["oasis/shims","oasis/config"],
-  function(__dependency1__, __dependency2__) {
+  ["oasis/config"],
+  function(__dependency1__) {
     "use strict";
-    var a_forEach = __dependency1__.a_forEach;
-    var configuration = __dependency2__.configuration;
+    var configuration = __dependency1__.configuration;
 
     function State () {
-      this.callbacks = {
-        reset: []
-      };
-
       this.reset();
     }
 
@@ -1543,18 +1533,6 @@ define("oasis/state",
 
       configuration.eventCallback = function (callback) { callback(); };
       configuration.allowSameOrigin = false;
-
-      this.trigger('reset');
-    };
-
-    State.prototype.on = function (event, cb) {
-      this.callbacks[event].push(cb);
-    };
-
-    State.prototype.trigger = function (event) {
-      a_forEach.call(this.callbacks[event], function(cb) {
-        cb();
-      });
     };
 
 
@@ -1647,7 +1625,7 @@ define("oasis/webworker_adapter",
         var worker = new Worker(oasisURL);
         sandbox.worker = worker;
 
-        this._waitForLoadDeferral().resolve(new RSVP.Promise( function(resolve, reject) {
+        sandbox._waitForLoadDeferral().resolve(new RSVP.Promise( function(resolve, reject) {
           worker.initializationHandler = function (event) {
             configuration.eventCallback(function () {
               if( event.data !== sandbox.adapter.sandboxInitializedMessage ) {return;}

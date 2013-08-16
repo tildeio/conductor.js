@@ -42,7 +42,7 @@ test("The containing environment can update the data", function() {
   card = conductor.load(url, 1);
 
   card.appendTo('#qunit-fixture');
-  card.promise.then(async(function() {
+  card.waitForLoad().then(async(function() {
     conductor.loadData(url, 1, { all: { marco: 'polo' } });
   }));
 });
@@ -66,7 +66,7 @@ test("The card can notify the parent about data updates", function() {
   card.appendTo('#qunit-fixture');
   card2.appendTo('#qunit-fixture');
 
-  card.promise.then(async(function() {
+  card.waitForLoad().then(async(function() {
     card.instruct('updateYoself');
   }));
 

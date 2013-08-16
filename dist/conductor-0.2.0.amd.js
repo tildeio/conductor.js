@@ -639,14 +639,20 @@ define("conductor",
       this.sandbox = sandbox;
       var card = this;
 
-      this.promise = sandbox.promise.then(function () {
-        return card;
-      }).then(null, Conductor.error);
-
       return this;
     };
 
     CardReference.prototype = {
+      waitForLoad: function() {
+        var card = this;
+        if (!this._loadPromise) {
+          this._loadPromise = this.sandbox.waitForLoad().then(function() {
+            return card;
+          }).then(null, Conductor.error);
+        }
+        return this._loadPromise;
+      },
+
       metadataFor: function(name) {
         return this.sandbox.metadataPort.request('metadataFor', name);
       },
@@ -664,7 +670,7 @@ define("conductor",
 
         parent.appendChild(this.sandbox.el);
 
-        return this;
+        return this.waitForLoad();
       },
 
       render: function(intent, dimensions) {
