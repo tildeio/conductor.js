@@ -11,7 +11,7 @@ var card = Conductor.card({
   }
 });
 
-card.promise.then( function () {
+card.waitForActivation().then( function () {
   start();
   activated = true;
   ok(true, "Card was activated after user-supplied activation promise resolved.");
