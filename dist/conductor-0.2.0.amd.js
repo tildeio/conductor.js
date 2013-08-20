@@ -410,9 +410,7 @@ define("conductor",
     /*global PathUtils ConductorShims*/
 
     (function() {
-      var requiredUrls = [],
-          requiredCSSUrls = [],
-          RSVP = requireModule('rsvp'),
+      var RSVP = requireModule('rsvp'),
           Promise = RSVP.Promise,
           o_create = ConductorShims.o_create,
           a_forEach = ConductorShims.a_forEach,
@@ -435,12 +433,15 @@ define("conductor",
         return base;
       }
 
+      Conductor.requiredUrls = [];
+      Conductor.requiredCSSUrls = [];
+
       Conductor.require = function(url) {
-        requiredUrls.push(url);
+        Conductor.requiredUrls.push(url);
       };
 
       Conductor.requireCSS = function(url) {
-        requiredCSSUrls.push(url);
+        Conductor.requiredCSSUrls.push(url);
       };
 
       Conductor.Card = function(options) {
@@ -454,29 +455,29 @@ define("conductor",
         this.consumers = o_create(Conductor.Oasis.consumers);
         this.options = options = options || {};
 
-        var xhrDefered = this.defer(),
-            assertionDefered = this.defer(),
-            dataDefered = this.defer();
+        this.deferred = {
+          data: this.defer(),
+          xhr: this.defer()
+        };
 
         options.events = options.events || {};
         options.requests = options.requests || {};
 
+        this.activatePromise = this.activateWhen(this.deferred.data.promise, [ this.deferred.xhr.promise ]);
 
-        var activatePromise = this.activateWhen(dataDefered.promise, [ xhrDefered.promise ]);
-
-        this.promise = activatePromise.then(function () {
+        this.promise = this.activatePromise.then(function () {
           return card;
         }).then(null, Conductor.error);
 
         var cardOptions = {
           consumers: extend({
-            xhr: Conductor.xhrConsumer(requiredUrls, requiredCSSUrls, xhrDefered),
-            render: Conductor.renderConsumer(),
-            metadata: Conductor.MetadataConsumer,
             // TODO: this should be a custom consumer provided in tests
-            assertion: Conductor.assertionConsumer(assertionDefered),
-            data: Conductor.dataConsumer(dataDefered),
-            lifecycle: Conductor.lifecycleConsumer(activatePromise),
+            assertion: Conductor.AssertionConsumer,
+            xhr: Conductor.XhrConsumer,
+            render: Conductor.RenderConsumer,
+            metadata: Conductor.MetadataConsumer,
+            data: Conductor.DataConsumer,
+            lifecycle: Conductor.LifecycleConsumer,
             height: Conductor.HeightConsumer,
             nestedWiretapping: Conductor.NestedWiretapping
           }, options.consumers)
@@ -491,9 +492,9 @@ define("conductor",
 
       Conductor.Card.prototype = {
         defer: function(callback) {
-          var defered = RSVP.defer();
-          if (callback) { defered.promise.then(callback).then(null, Conductor.error); }
-          return defered;
+          var deferred = RSVP.defer();
+          if (callback) { deferred.promise.then(callback).then(null, Conductor.error); }
+          return deferred;
         },
 
         updateData: function(name, hash) {
@@ -697,56 +698,50 @@ define("conductor",
     })();
 
 
-    Conductor.assertionConsumer = function(promise) {
-      return Conductor.Oasis.Consumer.extend({
-        initialize: function() {
-          var service = this;
+    Conductor.AssertionConsumer = Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var service = this;
 
-          window.ok = function(bool, message) {
-            service.send('ok', { bool: bool, message: message });
-          };
+        window.ok = function(bool, message) {
+          service.send('ok', { bool: bool, message: message });
+        };
 
-          window.equal = function(expected, actual, message) {
-            service.send('equal', { expected: expected, actual: actual, message: message });
-          };
+        window.equal = function(expected, actual, message) {
+          service.send('equal', { expected: expected, actual: actual, message: message });
+        };
 
-          window.start = function() {
-            service.send('start');
-          };
+        window.start = function() {
+          service.send('start');
+        };
+      },
 
-          promise.resolve();
+      events: {
+        instruct: function(info) {
+          this.card.instruct(info);
+        }
+      }
+    });
+
+    Conductor.DataConsumer = Conductor.Oasis.Consumer.extend({
+      events: {
+        initializeData: function(data) {
+          this.card.data = data;
+          this.card.deferred.data.resolve(data);
         },
 
-        events: {
-          instruct: function(info) {
-            this.card.instruct(info);
+        updateData: function(data) {
+          if (data.bucket === '*') {
+            this.card.data = data.data;
+          } else {
+            this.card.data[data.bucket] = data.data;
+          }
+
+          if (this.card.didUpdateData) {
+            this.card.didUpdateData(data.bucket, data.data);
           }
         }
-      });
-    };
-
-    Conductor.dataConsumer = function(promise) {
-      return Conductor.Oasis.Consumer.extend({
-        events: {
-          initializeData: function(data) {
-            this.card.data = data;
-            promise.resolve(data);
-          },
-
-          updateData: function(data) {
-            if (data.bucket === '*') {
-              this.card.data = data.data;
-            } else {
-              this.card.data[data.bucket] = data.data;
-            }
-
-            if (this.card.didUpdateData) {
-              this.card.didUpdateData(data.bucket, data.data);
-            }
-          }
-        }
-      });
-    };
+      }
+    });
 
     /*global DomUtils*/
 
@@ -860,23 +855,21 @@ define("conductor",
       }
     });
 
-    Conductor.lifecycleConsumer = function(promise) {
-      return Conductor.Oasis.Consumer.extend({
-        initialize: function() {
-          var consumer = this;
+    Conductor.LifecycleConsumer = Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var consumer = this;
 
-          promise.then(function() {
-            consumer.send('activated');  
-          });
-        }
-      });
-    };
+        this.card.activatePromise.then(function() {
+          consumer.send('activated');
+        });
+      }
+    });
 
     Conductor.MetadataConsumer = Conductor.Oasis.Consumer.extend({
       requests: {
         metadataFor: function(name) {
           if (name === '*') {
-            var values = [], names = [], defered;
+            var values = [], names = [];
 
             for (var metadataName in this.card.options.metadata) {
               values.push(this.card.metadata[metadataName].call(this.card));
@@ -907,7 +900,7 @@ define("conductor",
 
     /*global DomUtils ConductorShims*/
 
-    Conductor.renderConsumer = function() {
+    Conductor.RenderConsumer = function() {
       var domInitialized = false;
 
       function resetCSS() {
@@ -945,54 +938,53 @@ define("conductor",
           }
         }
       });
-    };
+    }();
 
     /*global DomUtils ConductorShims*/
 
     var a_forEach = ConductorShims.a_forEach;
 
-    Conductor.xhrConsumer = function(requiredUrls, requiredCSSUrls, promise) {
-      return Conductor.Oasis.Consumer.extend({
-        initialize: function() {
-          var promises = [],
-              jsPromises = [],
-              port = this.port;
+    Conductor.XhrConsumer = Conductor.Oasis.Consumer.extend({
+      initialize: function() {
+        var promises = [],
+            jsPromises = [],
+            port = this.port,
+            promise = this.card.deferred.xhr;
 
-          function loadURL(callback) {
-            return function(url) {
-              var promise = port.request('get', url);
-              promises.push(promise);
-              promise.then(callback);
-            };
-          }
-
-          function processJavaScript(data) {
-            var script = document.createElement('script');
-            // textContent is ie9+
-            script.text = script.textContent = data;
-            document.body.appendChild(script);
-          }
-
-          function processCSS(data) {
-            var head = document.head || document.documentElement.getElementsByTagName('head')[0],
-                style = DomUtils.createStyleElement(data);
-            head.appendChild(style);
-          }
-
-          a_forEach.call(requiredUrls, function( url ) {
+        function loadURL(callback) {
+          return function(url) {
             var promise = port.request('get', url);
-            jsPromises.push( promise );
             promises.push(promise);
-          });
-          Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
-            a_forEach.call(scripts, processJavaScript);
-          }).then(null, Conductor.error);
-          a_forEach.call(requiredCSSUrls, loadURL(processCSS));
-
-          Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).then(null, Conductor.error);
+            promise.then(callback);
+          };
         }
-      });
-    };
+
+        function processJavaScript(data) {
+          var script = document.createElement('script');
+          // textContent is ie9+
+          script.text = script.textContent = data;
+          document.body.appendChild(script);
+        }
+
+        function processCSS(data) {
+          var head = document.head || document.documentElement.getElementsByTagName('head')[0],
+              style = DomUtils.createStyleElement(data);
+          head.appendChild(style);
+        }
+
+        a_forEach.call(Conductor.requiredUrls, function( url ) {
+          var promise = port.request('get', url);
+          jsPromises.push( promise );
+          promises.push(promise);
+        });
+        Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
+          a_forEach.call(scripts, processJavaScript);
+        }).then(null, Conductor.error);
+        a_forEach.call(Conductor.requiredCSSUrls, loadURL(processCSS));
+
+        Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).then(null, Conductor.error);
+      }
+    });
 
     Conductor.AssertionService = Conductor.Oasis.Service.extend({
       initialize: function(port) {
