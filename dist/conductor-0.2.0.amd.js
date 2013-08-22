@@ -640,7 +640,7 @@ define("conductor",
       this.sandbox = sandbox;
       var card = this;
 
-      this.promise = sandbox.promise.then(function () {
+      this.promise = sandbox.waitForLoad().then(function () {
         return card;
       }).then(null, Conductor.error);
 

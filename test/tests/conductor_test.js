@@ -26,7 +26,18 @@ test("the conductor will load cards", function() {
 
   equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
 });
+test("the conductor will load cards with a specified adapter", function() {
+  expect(2);
 
+  var conductor = new Conductor({ testing: true });
+  var card = conductor.load("/test/fixtures/test_card.js", {adapter: Conductor.Oasis.adapters.inline});
+  card.appendTo(qunitFixture);
+
+  // Wait for assertion from card
+  stop();
+
+  equal(document.querySelectorAll('#qunit-fixture iframe').length, 1, "The card is in the DOM");
+});
 test("the conductor can unload cards", function() {
   var conductor = new Conductor({ testing: true }),
       card = conductor.load("/test/fixtures/test_card.js");
