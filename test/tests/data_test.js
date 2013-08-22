@@ -38,7 +38,7 @@ test("The containing environment can update the data", function() {
       one: 23
     }
   });
-  
+
   card = conductor.load(url, 1);
 
   card.appendTo('#qunit-fixture');
@@ -72,6 +72,17 @@ test("The card can notify the parent about data updates", function() {
 
   // card 1 will update its data, and card 2 will verify that its data is updated
   // and call start()
+});
+
+test("The card can declare a custom data consumer that triggers the activation of the card", function() {
+  stop();
+  expect(1);
+
+  var url = '/test/fixtures/data/custom_consumer_card.js';
+
+  card = conductor.load( url, 1 );
+
+  card.appendTo('#qunit-fixture');
 });
 
 })();
