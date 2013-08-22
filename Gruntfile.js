@@ -92,7 +92,7 @@ module.exports = function(grunt) {
       });
     });
   });
-
+  var port = parseInt(process.env.PORT || 8000, 10);
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
@@ -104,13 +104,13 @@ module.exports = function(grunt) {
 
       server: {
         options: {
-          port: 8000
+          port: port
         }
       },
 
       otherDomain: {
         options: {
-          port: 8001,
+          port: port + 1,
         }
       }
     },
