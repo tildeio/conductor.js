@@ -1,3 +1,7 @@
+Conductor.Oasis.logger.enable();
+// TODO: Update test environment to not depend on this for older browsers.
+Conductor.Oasis.configure('allowSameOrigin', true);
+
 Conductor.card({
   consumers: { urlChecker: Conductor.Oasis.Consumer },
   activate: function () {

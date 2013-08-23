@@ -5,7 +5,7 @@ var card = Conductor.card({
   }
 });
 
-card.promise.then(function () {
+card.waitForActivation().then(function () {
   start();
   equal(true, card.activated, "card is activated when its promise is resolved");
 });

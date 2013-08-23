@@ -11,7 +11,7 @@ test("on a resize event, HeightService resizes the sandbox", function() {
   stop();
 
   card = conductor.load('/test/fixtures/resize_card.js');
-  card.promise.then(function () {
+  card.waitForLoad().then(function () {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
@@ -25,7 +25,7 @@ test("HeightService does not resize beyond the sandbox's max-{width, height} pro
   stop();
 
   card = conductor.load('/test/fixtures/resize_card.js');
-  card.promise.then(function () {
+  card.waitForLoad().then(function () {
     $(card.sandbox.el).css({
       maxWidth: '35px',
       maxHeight: '25px'
@@ -46,7 +46,7 @@ test("HeightConsumer's `update` with dimensions sends those dimensions in a resi
   stop();
 
   card = conductor.load('/test/fixtures/resize_explicit_dimensions_card.js');
-  card.promise.then(function () {
+  card.waitForLoad().then(function () {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
@@ -62,7 +62,7 @@ test("HeightConsumer's `update` without dimensions sends the dimensions of the d
 
   card = conductor.load('/test/fixtures/resize_implicit_dimensions_card.js');
 
-  card.promise.then(function () {
+  card.waitForLoad().then(function () {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 610, 620, "HeightService updated width");
       within($(card.sandbox.el).height(), 700, 720, "HeightService updated height");
@@ -79,7 +79,7 @@ if (typeof MutationObserver !== 'undefined' || typeof WebkitMutationObserver !==
 
     card = conductor.load('/test/fixtures/resize_no_auto_card.js');
 
-    card.promise.then(function () {
+    card.waitForLoad().then(function () {
       card.sandbox.heightPort.on('resize', function () {
         ok(false, "resize should not have been sent");
       });
@@ -100,7 +100,7 @@ if (typeof MutationObserver !== 'undefined' || typeof WebkitMutationObserver !==
 
     card = conductor.load('/test/fixtures/resize_auto_card.js');
 
-    card.promise.then(function () {
+    card.waitForLoad().then(function () {
       card.sandbox.heightPort.on('resize', function () {
         var width = $(card.sandbox.el).width(),
             height = $(card.sandbox.el).height();

@@ -43,8 +43,11 @@
   values directly or return promises if the values need to be retrieved
   asynchronously.  Returned promises may reject, which will cause promise
   rejection to the corresponding service or consumer.
-- cards are no longer promise entities, but they have a promise property that
-  is resolved on sandbox readiness.  `card.then` → `card.promise.then`.
+- Card References are no longer promise entities.  Instead, `card.waitForLoad()`
+  returns a promise that is resolved when the card is loaded. `card.then` →
+  `card.waitForLoad().then`
+- Similarly, cards have a `waitForActivation` function instead of a promise
+  property.
 - iframe sandboxes are now started on `appendTo` and not on `load`.  This means
   nested sandboxes are not started until the first `render`.
 - `initializeDOM` is now required to call `appendTo` for child cards to be
