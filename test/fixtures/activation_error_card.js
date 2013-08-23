@@ -7,7 +7,7 @@ var card = Conductor.card({
   }
 });
 
-card.promise.then(function () {
+card.waitForActivation().then(function () {
   start();
   ok(false, "activation promise failed");
 }, function (error) {

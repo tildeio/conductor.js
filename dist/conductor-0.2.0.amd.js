@@ -463,11 +463,7 @@ define("conductor",
         options.events = options.events || {};
         options.requests = options.requests || {};
 
-        this.activatePromise = this.activateWhen(this.deferred.data.promise, [ this.deferred.xhr.promise ]);
-
-        this.promise = this.activatePromise.then(function () {
-          return card;
-        }).then(null, Conductor.error);
+        this.activateWhen(this.deferred.data.promise, [ this.deferred.xhr.promise ]);
 
         var cardOptions = {
           consumers: extend({
@@ -491,10 +487,8 @@ define("conductor",
       };
 
       Conductor.Card.prototype = {
-        defer: function(callback) {
-          var deferred = RSVP.defer();
-          if (callback) { deferred.promise.then(callback).then(null, Conductor.error); }
-          return deferred;
+        waitForActivation: function () {
+          return this._waitForActivationDeferral().promise;
         },
 
         updateData: function(name, hash) {
@@ -610,10 +604,19 @@ define("conductor",
 
         render: function () {},
 
+        //-----------------------------------------------------------------
+        // Internal
+
+        defer: function(callback) {
+          var defered = RSVP.defer();
+          if (callback) { defered.promise.then(callback).then(null, Conductor.error); }
+          return defered;
+        },
+
         activateWhen: function(dataPromise, otherPromises) {
           var card = this;
 
-          return RSVP.all([dataPromise].concat(otherPromises)).then(function(resolutions) {
+          return this._waitForActivationDeferral().resolve(RSVP.all([dataPromise].concat(otherPromises)).then(function(resolutions) {
             // Need to think if this called at the right place/time
             // My assumption for the moment is that
             // we don't rely on some initializations done in activate
@@ -622,7 +625,15 @@ define("conductor",
             if (card.activate) {
               return card.activate(resolutions[0]);
             }
-          });
+          }));
+        },
+
+        _waitForActivationDeferral: function () {
+          if (!this._activationDeferral) {
+            this._activationDeferral = RSVP.defer();
+            this._activationDeferral.promise.then(null, Conductor.error);
+          }
+          return this._activationDeferral;
         }
       };
 
@@ -639,14 +650,20 @@ define("conductor",
       this.sandbox = sandbox;
       var card = this;
 
-      this.promise = sandbox.promise.then(function () {
-        return card;
-      }).then(null, Conductor.error);
-
       return this;
     };
 
     CardReference.prototype = {
+      waitForLoad: function() {
+        var card = this;
+        if (!this._loadPromise) {
+          this._loadPromise = this.sandbox.waitForLoad().then(function() {
+            return card;
+          }).then(null, Conductor.error);
+        }
+        return this._loadPromise;
+      },
+
       metadataFor: function(name) {
         return this.sandbox.metadataPort.request('metadataFor', name);
       },
@@ -664,7 +681,7 @@ define("conductor",
 
         parent.appendChild(this.sandbox.el);
 
-        return this;
+        return this.waitForLoad();
       },
 
       render: function(intent, dimensions) {
@@ -786,7 +803,7 @@ define("conductor",
       initialize: function () {
         var consumer = this;
 
-        this.card.promise.then(function () {
+        this.card.waitForActivation().then(function () {
           if (!consumer.autoUpdate) {
             return;
           } else if (typeof MutationObserver === "undefined") {
@@ -859,7 +876,7 @@ define("conductor",
       initialize: function() {
         var consumer = this;
 
-        this.card.activatePromise.then(function() {
+        this.card.waitForActivation().then(function() {
           consumer.send('activated');
         });
       }

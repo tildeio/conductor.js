@@ -12,7 +12,7 @@ var card = Conductor.card({
   }
 });
 
-card.promise.then( function() {
+card.waitForActivation().then( function() {
   ok(true, "The card is activated");
   start();
 });

@@ -15,7 +15,7 @@ test("A card can be rendered", function() {
 
   stop();
 
-  card.appendTo('#qunit-fixture').promise.then(function() {
+  card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
   });
 });
@@ -25,7 +25,7 @@ test("A card can receive rendering dimensions", function() {
 
   stop();
 
-  card.appendTo('#qunit-fixture').promise.then(function() {
+  card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail', { width: 100, height: 100 });
   });
 });
@@ -35,7 +35,7 @@ test("The render method on a card is always invoked after activate", function() 
 
   stop();
 
-  card.appendTo('#qunit-fixture').promise.then(function() {
+  card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
   });
 });
@@ -46,7 +46,7 @@ test("A card can initialize the DOM before rendering the first time", function()
 
   stop();
 
-  card.appendTo('#qunit-fixture').promise.then(function() {
+  card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
     card.render('start');
   });
@@ -58,7 +58,7 @@ test("A card adjusts the css to maximize the space", function() {
 
   stop();
 
-  card.appendTo('#qunit-fixture').promise.then(function() {
+  card.appendTo('#qunit-fixture').then(function() {
     card.render('thumbnail');
   });
 });

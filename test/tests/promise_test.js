@@ -19,7 +19,7 @@ test("card references have a promise resolved when the sandbox is ready", functi
 
   equal(undefined, card.sandbox.dataPort, "sandbox is not initially initialised");
 
-  card.promise.then(function () {
+  card.waitForLoad().then(function () {
     start();
     notEqual(undefined, card.sandbox.dataPort, "sandbox is initialised when promise is resolved");
   });
