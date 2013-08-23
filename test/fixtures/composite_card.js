@@ -1,5 +1,8 @@
 Conductor.require("alert.js");
 
+// TODO: Update test environment to not depend on this for older browsers.
+Conductor.Oasis.configure('allowSameOrigin', true);
+
 Conductor.card({
   activate: function () {
     ok(true, "Card was activated");
