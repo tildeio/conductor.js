@@ -1,6 +1,6 @@
 define("conductor",
-  ["exports"],
-  function(__exports__) {
+  ["oasis"],
+  function(Oasis) {
     "use strict";
     // TODO: better to make whole repo use es6 modules
 
@@ -174,7 +174,6 @@ define("conductor",
         return A;
       };
 
-    import "oasis" as Oasis;
 
     var o_create = ConductorShims.o_create,
         a_forEach = ConductorShims.a_forEach,
@@ -488,12 +487,6 @@ define("conductor",
       };
 
       Conductor.Card.prototype = {
-        defer: function(callback) {
-          var deferred = RSVP.defer();
-          if (callback) { deferred.promise.then(callback).then(null, Conductor.error); }
-          return deferred;
-        },
-
         waitForActivation: function () {
           return this._waitForActivationDeferral().promise;
         },
@@ -1218,5 +1211,5 @@ define("conductor",
       'nestedWiretapping'
     ];
 
-    __exports__.= Conductor = = Conductor;
+    return Conductor;
   });
