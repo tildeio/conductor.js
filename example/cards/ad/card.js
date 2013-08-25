@@ -9,8 +9,8 @@ var card = Conductor.card({
         play: function () {
           var card = this.card;
 
-          card.promise.then(function () {
-            return card.videoCard.promise;
+          card.waitForLoad().then(function () {
+            return card.videoCard.waitForLoad();
           }).then(function () {
             card.videoCard.sandbox.videoPort.send('play');
           });
@@ -66,7 +66,7 @@ var card = Conductor.card({
     this.videoCard = this.childCards[0].card;
     this.surveyCard = this.childCards[1].card;
 
-    this.videoCard.sandbox.promise.then(function () {
+    this.videoCard.waitForLoad().then(function () {
       card.videoCard.sandbox.el.on('resize', function (dimensions) {
         card.videoCardDidResize(dimensions);
       });
