@@ -9,7 +9,7 @@ Conductor.card({
       events: {
         play: function () {
           var card = this.card;
-          card.promise.then(function () {
+          card.waitForLoad().then(function () {
             return card.playerDefered().promise;
           }).then(function () {
             card.player.playVideo();
