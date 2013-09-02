@@ -609,7 +609,7 @@ define("conductor",
 
         defer: function(callback) {
           var defered = RSVP.defer();
-          if (callback) { defered.promise.then(callback).then(null, Conductor.error); }
+          if (callback) { defered.promise.then(callback).fail(RSVP.rethrow); }
           return defered;
         },
 
@@ -631,7 +631,7 @@ define("conductor",
         _waitForActivationDeferral: function () {
           if (!this._activationDeferral) {
             this._activationDeferral = RSVP.defer();
-            this._activationDeferral.promise.then(null, Conductor.error);
+            this._activationDeferral.promise.fail(RSVP.rethrow);
           }
           return this._activationDeferral;
         }
@@ -659,7 +659,7 @@ define("conductor",
         if (!this._loadPromise) {
           this._loadPromise = this.sandbox.waitForLoad().then(function() {
             return card;
-          }).then(null, Conductor.error);
+          }).fail(RSVP.rethrow);
         }
         return this._loadPromise;
       },
@@ -689,14 +689,14 @@ define("conductor",
 
         this.sandbox.activatePromise.then(function() {
           card.sandbox.renderPort.send('render', [intent, dimensions]);
-        }).then(null, Conductor.error);
+        }).fail(RSVP.rethrow);
       },
 
       updateData: function(bucket, data) {
         var sandbox = this.sandbox;
         sandbox.activatePromise.then(function() {
           sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
-        }).then(null, Conductor.error);
+        }).fail(RSVP.rethrow);
       },
 
       wiretap: function(callback, binding) {
@@ -996,7 +996,7 @@ define("conductor",
         });
         Conductor.Oasis.RSVP.all(jsPromises).then(function(scripts) {
           a_forEach.call(scripts, processJavaScript);
-        }).then(null, Conductor.error);
+        }).fail(RSVP.rethrow);
         a_forEach.call(Conductor.requiredCSSUrls, loadURL(processCSS));
 
         Conductor.Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).then(null, Conductor.error);
