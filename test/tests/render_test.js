@@ -4,9 +4,7 @@ var conductor;
 
 module("Render Service", {
   setup: function() {
-    conductor = new Conductor({
-      testing: true
-    });
+    conductor = newConductor();
   }
 });
 

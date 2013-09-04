@@ -31,14 +31,6 @@
     }
 
     $(document).ready(hidePassedTestsByDefault);
-
-    var Oasis = requireModule('oasis');
-
-    Oasis.logger.enable();
-
-    // TODO: Update test environment to not depend on this for older browsers.
-    Oasis.configure('allowSameOrigin', true);
-    requireModule('oasis').configure('allowSameOrigin', true);
   </script>
 </body>
 </html>

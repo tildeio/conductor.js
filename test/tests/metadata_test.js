@@ -4,9 +4,7 @@ var conductor, card;
 
 module("Metadata Service", {
   setup: function() {
-    conductor = new Conductor({
-      testing: true
-    });
+    conductor = newConductor();
 
     card = conductor.load('/test/fixtures/metadata/multi_metadata_card.js');
     card.appendTo('#qunit-fixture');

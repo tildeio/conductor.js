@@ -181,24 +181,15 @@ define("conductor",
 
     var Conductor = function(options) {
       this.options = options || {};
+      this.oasis = new Oasis();
       this.conductorURL = this.options.conductorURL ||
-                          Oasis.config.oasisURL ||
+                          oasis.configuration.oasisURL ||
                           '/dist/conductor-0.2.0.js.html';
 
       this.data = {};
       this.cards = {};
       this.services = o_create(Conductor.services);
       this.capabilities = Conductor.capabilities.slice();
-    };
-
-    Conductor.configure = function (name, value) {
-      if (/(conductor|oasis)URL/.test(name)) {
-        Oasis.config.oasisURL = value;
-      } else if ('eventCallback' === name) {
-        Oasis.configure(name, value);
-      } else {
-        throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");
-      }
     };
 
     Conductor.error = function (error) {
@@ -234,6 +225,14 @@ define("conductor",
     }
 
     Conductor.prototype = {
+      configure: function (name, value) {
+        if ('eventCallback' === name) {
+          this.oasis.configure(name, value);
+        } else {
+          throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");
+        }
+      },
+
       loadData: function(url, id, data) {
         id = coerceId(id);
 
@@ -290,7 +289,7 @@ define("conductor",
           }
         }
 
-        var sandbox = Conductor.Oasis.createSandbox({
+        var sandbox = this.oasis.createSandbox({
           url: url,
           capabilities: capabilities,
           oasisURL: this.conductorURL,
@@ -315,9 +314,9 @@ define("conductor",
 
         // TODO: it would be better to access the consumer from
         // `conductor.parentCard` after the child card refactoring is in master.
-        if (Conductor.Oasis.consumers.nestedWiretapping) {
+        if (this.oasis.consumers.nestedWiretapping) {
           card.wiretap(function (service, messageEvent) {
-            Conductor.Oasis.consumers.nestedWiretapping.send(messageEvent.type, {
+            this.oasis.consumers.nestedWiretapping.send(messageEvent.type, {
               data: messageEvent.data,
               service: service+"",
               direction: messageEvent.direction,
@@ -452,7 +451,7 @@ define("conductor",
           this[prop] = options[prop];
         }
 
-        this.consumers = o_create(Conductor.Oasis.consumers);
+        this.consumers = o_create(oasis.consumers);
         this.options = options = options || {};
 
         this.deferred = {
@@ -483,7 +482,7 @@ define("conductor",
           cardOptions.consumers[prop] = cardOptions.consumers[prop].extend({card: this});
         }
 
-        Conductor.Oasis.connect(cardOptions);
+        oasis.connect(cardOptions);
       };
 
       Conductor.Card.prototype = {
@@ -492,7 +491,7 @@ define("conductor",
         },
 
         updateData: function(name, hash) {
-          Conductor.Oasis.portFor('data').send('updateData', { bucket: name, object: hash });
+          oasis.portFor('data').send('updateData', { bucket: name, object: hash });
         },
 
         /**
