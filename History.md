@@ -1,3 +1,8 @@
+### 0.3.0
+
+- `conductor.configure` replaces `Conductor.configure`
+- Oasis.js 0.3.0
+
 ### 0.2.0
 
 - `Conductor.configure('eventCallback', function (eventHandler) {})` to configure

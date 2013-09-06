@@ -116,7 +116,7 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      files: ['lib/**', 'vendor/*', 'test/tests/*', 'node_modules/jsframe/*'],
+      files: ['lib/**', 'vendor/*', 'test/tests/*', 'test/helpers/*', 'node_modules/jsframe/*'],
       tasks: ['build-dev', 'concat:tests']
     },
 
@@ -152,13 +152,16 @@ module.exports = function(grunt) {
       },
 
       tests: {
-        src: ['test/test_helpers.js', 'test/tests/**/*_test.js'],
+        src: ['test/helpers/*', 'test/tests/**/*_test.js'],
         dest: 'tmp/conductor_tests.js'
       },
 
       dist: {
-        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/<%= pkg.name %>.js'],
-        dest: 'tmp/dist/<%= pkg.name %>-<%= pkg.version %>.js'
+        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp-2.0.3.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/<%= pkg.name %>.js'],
+        dest: 'tmp/dist/<%= pkg.name %>-<%= pkg.version %>.js',
+        options: {
+          footer: "self.Oasis = requireModule('oasis'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
+        }
       }
     },
 

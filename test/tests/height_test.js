@@ -2,7 +2,7 @@ var conductor, card, qunitFixture;
 
 module('Height Service', {
   setup: function() {
-    conductor = new Conductor({ testing: true });
+    conductor = newConductor();
     qunitFixture = document.getElementById('qunit-fixture');
   }
 });

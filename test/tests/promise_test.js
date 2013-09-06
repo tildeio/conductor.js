@@ -12,7 +12,7 @@ test("card references have a promise resolved when the sandbox is ready", functi
   expect(2);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/empty_card.js");
@@ -30,7 +30,7 @@ test("cards have a promise resolved when the card is activated", function() {
   expect(2);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/promise_card.js");
@@ -41,7 +41,7 @@ test("cards may return a promise in `activate` to defer activation", function() 
   expect(2);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/card_defer_activation_with_promise.js");
@@ -53,7 +53,7 @@ test("consumers' `error` functions are invoked if their capabilities are not pro
   stop();
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   conductor.services.fulfilledCapability = Conductor.Oasis.Service;
@@ -63,7 +63,7 @@ test("consumers' `error` functions are invoked if their capabilities are not pro
 });
 
 test("errors in `activate` cause the card's promise to fail", function() {
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   stop();

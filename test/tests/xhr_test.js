@@ -4,9 +4,7 @@ var conductor, card;
 
 module("XHR Service", {
   setup: function() {
-    conductor = new Conductor({
-      testing: true
-    });
+    conductor = newConductor();
   }
 });
 

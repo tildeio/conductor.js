@@ -2,7 +2,8 @@ QUnit.config.testTimeout = QUnit.config.testTimeout > 500 ? QUnit.config.testTim
 
 (function() {
 
-var qunitFixture;
+var qunitFixture,
+    destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
 
 module("Conductor", {
   setup: function() {
@@ -17,7 +18,7 @@ test("it works", function() {
 test("the conductor will load cards", function() {
   expect(2);
 
-  var conductor = new Conductor({ testing: true });
+  var conductor = newConductor();
   var card = conductor.load("/test/fixtures/test_card.js");
   card.appendTo(qunitFixture);
 
@@ -28,7 +29,7 @@ test("the conductor will load cards", function() {
 });
 
 test("the conductor can unload cards", function() {
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card = conductor.load("/test/fixtures/test_card.js");
 
   stop();
@@ -45,7 +46,7 @@ test("the conductor can unload cards", function() {
 });
 
 test("card.destroy unloads the card", function() {
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card = conductor.load("/test/fixtures/test_card.js");
 
   stop();
@@ -66,7 +67,7 @@ test("card.destroy unloads the card", function() {
 test("cards can require dependencies", function() {
   expect(3);
 
-  var conductor = new Conductor({testing: true});
+  var conductor = newConductor();
   var card = conductor.load("/test/fixtures/load_card.js");
   card.appendTo(qunitFixture);
 
@@ -79,7 +80,7 @@ test("cards can require dependencies", function() {
 test("cards can require CSS dependencies", function() {
   expect(1);
 
-  var conductor = new Conductor({ testing: true });
+  var conductor = newConductor();
   var card = conductor.load("/test/fixtures/load_css_card.js");
   card.appendTo(qunitFixture);
 
@@ -89,7 +90,7 @@ test("cards can require CSS dependencies", function() {
 test("instances can add custom services", function() {
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       CustomService = Conductor.Oasis.Service.extend({
         events: {
           result: function (result) {
@@ -111,7 +112,7 @@ test("instances can add custom services", function() {
 test("instances can add custom services when loading a card", function() {
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       CustomService = Conductor.Oasis.Service.extend({
         events: {
           result: function (result) {
@@ -136,14 +137,14 @@ test("instances can add custom services when loading a card", function() {
   card.appendTo(qunitFixture);
 });
 
-test("A custom conductorURL can be specified in `Conductor.config.conductorURL`", function() {
+test("A custom conductorURL can be specified in `new Conductor({conductorURL: 'myURL'})`", function() {
   expect(1);
   stop();
 
-  var conductor = new Conductor({
-    testing: true,
-    conductorURL: '/test/vendor/conductor-custom-url.js.html'
+  var conductor = newConductor({
+    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
   });
+
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
     events: {
       checkURL: function (conductorURL) {
@@ -162,11 +163,9 @@ test("A custom conductorURL can be specified in `Conductor.config.conductorURL`"
 test("A custom conductorURL can be hosted on a separate domain", function() {
   expect(1);
   stop();
-  var otherDomain = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
 
-  var conductor = new Conductor({
-    testing: true,
-    conductorURL: otherDomain + '/test/vendor/conductor-custom-url.js.html'
+  var conductor = newConductor({
+    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
   });
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
     events: {
@@ -183,13 +182,12 @@ test("A custom conductorURL can be hosted on a separate domain", function() {
   card.appendTo(qunitFixture);
 });
 
-test("Child cards reuse `Conductor.config.conductorURL`", function() {
+test("Child cards reuse `conductor.conductorURL`", function() {
   expect(1);
   stop();
 
-  var conductor = new Conductor({
-    testing: true,
-    conductorURL: '/test/vendor/conductor-custom-url.js.html'
+  var conductor = newConductor({
+    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
   });
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
     events: {
@@ -210,7 +208,7 @@ test("`Conductor.require` uses relative path to the card", function() {
   expect(1);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card = conductor.load("/test/fixtures/require_relative_card.js");
 
   card.appendTo(qunitFixture);
@@ -219,7 +217,7 @@ test("`Conductor.require` uses relative path to the card", function() {
 test("Cards' consumers have access to the card", function() {
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       CustomService = Conductor.Oasis.Service.extend({
         events: {
           result: function (result) {

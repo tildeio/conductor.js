@@ -1,11 +1,13 @@
-Conductor.Oasis.logger.enable();
-// TODO: Update test environment to not depend on this for older browsers.
-Conductor.Oasis.configure('allowSameOrigin', true);
+oasis.logger.enable();
 
 Conductor.card({
   consumers: { urlChecker: Conductor.Oasis.Consumer },
   activate: function () {
     var conductor = new Conductor({ testing: true });
+
+    // TODO: Update test environment to not depend on this for older browsers.
+    conductor.oasis.configure('allowSameOrigin', true);
+
     conductor.services.urlChecker = Conductor.MultiplexService.extend({
       upstream: this.consumers.urlChecker
     });
