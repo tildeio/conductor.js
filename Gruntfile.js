@@ -1,34 +1,10 @@
 module.exports = function(grunt) {
-  var Globule = require('globule'),
-      File = require('fs'),
-      Path = require('path'),
-      exec = require('child_process').exec,
-      ieBrowsers = [{
-        browserName: 'internet explorer',
-        version: '10',
-        platform: 'Windows 8'
-      }, {
-        browserName: 'internet explorer',
-        version: '9',
-        platform: 'Windows 7'
-      }, {
-        browserName: 'internet explorer',
-        version: '8',
-        platform: 'Windows XP'
-      }],
-      browsers = [{
-        browserName: 'chrome',
-        version: '27',
-        platform: 'Windows 8'
-      },{
-        browserName: 'firefox',
-        version: '21',
-        platform: 'Windows 8'
-      },{
-        browserName: 'safari',
-        version: '6',
-        platform: 'OS X 10.8'
-      }].concat( ieBrowsers );
+  require('matchdep').
+    filterDev('grunt-*').
+    filter(function(name){ return name !== 'grunt-cli'; }).
+      forEach(grunt.loadNpmTasks);
+
+  grunt.loadTasks('tasks');
 
   // Alias tasks for the most common sets of tasks.
   // Most of the time, you will use these.
@@ -38,195 +14,44 @@ module.exports = function(grunt) {
   this.registerTask('default', ['build']);
 
   // Build a new version of the library
-  this.registerTask('build', "Builds a distributable version of Conductor.js",
-                    ['clean', 'jshint', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
-
-  // Build a dev version of the library
-  this.registerTask('build-dev', "Builds a development version of Conductor.js",
-                    ['clean', 'concat:conductor', 'transpile', 'concat:dist', 'copy', 'jsframe:conductor']);
+  this.registerTask('build', "Builds a distributable version of Conductor.js", [
+    'clean',
+    'jshint',
+    'copy:lib',         // reorganize folder
+    'jst',
+    'transpile',        // convert conductor files to amd modules
+    'concat:amd',       // generate conductor.amd.js
+    'concat:browser',
+    'jsframe:conductor' // create polyglot
+  ]);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
-  this.registerTask('server', ['concat:tests', 'build-dev', 'connect', 'watch']);
+  this.registerTask('server', ['build', 'concat:tests', 'connect', 'watch']);
 
-  this.registerTask('tutorial:retag', function () {
-    var done = this.async();
+  function config(configFileName) {
+    return require('./configurations/' + configFileName);
+  }
 
-    exec('git log -n 1 --format=%s | grep -q -p ^Tutorial', function (sin, sout, serr) {
-      if (sin instanceof Error) {
-        grunt.fail.fatal("The commit message of HEAD does not begin with 'Tutorial:'.  You must run 'tutorial:retag' from the last tutorial commit.");
-      }
-    });
-
-    exec('git rev-list --reverse tutorial-setup..', function (sin, sout, serr) {
-      var lastSha, cmd;
-      sout.replace(/\n$/, '').split("\n").forEach(function (sha, i) {
-        var cmd = "git tag -f tutorial-" + (i+1) + " " + sha;
-        exec(cmd);
-        grunt.log.write(cmd + "\n");
-        lastSha = sha;
-      });
-
-      cmd = "git tag -f tutorial " + lastSha;
-      exec(cmd);
-      grunt.log.write(cmd + "\n");
-
-      done();
-    });
-  });
-
-  this.registerMultiTask('jsframe', 'build polyglot files', function () {
-    var jsf = require('jsframe'),
-        dest = this.data.dest,
-        src = this.data.src;
-
-    src.forEach( function(pattern) {
-      var files = Globule.find(pattern);
-      files.forEach( function(filePath) {
-        var basename = Path.basename(filePath),
-            targetName = Path.join(dest, basename) + '.html',
-            outFd = File.openSync(targetName, 'w');
-
-        console.log(filePath + " → " + targetName);
-        jsf.process(filePath, outFd);
-        File.close(outFd);
-      });
-    });
-  });
-  var port = parseInt(process.env.PORT || 8000, 10);
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    connect: {
-      options: {
-        hostname: '*',
-        base: '.'
-      },
-
-      server: {
-        options: {
-          port: port
-        }
-      },
-
-      otherDomain: {
-        options: {
-          port: port + 1,
-        }
-      }
-    },
-
-    watch: {
-      files: ['lib/**', 'vendor/*', 'test/tests/*', 'test/helpers/*', 'node_modules/jsframe/*'],
-      tasks: ['build-dev', 'concat:tests']
-    },
-
-    transpile: {
-      amd: {
-        type: "amd",
-        files: [{
-          expand: true,
-          cwd: 'tmp/',
-          src: ['<%= pkg.name %>.js'],
-          dest: 'tmp/amd'
-        }]
-      },
-
-      globals: {
-        type: "globals",
-        imports: {oasis: 'Oasis'},
-        files: [{
-          expand: true,
-          cwd: 'tmp/',
-          src: ['<%= pkg.name %>.js'],
-          dest: 'tmp/browser'
-        }]
-      }
-    },
-
-    clean: ["dist/*"],
-
-    concat: {
-      conductor: {
-        src: ['lib/shims.js', 'lib/conductor.js', 'lib/utils/*.js', 'lib/conductor/*.js', 'lib/consumers/*.js', 'lib/services/*.js', 'lib/services.js'],
-        dest: 'tmp/<%= pkg.name %>.js'
-      },
-
-      tests: {
-        src: ['test/helpers/*', 'test/tests/**/*_test.js'],
-        dest: 'tmp/conductor_tests.js'
-      },
-
-      dist: {
-        src: ['lib/loader.js', 'vendor/uuid.core.js', 'vendor/kamino.js', 'vendor/message_channel.js', 'vendor/rsvp-2.0.3.amd.js', 'vendor/oasis.amd.js', 'lib/exporter.js', 'tmp/browser/<%= pkg.name %>.js'],
-        dest: 'tmp/dist/<%= pkg.name %>-<%= pkg.version %>.js',
-        options: {
-          footer: "self.Oasis = requireModule('oasis'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
-        }
-      }
-    },
-
-    copy: {
-      amd: {
-        files: [
-          {src: ['tmp/amd/<%= pkg.name %>.js'], dest: 'dist/conductor-<%= pkg.version %>.amd.js'}
-        ]
-      }
-    },
+    clean: ["dist/*", "tmp/*"],
+    concat: config('concat'),
+    connect: config('connect'),
+    copy: config('copy'),
+    jshint: config('jshint'),
+    'saucelabs-qunit': config('saucelabs-qunit'),
+    transpile: config('transpile'),
+    watch: config('watch'),
 
     jsframe: {
       conductor: {
-        src: ['tmp/dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+        src: ['tmp/browser/<%= pkg.name %>-<%= pkg.version %>.js'],
         dest: 'dist'
       }
     },
-
-    jshint: {
-      options: {
-        jshintrc: './.jshintrc'
-      },
-      all: ['Gruntfile.js', 'lib/**/*.js', 'test/tests/**/*.js']
-    },
-
-    'saucelabs-qunit': {
-      options: {
-        urls: [
-          'http://localhost:8000/test/index.html'
-        ],
-        tunnelTimeout: 5,
-        /*global process */
-        build: process.env.TRAVIS_BUILD_NUMBER,
-        concurrency: 3,
-        testTimeout: 3 * 60 * 1000,
-        testInterval: 5000
-      },
-
-      all: {
-        options: {
-          browsers: browsers,
-          testname: "Conductor.js qunit tests"
-        }
-      },
-
-      ie: {
-        options: {
-          browsers: ieBrowsers,
-          testname: "Conductor.js qunit tests (ie only)"
-        }
-      }
-    }
   });
 
-  // Load tasks from npm
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-saucelabs');
-  grunt.loadNpmTasks('grunt-es6-module-transpiler');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-
-
-  grunt.registerTask('test', "Run full test suite", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:all']);
-  grunt.registerTask('test:ie', "Run tests suite in IE", ['build-dev', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
+  grunt.registerTask('test', "Run full test suite", ['build', 'concat:tests', 'connect', 'saucelabs-qunit:all']);
+  grunt.registerTask('test:ie', "Run tests suite in IE", ['build', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
 };
