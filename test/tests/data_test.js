@@ -4,9 +4,7 @@ var conductor, card, card2;
 
 module("Data Service", {
   setup: function() {
-    conductor = new Conductor({
-      testing: true
-    });
+    conductor = newConductor();
   }
 });
 

@@ -1,12 +1,11 @@
-// TODO: Update test environment to not depend on this for older browsers.
-Conductor.Oasis.configure('allowSameOrigin', true);
-
 Conductor.card({
   activate: function () {
     ok(true, "Card was activated");
     start();
 
     var conductor = new Conductor({ testing: true });
+    // TODO: Update test environment to not depend on this for older browsers.
+    conductor.oasis.configure('allowSameOrigin', true);
     conductor.services.assertion = Conductor.MultiplexService.extend({
       upstream: this.consumers.assertion,
       transformEvent: function (eventName, data) {
