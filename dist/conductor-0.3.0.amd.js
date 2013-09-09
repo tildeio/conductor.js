@@ -1,6 +1,6 @@
 define("conductor",
-  ["conductor/require","conductor/services","conductor/error","oasis","conductor/version","conductor/card_reference","oasis/shims","conductor/shims","conductor/multiplex_service"],
-  function(__dependency1__, __dependency2__, __dependency3__, Oasis, Version, CardReference, OasisShims, ConductorShims, MultiplexService) {
+  ["conductor/require","conductor/services","oasis","conductor/version","conductor/card_reference","oasis/shims","conductor/shims","conductor/multiplex_service"],
+  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, OasisShims, ConductorShims, MultiplexService) {
     "use strict";
     var requiredUrls = __dependency1__.requiredUrls;
     var requiredCSSUrls = __dependency1__.requiredCSSUrls;
@@ -8,8 +8,6 @@ define("conductor",
     var requireCSS = __dependency1__.requireCSS;
     var services = __dependency2__.services;
     var capabilities = __dependency2__.capabilities;
-    var error = __dependency3__.error;
-    var warn = __dependency3__.warn;
 
     var o_create = OasisShims.o_create,
         a_forEach = OasisShims.a_forEach,
@@ -27,12 +25,6 @@ define("conductor",
       this.services = o_create(services);
       this.capabilities = capabilities.slice();
     }
-
-    Conductor.error = function (error) {
-      return Conductor._error(error);
-    };
-    Conductor._error = error;
-    Conductor.warn = warn;
 
     Conductor.Version = Version;
     Conductor.Oasis = Oasis;
@@ -422,7 +414,7 @@ define("conductor/card",
 
       defer: function(callback) {
         var defered = RSVP.defer();
-        if (callback) { defered.promise.then(callback).fail( Conductor.error ); }
+        if (callback) { defered.promise.then(callback).fail( RSVP.rethrow ); }
         return defered;
       },
 
@@ -444,7 +436,7 @@ define("conductor/card",
       _waitForActivationDeferral: function () {
         if (!this._activationDeferral) {
           this._activationDeferral = RSVP.defer();
-          this._activationDeferral.promise.fail( Conductor.error );
+          this._activationDeferral.promise.fail( RSVP.rethrow );
         }
         return this._activationDeferral;
       }
@@ -456,12 +448,12 @@ define("conductor/card",
 
   });
 define("conductor/card_reference",
-  ["conductor/error","oasis"],
-  function(__dependency1__, Oasis) {
+  ["oasis"],
+  function(Oasis) {
     "use strict";
-    var error = __dependency1__.error;
 
-    var Promise = Oasis.RSVP.Promise;
+    var RSVP = Oasis.RSVP,
+        Promise = RSVP.Promise;
 
     function CardReference(sandbox) {
       this.sandbox = sandbox;
@@ -476,7 +468,7 @@ define("conductor/card_reference",
         if (!this._loadPromise) {
           this._loadPromise = this.sandbox.waitForLoad().then(function() {
             return card;
-          }).fail(error);
+          }).fail(RSVP.rethrow);
         }
         return this._loadPromise;
       },
@@ -506,14 +498,14 @@ define("conductor/card_reference",
 
         this.sandbox.activatePromise.then(function() {
           card.sandbox.renderPort.send('render', [intent, dimensions]);
-        }).fail(error);
+        }).fail(RSVP.rethrow);
       },
 
       updateData: function(bucket, data) {
         var sandbox = this.sandbox;
         sandbox.activatePromise.then(function() {
           sandbox.dataPort.send('updateData', { bucket: bucket, data: data });
-        }).fail(error);
+        }).fail(RSVP.rethrow);
       },
 
       wiretap: function(callback, binding) {
@@ -1227,8 +1219,8 @@ define("conductor/version",
     return '0.3.0';
   });
 define("conductor/xhr_consumer",
-  ["oasis","conductor","conductor/require","oasis/shims","conductor/dom"],
-  function(Oasis, Conductor, ConductorRequire, OasisShims, DomUtils) {
+  ["oasis","conductor/require","oasis/shims","conductor/dom"],
+  function(Oasis, ConductorRequire, OasisShims, DomUtils) {
     "use strict";
 
     var a_forEach = OasisShims.a_forEach;
@@ -1268,10 +1260,10 @@ define("conductor/xhr_consumer",
         });
         Oasis.RSVP.all(jsPromises).then(function(scripts) {
           a_forEach.call(scripts, processJavaScript);
-        }).fail( Conductor.error );
+        }).fail( Oasis.RSVP.rethrow );
         a_forEach.call(ConductorRequire.requiredCSSUrls, loadURL(processCSS));
 
-        Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).fail( Conductor.error );
+        Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).fail( Oasis.RSVP.rethrow );
       }
     });
 
