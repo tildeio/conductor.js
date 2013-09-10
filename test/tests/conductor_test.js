@@ -142,7 +142,7 @@ test("A custom conductorURL can be specified in `new Conductor({conductorURL: 'm
   stop();
 
   var conductor = newConductor({
-    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
+    conductorURL: destinationUrl + '/vendor/conductor-custom-url.js.html'
   });
 
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
@@ -165,7 +165,7 @@ test("A custom conductorURL can be hosted on a separate domain", function() {
   stop();
 
   var conductor = newConductor({
-    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
+    conductorURL: destinationUrl + '/vendor/conductor-custom-url.js.html'
   });
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
     events: {
@@ -187,7 +187,7 @@ test("Child cards reuse `conductor.conductorURL`", function() {
   stop();
 
   var conductor = newConductor({
-    conductorURL: destinationUrl + '/test/vendor/conductor-custom-url.js.html'
+    conductorURL: destinationUrl + '/vendor/conductor-custom-url.js.html'
   });
   conductor.services.urlChecker = Conductor.Oasis.Service.extend({
     events: {

@@ -1,5 +1,6 @@
-Conductor.require('/test/lib/sinon.js');
-Conductor.require('stub_errors.js');
+Conductor.Oasis.RSVP.rethrow = function(exception) {
+  throw exception;
+};
 
 var card = Conductor.card({
   activate: function () {
