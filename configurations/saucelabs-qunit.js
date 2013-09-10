@@ -28,7 +28,7 @@ var ieBrowsers = [{
 module.exports = {
   options: {
     urls: [
-      'http://localhost:8000/test/index.html'
+      'http://localhost:8000'
     ],
     tunnelTimeout: 5,
     /*global process */

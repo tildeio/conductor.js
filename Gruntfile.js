@@ -26,7 +26,7 @@ module.exports = function(grunt) {
   ]);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
-  this.registerTask('server', ['build', 'concat:tests', 'connect', 'watch']);
+  this.registerTask('server', ['prepare_test', 'watch']);
 
   function config(configFileName) {
     return require('./configurations/' + configFileName);
@@ -52,6 +52,7 @@ module.exports = function(grunt) {
     },
   });
 
-  grunt.registerTask('test', "Run full test suite", ['build', 'concat:tests', 'connect', 'saucelabs-qunit:all']);
-  grunt.registerTask('test:ie', "Run tests suite in IE", ['build', 'concat:tests', 'connect', 'saucelabs-qunit:ie']);
+  grunt.registerTask('test', "Run full test suite", ['prepare_test', 'saucelabs-qunit:all']);
+  grunt.registerTask('test:ie', "Run tests suite in IE", ['prepare_test', 'saucelabs-qunit:ie']);
+  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'connect']);
 };

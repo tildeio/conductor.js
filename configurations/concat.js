@@ -19,6 +19,6 @@ module.exports = {
 
   tests: {
     src: ['test/helpers/*', 'test/tests/**/*_test.js'],
-    dest: 'tmp/conductor_tests.js'
+    dest: 'tmp/public/conductor_tests.js'
   }
 };

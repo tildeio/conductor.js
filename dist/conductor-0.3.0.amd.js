@@ -18,7 +18,7 @@ define("conductor",
       this.oasis = new Oasis();
       this.conductorURL = this.options.conductorURL ||
                           oasis.configuration.oasisURL ||
-                          '/dist/conductor-0.3.0.js.html';
+                          'conductor-' + Version + '.js.html';
 
       this.data = {};
       this.cards = {};

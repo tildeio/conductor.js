@@ -31,5 +31,23 @@ module.exports = {
       dest: 'tmp/lib/',
       expand: true
     }]
+  },
+
+  tests: {
+    files: [{
+      cwd: 'dist/',
+      src: ['<%= pkg.name %>-<%= pkg.version %>.js.html'],
+      dest: 'tmp/public/',
+      expand: true
+    }, {
+      cwd: 'test/',
+      src: [ 'lib/*', 'index.html', 'vendor/*' ],
+      dest: 'tmp/public/',
+      expand: true
+    }, {
+      src: [ 'test/fixtures/**' ],
+      dest: 'tmp/public/',
+      expand: true
+    }]
   }
 };

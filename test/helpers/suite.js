@@ -20,7 +20,7 @@ function newConductor( options ) {
   options = options || {};
   options.testing = true;
   if( !options.conductorURL ) {
-    options.conductorURL = destinationUrl + '/dist/conductor-0.3.0.js.html';
+    options.conductorURL = destinationUrl + '/conductor-' + Conductor.Version + '.js.html';
   }
 
   conductor = new Conductor( options );
