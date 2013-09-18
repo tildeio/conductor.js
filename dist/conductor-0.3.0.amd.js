@@ -17,7 +17,7 @@ define("conductor",
       this.options = options || {};
       this.oasis = new Oasis();
       this.conductorURL = this.options.conductorURL ||
-                          this.oasis.configuration.oasisURL ||
+                          oasis.configuration.oasisURL ||
                           'conductor-' + Version + '.js.html';
 
       this.data = {};
