@@ -17,6 +17,8 @@ define("conductor",
       this.options = options || {};
       this.oasis = new Oasis();
       this.conductorURL = this.options.conductorURL ||
+                          // take the default oasisURL from the global Oasis so
+                          // sandboxes can inherit
                           oasis.configuration.oasisURL ||
                           'conductor-' + Version + '.js.html';
 
