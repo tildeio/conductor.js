@@ -10,7 +10,9 @@ window.Playground = {
   initialize: function() {
     // Create a new Conductor instance that will
     // manage all of the cards on the page.
-    this.conductor = new Conductor();
+    this.conductor = new Conductor({
+      conductorURL: '../../dist/conductor-0.3.0.js.html'
+    });
 
     // Wiretap the card and configure any events
     // to be displayed in the analytics panel on

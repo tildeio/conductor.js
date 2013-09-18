@@ -16,5 +16,12 @@ module.exports = {
     options: {
       port: port + 1,
     }
+  },
+
+  playground: {
+    options: {
+      base: '',
+      port: port + 2
+    }
   }
 };
