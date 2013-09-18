@@ -26,6 +26,7 @@ define("conductor",
       this.capabilities = capabilities.slice();
     }
 
+    Conductor.services = services;
     Conductor.Version = Version;
     Conductor.Oasis = Oasis;
     Conductor.requiredUrls = requiredUrls;
