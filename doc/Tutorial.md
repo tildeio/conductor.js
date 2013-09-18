@@ -37,7 +37,7 @@ grunt server
 ```
 
 Now navigate to
-[http://localhost:8000/example/playground](http://localhost:8000/example/playground).
+[http://localhost:8002/example/playground](http://localhost:8002/example/playground).
 At each step of the tutorial, it is recommended that you checkout that step's
 tag, refresh the browser and open the analytics tab at the bottom of the page so
 you can see the cross-card communication.
@@ -47,7 +47,7 @@ you can see the cross-card communication.
 [tutorial-1](https://github.com/tildeio/conductor.js/commit/tutorial-1) starts
 us off with a simple hello world card.
 
-In the containing environment we load the card via `conductor.loadCard`.  The
+In the containing environment we load the card via `conductor.load`.  The
 playground does some more work for the sake of the UI: don't worry, we'll see
 card loading when we get to nested cards.
 
