@@ -1,3 +1,5 @@
+var exec = require('shelljs').exec;
+
 var ieBrowsers = [{
       browserName: 'internet explorer',
       version: '10',
@@ -25,16 +27,21 @@ var ieBrowsers = [{
       platform: 'OS X 10.8'
     }].concat( ieBrowsers );
 
+var testTimeout = 3 * 60 * 1000,
+    gitLabel = exec('git name-rev `git rev-parse HEAD`').output,
+    /*global process */
+    travisBuildNumber = process.env.TRAVIS_BUILD_NUMBER || '',
+    buildLabel = travisBuildNumber + " (" + gitLabel + ")";
+
 module.exports = {
   options: {
     urls: [
       'http://localhost:8000'
     ],
-    tunnelTimeout: 5,
-    /*global process */
-    build: process.env.TRAVIS_BUILD_NUMBER,
+    tunnelTimeout: testTimeout + (1 * 60 * 1000),
+    build: buildLabel,
     concurrency: 3,
-    testTimeout: 3 * 60 * 1000,
+    testTimeout: testTimeout,
     testInterval: 5000
   },
 
