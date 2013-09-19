@@ -1,0 +1,28 @@
+{
+  "name": "conductor.js",
+  "version": "0.3.0",
+  "homepage": "https://github.com/tildeio/conductor.js",
+  "authors": [
+    "David J. Hamilton <david@lessmad.com>",
+    "Cyril Fluck <cyril@lessmad.com>",
+    "Tom Dale <tom@tilde.io>",
+    "Yehuda Katz <yehuda@tilde.io>"
+  ],
+  "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
+  "main": "dist/conductor.js.html",
+  "keywords": [
+    "postMessage",
+    "MessageChannel"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "Oasis.js": "git://github.com/tildeio/oasis.js.git#master"
+  }
+}
