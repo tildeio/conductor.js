@@ -4,7 +4,8 @@
   "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "postinstall": "bower install"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,9 @@
     "jsframe": "~0.1.0-3",
     "globule": "~0.1.0",
     "matchdep": "~0.1.2",
-    "sinon": "~1.7.2"
+    "sinon": "~1.7.2",
+    "bower": "~1.2.6",
+    "shelljs": "~0.2.5"
   },
   "dependencies": {
     "rsvp": "2.0.3"

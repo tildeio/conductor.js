@@ -1,3 +1,5 @@
+var vendorSources = require('grunt').file.readJSON('vendorSources.json');
+
 module.exports = {
   lib: {
     files: [{
@@ -41,7 +43,7 @@ module.exports = {
       expand: true
     }, {
       cwd: 'test/',
-      src: [ 'lib/*', 'index.html', 'vendor/*' ],
+      src: [ 'lib/*', 'index.html'].concat(vendorSources).concat(['vendor/*' ]),
       dest: 'tmp/public/',
       expand: true
     }, {
