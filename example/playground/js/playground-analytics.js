@@ -3,27 +3,25 @@
 (function() {
   "use strict";
 
+  var analyticsCard;
+
   // Add analytics functionality to the
   // Playground app.
   $.extend(Playground, {
 
     wiretapCard: function(card) {
-      card.wiretap(this.printWiretapEvent, this);
+      analyticsCard.track( card );
     },
 
     initializeAnalytics: function() {
-      var $analytics = $('.analytics');
-
-      $analytics.find('.tab').on('click', function() {
-        $analytics.toggleClass('showing');
-      });
-
-      this.$analytics = $analytics;
-
-      this.print("✔ Analytics monitoring active".green);
-      this.print("");
-      this.print("%@ %@ %@ %@".fmt(padLeft("Service", 11).blue.bold, "↔".teal.bold, pad("Event", 14).magenta.bold, "Data".lightGrey.bold));
-      this.print("");
+      self.initializeAnalyticsTab();
+      analyticsCard = self.initializeConductorAnalytics(
+        this.conductor,
+        "../cards/conductor-analytics/card.js",
+        ".analytics .output"
+      );
+      analyticsCard.appendTo(".output");
+      analyticsCard.render();
     },
 
     printWiretapEvent: function(service, event) {

@@ -1,0 +1,66 @@
+#analytics {
+  height: 328px;
+  background-color: black;
+}
+
+#events {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.time {
+  color: #aa0;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.service {
+  text-align: right;
+  color: #4866ff;
+  min-width: 60px;
+  vertical-align: top;
+}
+
+.direction {
+  text-align: center;
+  color: #0aa;
+  min-width: 20px;
+}
+
+.event {
+  text-align: left;
+  color: #a0a;
+  min-width: 100px;
+}
+
+.data {
+  text-align: left;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.menu {
+  position: fixed;
+  top: 0px;
+  right: 20px;
+  margin: 5px;
+  width: 70px;
+  color: red;
+  background-color: black;
+  text-align: center;
+}
+
+/* This shouldn't be needed if href=true would work */
+.menu a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.filter {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.filter table {
+  color: white;
+}
