@@ -1,4 +1,3 @@
-QUnit.config.testTimeout = QUnit.config.testTimeout > 500 ? QUnit.config.testTimeout : 500;
 
 (function() {
 
