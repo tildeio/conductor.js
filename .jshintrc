@@ -25,6 +25,7 @@
         "deepEqual",
         "start",
         "stop",
+        "self",
         "ok",
         "strictEqual",
         "module",

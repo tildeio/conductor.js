@@ -4086,17 +4086,13 @@ define("rsvp",
     __exports__.reject = reject;
   });
 define("conductor",
-  ["conductor/require","oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/shims","conductor/multiplex_service"],
-  function(__dependency1__, __dependency2__, __dependency3__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, ConductorShims, MultiplexService) {
+  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/shims","conductor/multiplex_service","conductor/adapters"],
+  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, ConductorShims, MultiplexService, adapters) {
     "use strict";
-    var requiredUrls = __dependency1__.requiredUrls;
-    var requiredCSSUrls = __dependency1__.requiredCSSUrls;
-    var requireURL = __dependency1__.requireURL;
-    var requireCSS = __dependency1__.requireCSS;
-    var o_create = __dependency2__.o_create;
-    var a_forEach = __dependency2__.a_forEach;
-    var a_indexOf = __dependency2__.a_indexOf;
-    var delegate = __dependency3__.delegate;
+    var o_create = __dependency1__.o_create;
+    var a_forEach = __dependency1__.a_forEach;
+    var a_indexOf = __dependency1__.a_indexOf;
+    var delegate = __dependency2__.delegate;
 
     function Conductor(options) {
       this.options = options || {};
@@ -4110,15 +4106,18 @@ define("conductor",
       this.data = {};
       this.cards = {};
       this._capabilities = new ConductorCapabilities();
+      Conductor._dependencies = new CardDependencies();
     }
 
     Conductor.Version = Version;
     Conductor.Oasis = Oasis;
-    Conductor.requiredUrls = requiredUrls;
-    Conductor.requiredCSSUrls = requiredCSSUrls;
-    Conductor.require = requireURL;
-    Conductor.requireCSS = requireCSS;
+
+    Conductor._dependencies = new CardDependencies();
+    Conductor.require = function(url) { Conductor._dependencies.requireJavaScript(url); };
+    Conductor.requireCSS = function(url) { Conductor._dependencies.requireCSS(url); };
+
     Conductor.MultiplexService = MultiplexService;
+    Conductor.adapters = adapters;
 
     var RSVP = Conductor.Oasis.RSVP,
         Promise = RSVP.Promise;
@@ -4196,8 +4195,10 @@ define("conductor",
         var sandbox = this.oasis.createSandbox({
           url: url,
           capabilities: capabilities,
+          services: cardServices,
+
           oasisURL: this.conductorURL,
-          services: cardServices
+          adapter: adapter
         });
 
         sandbox.data = data;
@@ -4275,6 +4276,19 @@ define("conductor",
 
     return Conductor;
   });
+define("conductor/adapters",
+  ["oasis","conductor/inline_adapter"],
+  function(Oasis, inlineAdapter) {
+    "use strict";
+
+    var adapters = {
+      iframe: Oasis.adapters.iframe,
+      inline: inlineAdapter
+    };
+
+
+    return adapters;
+  });
 define("conductor/assertion_consumer",
   ["oasis"],
   function(Oasis) {
@@ -4284,15 +4298,16 @@ define("conductor/assertion_consumer",
       initialize: function() {
         var service = this;
 
-        window.ok = function(bool, message) {
+
+        window.ok = window.ok || function(bool, message) {
           service.send('ok', { bool: bool, message: message });
         };
 
-        window.equal = function(expected, actual, message) {
+        window.equal = window.equal || function(expected, actual, message) {
           service.send('equal', { expected: expected, actual: actual, message: message });
         };
 
-        window.start = function() {
+        window.start = window.start || function() {
           service.send('start');
         };
       },
@@ -4404,9 +4419,10 @@ define("conductor/card",
       return base;
     }
 
-    function Card(options) {
+    function Card(options, _oasis) {
       var card = this,
-          prop;
+          prop,
+          oasis = _oasis || self.oasis;
 
       for (prop in options) {
         this[prop] = options[prop];
@@ -4601,6 +4617,27 @@ define("conductor/card",
       return new Card(options);
     };
 
+  });
+define("conductor/card_dependencies",
+  [],
+  function() {
+    "use strict";
+    function CardDependencies() {
+      this.requiredJavaScriptURLs = [];
+      this.requiredCSSURLs = [];
+    }
+
+    CardDependencies.prototype = {
+      requireJavaScript: function(url) {
+        this.requiredJavaScriptURLs.push(url);
+      },
+      requireCSS: function(url) {
+        this.requiredCSSURLs.push(url);
+      }
+    };
+
+
+    return CardDependencies;
   });
 define("conductor/card_reference",
   ["oasis"],
@@ -4958,6 +4995,32 @@ define("conductor/height_service",
 
     return HeightService;
   });
+define("conductor/inline_adapter",
+  ["oasis/util","oasis/inline_adapter"],
+  function(__dependency1__, OasisInlineAdapter) {
+    "use strict";
+    var extend = __dependency1__.extend;
+
+    var InlineAdapter = extend(OasisInlineAdapter, {
+      wrapResource: function (data, oasis) {
+        var functionDef = 
+          'var _globalOasis = window.oasis; window.oasis = oasis;' +
+          'try {' +
+          data +
+          ' } finally {' +
+          'window.oasis = _globalOasis;' +
+          '}';
+        return new Function("oasis", functionDef);
+        }
+    });
+
+    var inlineAdapter = new InlineAdapter();
+
+    inlineAdapter.addUnsupportedCapability('height');
+
+
+    return inlineAdapter;
+  });
 define("conductor/lang",
   ["oasis/shims","exports"],
   function(__dependency1__, __exports__) {
@@ -5275,26 +5338,6 @@ define("conductor/render_service",
 
     return RenderService;
   });
-define("conductor/require",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    var requiredUrls = [];
-    var requiredCSSUrls = [];
-
-    function requireURL(url) {
-      requiredUrls.push(url);
-    }
-
-    function requireCSS(url) {
-      requiredCSSUrls.push(url);
-    }
-
-    __exports__.requiredUrls = requiredUrls;
-    __exports__.requiredCSSUrls = requiredCSSUrls;
-    __exports__.requireURL = requireURL;
-    __exports__.requireCSS = requireCSS;
-  });
 define("conductor/services",
   ["conductor/assertion_service","conductor/xhr_service","conductor/render_service","conductor/metadata_service","conductor/data_service","conductor/lifecycle_service","conductor/height_service","conductor/nested_wiretapping_service","exports"],
   function(AssertionService, XhrService, RenderService, MetadataService, DataService, LifecycleService, HeightService, NestedWiretappingService, __exports__) {
@@ -5401,8 +5444,8 @@ define("conductor/version",
     return '0.3.0';
   });
 define("conductor/xhr_consumer",
-  ["oasis","conductor/require","oasis/shims","conductor/dom"],
-  function(Oasis, ConductorRequire, OasisShims, DomUtils) {
+  ["oasis","oasis/shims","conductor/dom"],
+  function(Oasis, OasisShims, DomUtils) {
     "use strict";
 
     var a_forEach = OasisShims.a_forEach;
@@ -5435,7 +5478,7 @@ define("conductor/xhr_consumer",
           head.appendChild(style);
         }
 
-        a_forEach.call(ConductorRequire.requiredUrls, function( url ) {
+        a_forEach.call(Conductor._dependencies.requiredJavaScriptURLs, function( url ) {
           var promise = port.request('get', url);
           jsPromises.push( promise );
           promises.push(promise);
@@ -5443,7 +5486,7 @@ define("conductor/xhr_consumer",
         Oasis.RSVP.all(jsPromises).then(function(scripts) {
           a_forEach.call(scripts, processJavaScript);
         }).fail( Oasis.RSVP.rethrow );
-        a_forEach.call(ConductorRequire.requiredCSSUrls, loadURL(processCSS));
+        a_forEach.call(Conductor._dependencies.requiredCSSURLs, loadURL(processCSS));
 
         Oasis.RSVP.all(promises).then(function() { promise.resolve(); }).fail( Oasis.RSVP.rethrow );
       }

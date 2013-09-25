@@ -100,7 +100,7 @@ test("instances can add custom services", function() {
       }),
       card;
 
-  conductor.services.custom = CustomService;
+  conductor.addDefaultCapability('custom', CustomService);
   card = conductor.load(  "/test/fixtures/custom_consumer_card.js",
                           1,
                           { capabilities: ['custom'] });
