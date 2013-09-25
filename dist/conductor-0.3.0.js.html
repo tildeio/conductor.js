@@ -1378,8 +1378,8 @@ function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(
 })(this);
 
 define("oasis",
-  ["oasis/util","oasis/xhr","oasis/connect","rsvp","oasis/logger","oasis/version","oasis/config","oasis/sandbox","oasis/sandbox_init","oasis/events","oasis/service","oasis/iframe_adapter","oasis/webworker_adapter"],
-  function(__dependency1__, __dependency2__, __dependency3__, RSVP, logger, Version, OasisConfiguration, Sandbox, autoInitializeSandbox, Events, Service, iframeAdapter, webworkerAdapter) {
+  ["oasis/util","oasis/xhr","oasis/connect","rsvp","oasis/logger","oasis/version","oasis/config","oasis/sandbox","oasis/sandbox_init","oasis/events","oasis/service","oasis/iframe_adapter","oasis/webworker_adapter","oasis/inline_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, RSVP, logger, Version, OasisConfiguration, Sandbox, autoInitializeSandbox, Events, Service, iframeAdapter, webworkerAdapter, inlineAdapter) {
     "use strict";
     var assert = __dependency1__.assert;
     var delegate = __dependency1__.delegate;
@@ -1416,7 +1416,8 @@ define("oasis",
     Oasis.RSVP = RSVP;
     Oasis.adapters = {
       iframe: iframeAdapter,
-      webworker: webworkerAdapter
+      webworker: webworkerAdapter,
+      inline: inlineAdapter
     };
 
     Oasis.prototype = {
@@ -1505,6 +1506,7 @@ define("oasis/base_adapter",
     }
 
     BaseAdapter.prototype = {
+      initializeSandbox: mustImplement('BaseAdapter', 'initializeSandbox'),
       loadScripts: mustImplement('BaseAdapter', 'loadScripts'),
       name: mustImplement('BaseAdapter', 'name'),
 
@@ -2046,8 +2048,8 @@ define("oasis/iframe_adapter",
     return iframeAdapter;
   });
 define("oasis/inline_adapter",
-  ["oasis/util","oasis/config","oasis/shims","oasis/xhr","oasis/message_channel","rsvp","oasis/logger","oasis/base_adapter"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, RSVP, Logger, BaseAdapter) {
+  ["oasis/util","oasis/config","oasis/shims","oasis/xhr","rsvp","oasis/logger","oasis/base_adapter"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, RSVP, Logger, BaseAdapter) {
     "use strict";
     var assert = __dependency1__.assert;
     var extend = __dependency1__.extend;
@@ -2056,7 +2058,6 @@ define("oasis/inline_adapter",
     var a_forEach = __dependency3__.a_forEach;
     var a_map = __dependency3__.a_map;
     var xhr = __dependency4__.xhr;
-    var PostMessageMessageChannel = __dependency5__.PostMessageMessageChannel;
     /*global self, postMessage, importScripts */
 
 
@@ -2085,7 +2086,10 @@ define("oasis/inline_adapter",
         return RSVP.resolve();
       },
  
-      startSandbox: function(sandbox) { },
+      startSandbox: function(sandbox) {
+        var body = document.body || document.documentElement.getElementsByTagName('body')[0];
+        body.appendChild(sandbox.el);
+      },
 
       terminateSandbox: function(sandbox) {
         var el = sandbox.el;
@@ -2103,7 +2107,9 @@ define("oasis/inline_adapter",
             message = this.createInitializationMessage(sandbox),
             event = { data: message, ports: rawPorts };
 
-        this.initializeOasisSandbox(event, sandbox.sandboxedOasis);
+        // Normally `connectSandbox` is called in autoinitialization, but there
+        // isn't a real sandbox here.
+        this.connectSandbox(sandbox.sandboxedOasis, event);
       },
 
       generateScriptURLs: function (sandbox) {
@@ -2114,9 +2120,8 @@ define("oasis/inline_adapter",
       //-------------------------------------------------------------------------
       // Sandbox API
 
-      connectSandbox: function(oasis) {
-        var pseudoEvent = null;
-        return BaseAdapter.prototype.initializeOasisSandbox.call(this, pseudoEvent);
+      connectSandbox: function(oasis, pseudoEvent) {
+        return this.initializeOasisSandbox(pseudoEvent, oasis);
       },
 
       oasisLoaded: noop,
@@ -3233,9 +3238,10 @@ define("oasis/webworker_adapter",
     return webworkerAdapter;
   });
 define("oasis/xhr",
-  ["rsvp","exports"],
-  function(RSVP, __exports__) {
+  ["oasis/util","rsvp","exports"],
+  function(__dependency1__, RSVP, __exports__) {
     "use strict";
+    var noop = __dependency1__.noop;
     /*global XDomainRequest */
 
 
@@ -3263,7 +3269,6 @@ define("oasis/xhr",
       return 200;
     }
 
-    function noop() { }
     var NONE = {};
 
     function trigger(event, oasis) {
