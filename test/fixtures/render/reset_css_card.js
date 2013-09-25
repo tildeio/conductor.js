@@ -1,4 +1,4 @@
-Conductor.require('/vendor/jquery-1.9.1.js');
+Conductor.require('/vendor/jquery.js');
 
 Conductor.card({
   initializeDOM: function() {

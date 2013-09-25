@@ -1,4 +1,4 @@
-Conductor.require('../../libs/jquery-1.9.1.js');
+Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('style.css');
 
 var card = Conductor.card({

@@ -13,6 +13,11 @@ module.exports = {
       dest: 'tmp/lib/conductor/',
       expand: true
     }, {
+      cwd: 'lib/adapters/',
+      src: [ '*.js' ],
+      dest: 'tmp/lib/conductor/',
+      expand: true
+    }, {
       cwd: 'lib/conductor/',
       src: [ '*.js' ],
       dest: 'tmp/lib/conductor/',
@@ -24,7 +29,7 @@ module.exports = {
       expand: true
     }, {
       cwd: 'lib/',
-      src: ['services.js', 'shims.js'],
+      src: ['adapters.js', 'services.js', 'shims.js'],
       dest: 'tmp/lib/conductor/',
       expand: true
     }, {
@@ -51,5 +56,16 @@ module.exports = {
       dest: 'tmp/public/',
       expand: true
     }]
+  },
+
+  testsVendor: {
+    expand: true,
+    cwd: 'bower_components',
+    src: [
+      'qunit/qunit/*',
+      'jquery/jquery.js'
+    ],
+    flatten: true,
+    dest: 'tmp/public/vendor/'
   }
 };
