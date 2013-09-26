@@ -47,7 +47,7 @@ module.exports = function(grunt) {
 
     jsframe: {
       conductor: {
-        src: ['tmp/browser/<%= pkg.name %>-<%= pkg.version %>.js'],
+        src: ['tmp/browser/conductor-<%= pkg.version %>.js'],
         dest: 'dist'
       }
     },

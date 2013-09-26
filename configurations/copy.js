@@ -43,7 +43,7 @@ module.exports = {
   tests: {
     files: [{
       cwd: 'dist/',
-      src: ['<%= pkg.name %>-<%= pkg.version %>.js.html'],
+      src: ['conductor-<%= pkg.version %>.js.html'],
       dest: 'tmp/public/',
       expand: true
     }, {
