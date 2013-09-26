@@ -19,7 +19,7 @@ module.exports = {
   tests: {
     files: [{
       cwd: 'dist/',
-      src: ['conductor-<%= pkg.version %>.js.html'],
+      src: ['conductor-<%= pkg.version %>-dev.js.html'],
       dest: 'tmp/public/',
       expand: true
     }, {
