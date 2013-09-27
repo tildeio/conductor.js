@@ -1,32 +1,4 @@
 var exec = require('shelljs').exec;
-
-var ieBrowsers = [{
-      browserName: 'internet explorer',
-      version: '10',
-      platform: 'Windows 8'
-    }, {
-      browserName: 'internet explorer',
-      version: '9',
-      platform: 'Windows 7'
-    }, {
-      browserName: 'internet explorer',
-      version: '8',
-      platform: 'Windows XP'
-    }],
-    browsers = [{
-      browserName: 'chrome',
-      version: '27',
-      platform: 'Windows 8'
-    },{
-      browserName: 'firefox',
-      version: '21',
-      platform: 'Windows 8'
-    },{
-      browserName: 'safari',
-      version: '6',
-      platform: 'OS X 10.8'
-    }].concat( ieBrowsers );
-
 var testTimeout = 3 * 60 * 1000,
     gitLabel = exec('git name-rev `git rev-parse HEAD`').output,
     /*global process */
@@ -45,17 +17,51 @@ module.exports = {
     testInterval: 5000
   },
 
-  all: {
+  chrome: {
     options: {
-      browsers: browsers,
-      testname: "Conductor.js qunit tests"
+      testname: 'Conductor.js Chrome tests',
+      browsers: [{
+        browserName: 'chrome',
+        version: '27',
+        platform: 'Windows 8'
+      }]
+    }
+  },
+
+  safari: {
+    options: {
+      testname: 'Conductor.js Safari tests',
+      browsers: [{
+        browserName: 'safari',
+        version: '6',
+        platform: 'OS X 10.8'
+      }]
     }
   },
 
   ie: {
     options: {
-      browsers: ieBrowsers,
-      testname: "Conductor.js qunit tests (ie only)"
+      testname: 'Conductor.js IE tests',
+      browsers: [{
+        browserName: 'internet explorer',
+        version: '10',
+        platform: 'Windows 8'
+      }, {
+        browserName: 'internet explorer',
+        version: '8',
+        platform: 'Windows XP'
+      }]
+    }
+  },
+
+  firefox: {
+    options: {
+      testname: 'Conductor.js Firefox tests',
+      browsers: [{
+        browserName: 'firefox',
+        version: '21',
+        platform: 'Windows 8'
+      }]
     }
   }
 };

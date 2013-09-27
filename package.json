@@ -1,5 +1,5 @@
 {
-  "name": "conductor",
+  "name": "conductor.js",
   "version": "0.3.0",
   "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
   "main": "index.js",
@@ -23,15 +23,16 @@
     "grunt-contrib-jshint": "~0.6.2",
     "grunt-contrib-jst": "~0.5.1",
     "grunt-saucelabs": "~4.0.4",
+    "grunt-symlink": "~0.4.0",
     "gfms": "0.0.7",
     "grunt-es6-module-transpiler": "~0.4.0",
     "grunt-contrib-copy": "~0.4.1",
     "jsframe": "~0.1.0-3",
     "globule": "~0.1.0",
     "matchdep": "~0.1.2",
-    "sinon": "~1.7.2",
     "bower": "~1.2.6",
-    "shelljs": "~0.2.5"
+    "shelljs": "~0.2.5",
+    "lockfile": "~0.4.2"
   },
   "dependencies": {
     "rsvp": "2.0.3"

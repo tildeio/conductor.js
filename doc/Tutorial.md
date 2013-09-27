@@ -37,7 +37,7 @@ grunt server
 ```
 
 Now navigate to
-[http://localhost:8002/example/playground](http://localhost:8002/example/playground).
+[http://localhost:8000/example/playground/](http://localhost:8000/example/playground/).
 At each step of the tutorial, it is recommended that you checkout that step's
 tag, refresh the browser and open the analytics tab at the bottom of the page so
 you can see the cross-card communication.

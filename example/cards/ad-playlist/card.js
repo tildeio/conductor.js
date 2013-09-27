@@ -1,4 +1,4 @@
-Conductor.require('../../libs/jquery-1.9.1.js');
+Conductor.require('/vendor/jquery.js');
 
 var AdCardUrl = '../cards/ad/card.js';
 
@@ -43,7 +43,7 @@ var card = Conductor.card({
     this.adIds = [];
     for (var prop in data) {
       if ( ! data.hasOwnProperty(prop)) { continue; }
-    
+
       this.adIds.push(data[prop]);
     }
   },

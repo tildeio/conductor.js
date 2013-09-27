@@ -1,4 +1,4 @@
-Conductor.require('../../libs/jquery-1.9.1.js');
+Conductor.require('/vendor/jquery.js');
 
 var AdPlaylistCardUrl = '../cards/ad-playlist/card.js';
 var SlotMachineCardUrl = '../cards/slot_machine/card.js';

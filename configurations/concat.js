@@ -10,14 +10,14 @@ var vendorSources = require('grunt').file.readJSON('vendorSources.json');
 module.exports = {
   amd: {
     src: ['tmp/amd/**/*.js'],
-    dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.amd.js'
+    dest: 'dist/conductor-<%= pkg.version %>.amd.js'
   },
 
   browser: {
     src: vendorSources.concat([
-      'dist/<%= pkg.name %>-<%= pkg.version %>.amd.js'
+      'dist/conductor-<%= pkg.version %>.amd.js'
     ]),
-    dest: 'tmp/browser/<%= pkg.name %>-<%= pkg.version %>.js',
+    dest: 'tmp/browser/conductor-<%= pkg.version %>.js',
     options: {
       footer: "self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
     }
