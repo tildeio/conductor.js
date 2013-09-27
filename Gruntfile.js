@@ -43,16 +43,20 @@ module.exports = function(grunt) {
     'saucelabs-qunit': config('saucelabs-qunit'),
     transpile: config('transpile'),
     watch: config('watch'),
+    symlink: config('symlink'),
 
     jsframe: {
       conductor: {
-        src: ['tmp/browser/<%= pkg.name %>-<%= pkg.version %>.js'],
+        src: ['tmp/browser/conductor-<%= pkg.version %>.js'],
         dest: 'dist'
       }
     },
   });
 
-  grunt.registerTask('test', "Run full test suite", ['prepare_test', 'connect', 'saucelabs-qunit:all']);
+  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'copy:testsVendor', 'symlink']);
+  grunt.registerTask('test', "Run full test suite", ['prepare_test', 'connect', 'saucelabs-qunit']);
   grunt.registerTask('test:ie', "Run tests suite in IE", ['prepare_test', 'connect', 'saucelabs-qunit:ie']);
-  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests']);
+  grunt.registerTask('test:safari', "Run tests suite in Safari", ['prepare_test', 'connect', 'saucelabs-qunit:safari']);
+  grunt.registerTask('test:chrome', "Run tests suite in Chrome", ['prepare_test', 'connect', 'saucelabs-qunit:chrome']);
+  grunt.registerTask('test:firefox', "Run tests suite in Firefox", ['prepare_test', 'connect', 'saucelabs-qunit:firefox']);
 };

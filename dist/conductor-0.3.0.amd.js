@@ -1274,32 +1274,19 @@ define("conductor/xhr_consumer",
     return XhrConsumer;
   });
 define("conductor/xhr_service",
-  ["oasis","conductor/path"],
-  function(Oasis, PathUtils) {
+  ["oasis/xhr","oasis","conductor/path"],
+  function(__dependency1__, Oasis, PathUtils) {
     "use strict";
+    var xhr = __dependency1__.xhr;
     /*global PathUtils */
 
     var XhrService = Oasis.Service.extend({
       requests: {
         get: function(url) {
           var service = this;
+          var resourceUrl = PathUtils.cardResourceUrl(service.sandbox.options.url, url);
 
-          return new Oasis.RSVP.Promise(function (resolve, reject) {
-            var xhr = new XMLHttpRequest(),
-                resourceUrl = PathUtils.cardResourceUrl(service.sandbox.options.url, url);
-
-            xhr.onreadystatechange = function (a1, a2, a3, a4) {
-              if (this.readyState === 4) {
-                if (this.status === 200) {
-                  resolve(this.responseText);
-                } else {
-                  reject({status: this.status});
-                }
-              }
-            };
-            xhr.open("get", resourceUrl, true);
-            xhr.send();
-          });
+          return xhr(resourceUrl);
         }
       }
     });
