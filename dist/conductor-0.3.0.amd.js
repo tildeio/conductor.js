@@ -1,17 +1,15 @@
 define("conductor",
-  ["conductor/require","conductor/services","oasis","conductor/version","conductor/card_reference","oasis/shims","conductor/shims","conductor/multiplex_service"],
-  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, OasisShims, ConductorShims, MultiplexService) {
+  ["conductor/require","oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/shims","conductor/multiplex_service"],
+  function(__dependency1__, __dependency2__, __dependency3__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, ConductorShims, MultiplexService) {
     "use strict";
     var requiredUrls = __dependency1__.requiredUrls;
     var requiredCSSUrls = __dependency1__.requiredCSSUrls;
     var requireURL = __dependency1__.requireURL;
     var requireCSS = __dependency1__.requireCSS;
-    var services = __dependency2__.services;
-    var capabilities = __dependency2__.capabilities;
-
-    var o_create = OasisShims.o_create,
-        a_forEach = OasisShims.a_forEach,
-        a_indexOf = ConductorShims.a_indexOf;
+    var o_create = __dependency2__.o_create;
+    var a_forEach = __dependency2__.a_forEach;
+    var a_indexOf = __dependency2__.a_indexOf;
+    var delegate = __dependency3__.delegate;
 
     function Conductor(options) {
       this.options = options || {};
@@ -24,11 +22,9 @@ define("conductor",
 
       this.data = {};
       this.cards = {};
-      this.services = o_create(services);
-      this.capabilities = capabilities.slice();
+      this._capabilities = new ConductorCapabilities();
     }
 
-    Conductor.services = services;
     Conductor.Version = Version;
     Conductor.Oasis = Oasis;
     Conductor.requiredUrls = requiredUrls;
@@ -91,8 +87,9 @@ define("conductor",
             data = datas && datas[id],
             _options = options || {},
             extraCapabilities = _options.capabilities || [],
-            capabilities = this.capabilities.slice(),
-            cardServices = o_create(this.services),
+            capabilities = this.defaultCapabilities().slice(),
+            cardServices = o_create(this.defaultServices()),
+            adapter = _options.adapter,
             prop;
 
         capabilities.push.apply(capabilities, extraCapabilities);
@@ -158,7 +155,34 @@ define("conductor",
         card.sandbox.terminate();
         delete cardArray[cardIndex];
         cardArray.splice(cardIndex, 1);
-      }
+      },
+
+      /**
+        @return array the default list of capabilities that will be included for all
+        cards.
+      */
+      defaultCapabilities: delegate('_capabilities', 'defaultCapabilities'),
+
+      /**
+        @return object the default services used for the default capabilities.
+      */
+      defaultServices: delegate('_capabilities', 'defaultServices'),
+
+      /**
+        Add a default capability that this conductor will provide to all cards,
+        unless the capability is not supported by the specified adapter.
+
+        @param {string} capability the capability to add
+        @param {Oasis.Service} [service=Oasis.Service] the default service to use
+        for `capability`.  Defaults to a plain `Oasis.Service`.
+      */
+      addDefaultCapability: delegate('_capabilities', 'addDefaultCapability'),
+
+      // Be careful with this: it does no safety checking, so things will break if
+      // one for example removes `data` or `xhr` as a default capability.
+      //
+      // It is however safe to remove `height`.
+      removeDefaultCapability: delegate('_capabilities', 'removeDefaultCapability')
     };
 
 
@@ -223,6 +247,47 @@ define("conductor/assertion_service",
 
 
     return AssertionService;
+  });
+define("conductor/capabilities",
+  ["conductor/services","conductor/lang","conductor/shims","oasis"],
+  function(__dependency1__, __dependency2__, __dependency3__, Oasis) {
+    "use strict";
+    var services = __dependency1__.services;
+    var copy = __dependency2__.copy;
+    var a_indexOf = __dependency3__.a_indexOf;
+
+    function ConductorCapabilities() {
+      this.capabilities = [
+        'xhr', 'metadata', 'render', 'data', 'lifecycle', 'height',
+        'nestedWiretapping' ];
+      this.services = copy(services);
+    }
+
+    ConductorCapabilities.prototype = {
+      defaultCapabilities: function () {
+        return this.capabilities;
+      },
+
+      defaultServices: function () {
+        return this.services;
+      },
+
+      addDefaultCapability: function (capability, service) {
+        if (!service) { service = Oasis.Service; }
+        this.capabilities.push(capability);
+        this.services[capability] = service;
+      },
+
+      removeDefaultCapability: function (capability) {
+        var index = a_indexOf.call(this.capabilities, capability);
+        if (index) {
+          return this.capabilities.splice(index, 1);
+        }
+      }
+    };
+
+
+    return ConductorCapabilities;
   });
 define("conductor/card",
   ["conductor","oasis","conductor/assertion_consumer","conductor/xhr_consumer","conductor/render_consumer","conductor/metadata_consumer","conductor/data_consumer","conductor/lifecycle_consumer","conductor/height_consumer","conductor/nested_wiretapping_consumer","conductor/multiplex_service","oasis/shims"],
@@ -361,7 +426,7 @@ define("conductor/card",
 
         if(this.childCards) {
           this.conductor = new Conductor();
-          this.conductor.services.xhr = MultiplexService.extend({
+          this.conductor.addDefaultCapability('xhr', MultiplexService.extend({
             upstream: this.consumers.xhr,
             transformRequest: function (requestEventName, data) {
               var base = this.sandbox.options.url;
@@ -374,12 +439,12 @@ define("conductor/card",
 
               return data;
             }
-          });
+          }));
 
           // A child card may not need new services
           if( this.services ) {
             for( prop in this.services) {
-              this.conductor.services[prop] = this.services[prop];
+              this.conductor.addDefaultCapability(prop, this.services[prop]);
             }
           }
 
@@ -806,6 +871,33 @@ define("conductor/height_service",
 
     return HeightService;
   });
+define("conductor/lang",
+  ["oasis/shims","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var a_indexOf = __dependency1__.a_indexOf;
+    var a_filter = __dependency1__.a_filter;
+
+    function copy(a) {
+      var b = {};
+      for (var prop in a) {
+        if (!a.hasOwnProperty(prop)) { continue; }
+
+        b[prop] = a[prop];
+      }
+      return b;
+    }
+
+    function setDiff(a, b) {
+      return a_filter.call(a, function (item) {
+        var inB = a_indexOf.call(b, item);
+        return !inB;
+      });
+    }
+
+    __exports__.copy = copy;
+    __exports__.setDiff = setDiff;
+  });
 define("conductor/lifecycle_consumer",
   ["oasis"],
   function(Oasis) {
@@ -919,9 +1011,9 @@ define("conductor/multiplex_service",
             // nested conductor cannot load required resources, but its containing
             // environment can (possibly by passing the request up through its own
             // multiplex service).
-            conductor.services.xhr =  Conductor.MultiplexService.extend({
-                                        upstream: this.consumers.xhr
-                                      });
+            conductor.addDefaultCapability('xhr', Conductor.MultiplexService.extend({
+                                                    upstream: this.consumers.xhr
+                                                  }));
 
             // now the nested card can `Conductor.require` resources normally.
             conductor.card.load("/nested/card/url.js");
