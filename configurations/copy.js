@@ -3,35 +3,11 @@ var vendorSources = require('grunt').file.readJSON('vendorSources.json');
 module.exports = {
   lib: {
     files: [{
-      cwd: 'lib/consumers/',
-      src: [ '*.js' ],
-      dest: 'tmp/lib/conductor/',
-      expand: true
-    }, {
-      cwd: 'lib/services/',
-      src: [ '*.js' ],
-      dest: 'tmp/lib/conductor/',
-      expand: true
-    }, {
-      cwd: 'lib/adapters/',
-      src: [ '*.js' ],
-      dest: 'tmp/lib/conductor/',
-      expand: true
-    }, {
-      cwd: 'lib/conductor/',
-      src: [ '*.js' ],
-      dest: 'tmp/lib/conductor/',
-      expand: true
-    }, {
-      cwd: 'lib/utils/',
-      src: [ '*.js' ],
-      dest: 'tmp/lib/conductor/',
-      expand: true
-    }, {
       cwd: 'lib/',
-      src: ['adapters.js', 'services.js', 'shims.js'],
+      src: ['**/*.js', '!conductor.js'],
       dest: 'tmp/lib/conductor/',
-      expand: true
+      expand: true,
+      flatten: true
     }, {
       cwd: 'lib/',
       src: ['conductor.js'],
