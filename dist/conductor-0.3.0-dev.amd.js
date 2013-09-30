@@ -1309,9 +1309,10 @@ define("conductor/xhr_consumer",
 
         function processJavaScript(data) {
           var script = document.createElement('script');
+          var head = document.head || document.documentElement.getElementsByTagName('head')[0];
           // textContent is ie9+
           script.text = script.textContent = data;
-          document.body.appendChild(script);
+          head.appendChild(script);
         }
 
         function processCSS(data) {
