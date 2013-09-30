@@ -21,8 +21,11 @@ module.exports = function(grunt) {
     'jst',
     'transpile',        // convert conductor files to amd modules
     'concat:amd',       // generate conductor.amd.js
+    'concat:amdDev',
     'concat:browser',
-    'jsframe:conductor' // create polyglot
+    'concat:browserDev',
+    'jsframe:conductor', // create polyglot
+    'jsframe:conductorDev'
   ]);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
@@ -38,6 +41,7 @@ module.exports = function(grunt) {
     clean: ["dist/*", "tmp/*"],
     concat: config('concat'),
     connect: config('connect'),
+    rename: config('rename'),
     copy: config('copy'),
     jshint: config('jshint'),
     'saucelabs-qunit': config('saucelabs-qunit'),
@@ -49,11 +53,15 @@ module.exports = function(grunt) {
       conductor: {
         src: ['tmp/browser/conductor-<%= pkg.version %>.js'],
         dest: 'dist'
+      },
+      conductorDev: {
+        src: ['tmp/browser/conductor-<%= pkg.version %>-dev.js'],
+        dest: 'dist'
       }
     },
   });
 
-  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'copy:testsVendor', 'symlink']);
+  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'rename:tests', 'copy:testsVendor', 'symlink']);
   grunt.registerTask('test', "Run full test suite", ['prepare_test', 'connect', 'saucelabs-qunit']);
   grunt.registerTask('test:ie', "Run tests suite in IE", ['prepare_test', 'connect', 'saucelabs-qunit:ie']);
   grunt.registerTask('test:safari', "Run tests suite in Safari", ['prepare_test', 'connect', 'saucelabs-qunit:safari']);

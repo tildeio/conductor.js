@@ -1,3 +1,17 @@
+### next
+
+- Can add new default capabilities to a `conductor` instance via
+  `conductor.addDefaultCapability`.
+- Can specify adapter to use for cards.  Currently there are two conductor
+  adapters: `iframe` and `inline`.  Default is `iframe`.
+  ```js
+    // load a card using the inline adapter.
+    conductor.load(cardUrl, cardId, { adapter: Conductor.adapters.inline, /*...*/ });
+  ```
+- Can add unsupported capabilities to adapters.  For example, if one has a
+  capability that cannot work with the inline adapter, one can
+  `Conductor.adapters.inline.addUnsupportedCapability("capability")`.
+
 ### 0.3.0
 
 - `conductor.configure` replaces `Conductor.configure`

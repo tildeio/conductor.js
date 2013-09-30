@@ -12,7 +12,7 @@ function within(actual, expectedMin, expectedMax, message) {
   ok(actual <= expectedMax, message);
 }
 
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
 
 function newConductor( options ) {
   var conductor;
@@ -20,7 +20,7 @@ function newConductor( options ) {
   options = options || {};
   options.testing = true;
   if( !options.conductorURL ) {
-    options.conductorURL = destinationUrl + '/conductor-' + Conductor.Version + '.js.html';
+    options.conductorURL = crossOrigin + '/conductor-' + Conductor.Version + '.js.html';
   }
 
   conductor = new Conductor( options );
