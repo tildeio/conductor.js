@@ -2,7 +2,7 @@ Conductor.require("alert.js");
 
 var card = Conductor.card({
   activate: function() {
-    ok(true, "Card was activated");
+    ok(true, "load_card.js was activated");
     start();
   },
 

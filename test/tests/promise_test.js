@@ -56,9 +56,15 @@ test("consumers' `error` functions are invoked if their capabilities are not pro
   var conductor = newConductor(),
       card;
 
-  conductor.services.fulfilledCapability = Conductor.Oasis.Service;
-  conductor.services.unfulfilledCapability = Conductor.Oasis.Service;
-  card = conductor.load("/test/fixtures/unfulfilled_capability_card.js", 1, { capabilities: ['fulfilledCapability']});
+  card = conductor.load(
+    "/test/fixtures/unfulfilled_capability_card.js", 
+    1,
+    {
+      capabilities: ['fulfilledCapability'],
+      services: {
+        fulfilledCapability: Conductor.Oasis.Service,
+        unfulfilledCapability: Conductor.Oasis.Service
+      }});
   card.appendTo(qunitFixture);
 });
 

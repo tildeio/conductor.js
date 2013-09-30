@@ -1,6 +1,6 @@
 Conductor.card({
   activate: function() {
-    ok(true, "Card's activate method was called");
+    ok(true, "test_card.js activate method was called");
     start();
   }
 });

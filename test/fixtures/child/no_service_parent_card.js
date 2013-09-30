@@ -1,9 +1,11 @@
+var setDiff = requireModule('conductor/lang').setDiff;
+
 Conductor.card({
   childCards: [
     {url: '/test/fixtures/child/no_service_card.js', id: 1, options: {capabilities: ['assertion']}}
   ],
   activate: function() {
-    var customServices = Object.keys( this.conductor.services );
+    var customServices = setDiff(this.conductor.defaultServices(), (new Conductor()).defaultServices());
 
     ok(true, "parent card activated");
     equal( customServices.length, 1, "only one custom service");
