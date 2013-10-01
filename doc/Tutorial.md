@@ -44,7 +44,7 @@ you can see the cross-card communication.
 
 ##  Step 1 - Hello World
 
-[tutorial-1](https://github.com/tildeio/conductor.js/commit/tutorial-1) starts
+[tutorial-1](https://github.com/tildeio/conductor.js/commit/ac21cb70519555d0cb458be7a0bf94a4c8da1711) starts
 us off with a simple hello world card.
 
 In the containing environment we load the card via `conductor.load`.  The
@@ -66,7 +66,7 @@ asks the card to render itself.
 
 ##  Step 2 - Loading Dependencies
 
-[tutorial-2](https://github.com/tildeio/conductor.js/commit/tutorial-2) shows us
+[tutorial-2](https://github.com/tildeio/conductor.js/commit/2b410cff1c5e47eb907b6c67bc8a02fcb9dd5d7a) shows us
 how to use `Conductor.require` to load external resources like jQuery and
 handlebars.
 
@@ -79,13 +79,13 @@ invoked.
 
 ##  Step 3 - Finishing the Simple Survey Card
 
-[tutorial-3](https://github.com/tildeio/conductor.js/commit/tutorial-3) finishes
+[tutorial-3](https://github.com/tildeio/conductor.js/commit/688db0d3c16d349e2eb6cfbab52f185fa5661350) finishes
 the basic functionality of the survey card.  Now we can initially render a list
 of grade options and switch to a report mode once the user has picked a grade.
 
 ##  Step 4 - Sending Events
 
-[tutorial-4](https://github.com/tildeio/conductor.js/commit/tutorial-4) adds
+[tutorial-4](https://github.com/tildeio/conductor.js/commit/b21f0f7f5ad646a141bf0a8e6a12d53a272b49db) adds
 events to the survey card: after all, our goal is to communicate between
 sandboxed cards!
 
@@ -131,13 +131,13 @@ capability via a service.
 
 ##  Step 5 - Responding to Child Card Events
 
-[tutorial-5](https://github.com/tildeio/conductor.js/commit/tutorial-5) adds the
+[tutorial-5](https://github.com/tildeio/conductor.js/commit/ec698449ea5bc7b7cb5c227bd0c583c89851fac5) adds the
 `survey` capability.  Now when we give a grade, we can see the events in the
 analytics panel!
 
 ##  Step 6 - Creating a YouTube Wrapper Card
 
-[tutorial-6](https://github.com/tildeio/conductor.js/commit/tutorial-6) is the
+[tutorial-6](https://github.com/tildeio/conductor.js/commit/014229f83c0f133411887588f8531b82ac652f04) is the
 first step in creating a simple YouTube card so that we can use the YouTube
 player API safely.
 
@@ -149,7 +149,7 @@ via `conductor.loadData`.  This data is passed to our card in `activate`.
 
 ##  Step 7 - Promises
 
-[tutorial-7](https://github.com/tildeio/conductor.js/commit/tutorial-7) actually
+[tutorial-7](https://github.com/tildeio/conductor.js/commit/42b9a59198079819c871547404d33dd703f87170) actually
 loads the YouTube API.  It makes use of promises via
 [RSVP](https://github.com/tildeio/rsvp.js) - a great way to handle asynchronous
 resources in JavaScript.
@@ -160,7 +160,7 @@ beta program](http://youtube.com/html5) for this part of the tutorial.
 
 ##  Step 8 - Receiving Events in a Card
 
-[tutorial-8](https://github.com/tildeio/conductor.js/commit/tutorial-8) adds a
+[tutorial-8](https://github.com/tildeio/conductor.js/commit/888dfa47ad7ddff77fd3b2077b31073c178e74a3) adds a
 consumer to our YouTube card, but this time we *do* want to respond to events
 from our containing environment, so that it can remotely start the video.
 
@@ -185,7 +185,7 @@ convenience in the tutorial.
 
 ##  Step 9 - Nested Cards
 
-[tutorial-9](https://github.com/tildeio/conductor.js/commit/tutorial-9) puts our
+[tutorial-9](https://github.com/tildeio/conductor.js/commit/8c970a5f7111f6384065fe82f0652107d3f50942) puts our
 two cards together.  Much of this step should be familiar, but now we introduce
 a card that has its own child cards.
 
@@ -197,7 +197,7 @@ extract any data your child cards need.
 
 ##  Step 10 - Updating Child Card Data
 
-[tutorial-10](https://github.com/tildeio/conductor.js/commit/tutorial-10) shows
+[tutorial-10](https://github.com/tildeio/conductor.js/commit/7828bd82a2cf7e358d97acff2de5a6d36a0fdad5) shows
 us how to use the data service to inform child cards that their data has changed
 so we can keep data in sync.
 
@@ -210,7 +210,7 @@ But the child card still needs to do something about it.
 
 ##  Step 11 - Responding to Data Changes
 
-[tutorial-11](https://github.com/tildeio/conductor.js/commit/tutorial-11) is the
+[tutorial-11](https://github.com/tildeio/conductor.js/commit/730293303987467869efa0e42103057e295715d6) is the
 last step of our tutorial and completes the data synchronization picture.
 Recall that when a card is initially created `activate` is called and passed the
 initial data.  When the containing environment updates the data, the data
