@@ -23,7 +23,7 @@
     "tests"
   ],
   "dependencies": {
-    "oasis.js": "master"
+    "oasis.js": "fix_tutorial"
   },
   "devDependencies": {
     "qunit": "1.12.0",
