@@ -87,4 +87,19 @@ test("A card with child cards loads the data and the associated card", function(
   card.render();
 });
 
+test("A card with child cards and `allowSameOrigin` sets to true loads the data and the associated card", function() {
+  expect(3);
+  stop();
+
+  var conductor = new Conductor({ testing: true }),
+      parentCardUrl = "/test/fixtures/child/config_data_parent_card.js",
+      card;
+
+  conductor.configure('allowSameOrigin', true);
+
+  card = conductor.load(parentCardUrl, 1);
+  card.appendTo(qunitFixture);
+  card.render();
+});
+
 })();

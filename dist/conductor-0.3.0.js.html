@@ -805,7 +805,7 @@ function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(
   }
 
   function isInWorker() {
-    return  typeof Worker === 'undefined' && typeof Window === 'undefined'
+    return  typeof Worker === 'undefined' && typeof Window === 'undefined';
   }
 
   if( usePoly || !self.MessageChannel ) {
@@ -1117,6 +1117,7 @@ function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(
           }
         }
         fakeEvent.data = event.data;
+        fakeEvent.source = messageEvent.source;
         fakeEvent.messageChannel = event.messageChannel;
       }
 
@@ -1606,7 +1607,7 @@ define("oasis/base_adapter",
         if (sandbox.type === 'js') {
           scriptURLs.push(sandboxURL);
         }
-        
+
         return scriptURLs;
       },
 
@@ -1874,6 +1875,7 @@ define("oasis/iframe_adapter",
     "use strict";
     var assert = __dependency1__.assert;
     var extend = __dependency1__.extend;
+    var a_forEach = __dependency2__.a_forEach;
     var addEventListener = __dependency2__.addEventListener;
     var removeEventListener = __dependency2__.removeEventListener;
     var a_map = __dependency2__.a_map;
@@ -1885,18 +1887,24 @@ define("oasis/iframe_adapter",
       var iframe = document.createElement('iframe'),
           link;
 
-      if( !oasis.configuration.allowSameOrigin && iframe.sandbox === undefined ) {
-        // The sandbox attribute isn't supported,
+      if( (oasis.configuration.allowSameOrigin && iframe.sandbox !== undefined) ||
+          (iframe.sandbox === undefined) ) {
+        // The sandbox attribute isn't supported (IE8/9) or we want a child iframe
+        // to access resources from its own domain (youtube iframe),
         // we need to make sure the sandbox is loaded from a separate domain
         link = document.createElement('a');
         link.href = sandboxUrl;
 
         if( !link.host || (link.protocol === window.location.protocol && link.host === window.location.host) ) {
           throw new Error("Security: iFrames from the same host cannot be sandboxed in older browsers and is disallowed.  " +
-                          "You can override this behaviour with `Oasis.configure('allowSameOrigin', true)`, but please be " +
-                          "absolutely sure you know this is safe for your environment before doing so.");
+                          "For HTML5 browsers supporting the `sandbox` attribute on iframes, you can add the `allow-same-origin` flag" +
+                          "only if you host the sandbox on a separate domain.");
         }
       }
+    }
+    function isUrl(s) {
+      var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+      return regexp.test(s);
     }
 
     var IframeAdapter = extend(BaseAdapter, {
@@ -1906,10 +1914,15 @@ define("oasis/iframe_adapter",
       initializeSandbox: function(sandbox) {
         var options = sandbox.options,
             iframe = document.createElement('iframe'),
-            oasisURL = this.oasisURL(sandbox);
+            oasisURL = this.oasisURL(sandbox),
+            sandboxAttributes = ['allow-scripts'];
+
+        if( sandbox.oasis.configuration.allowSameOrigin ) {
+          sandboxAttributes.push('allow-same-origin');
+        }
 
         iframe.name = sandbox.options.url + '?uuid=' + UUID.generate();
-        iframe.sandbox = 'allow-scripts';
+        iframe.sandbox = sandboxAttributes.join(' ');
         iframe.seamless = true;
 
         // rendering-specific code
@@ -1918,6 +1931,22 @@ define("oasis/iframe_adapter",
         } else if (options.height) {
           iframe.height = options.height;
         }
+
+        // Error handling inside the iFrame
+        iframe.errorHandler = function(event) {
+          if(!event.data.sandboxException) {return;}
+          try {
+            // verify this message came from the expected sandbox; try/catch
+            // because ie8 will disallow reading contentWindow in the case of
+            // another sandbox's message
+            if( event.source !== iframe.contentWindow ) {return;}
+          } catch(e) {
+            return;
+          }
+
+          sandbox.onerror( event.data.sandboxException );
+        };
+        addEventListener(window, 'message', iframe.errorHandler);
 
         switch (sandbox.type) {
           case 'js':
@@ -2037,12 +2066,26 @@ define("oasis/iframe_adapter",
         baseElement.href = base;
         head.insertBefore(baseElement, head.childNodes[0] || null);
 
-        for (var i = 0; i < scriptURLs.length; ++i ) {
+        a_forEach.call( scriptURLs, function(scriptURL) {
+          if( isUrl( scriptURL ) ) {
+            var link = document.createElement('a'),
+                exception;
+
+            link.href = scriptURL;
+
+            if( window.location.host !== link.host ) {
+              exception = "You can not load a resource (" + scriptURL +  ") from a domain other than " + window.location.host;
+              Window.postMessage( window.parent, {sandboxException: exception}, '*' );
+              // Stop loading
+              throw exception;
+            }
+          }
+
           scriptElement = document.createElement('script');
-          scriptElement.src = scriptURLs[i];
+          scriptElement.src = scriptURL;
           scriptElement.async = false;
           head.appendChild(scriptElement);
-        }
+        });
       },
 
       name: function(sandbox) {
@@ -2711,6 +2754,10 @@ define("oasis/sandbox",
         sandbox.oasis.services = [];
       },
 
+      onerror: function(error) {
+        throw error;
+      },
+
       name: function() {
         return this.adapter.name(this);
       },
@@ -3236,7 +3283,7 @@ define("oasis/version",
   function() {
     "use strict";
 
-    return '0.3.0';
+    return '0.4.0';
   });
 define("oasis/webworker_adapter",
   ["oasis/util","oasis/shims","rsvp","oasis/logger","oasis/base_adapter"],
@@ -3262,6 +3309,14 @@ define("oasis/webworker_adapter",
         var worker = new Worker(oasisURL);
         worker.name = sandbox.options.url + '?uuid=' + UUID.generate();
         sandbox.worker = worker;
+
+        // Error handling inside the worker
+        worker.errorHandler = function(event) {
+          if(!event.data.sandboxException) {return;}
+
+          sandbox.onerror( event.data.sandboxException );
+        };
+        addEventListener(worker, 'message', worker.errorHandler);
 
         sandbox._waitForLoadDeferred().resolve(new RSVP.Promise( function(resolve, reject) {
           worker.initializationHandler = function (event) {
@@ -3392,14 +3447,22 @@ define("oasis/xhr",
 
     var XHR, setRequestHeader, getLoadStatus, send;
 
-    if ('withCredentials' in new XMLHttpRequest()) {
-      XHR = XMLHttpRequest;
-      setRequestHeader = xhrSetRequestHeader;
-      getLoadStatus = xhrGetLoadStatus;
-    } else if (typeof XDomainRequest !== 'undefined') {
-      XHR = XDomainRequest;
-      setRequestHeader = noop;
-      getLoadStatus = xdrGetLoadStatus;
+    try {
+      if ('withCredentials' in new XMLHttpRequest()) {
+        XHR = XMLHttpRequest;
+        setRequestHeader = xhrSetRequestHeader;
+        getLoadStatus = xhrGetLoadStatus;
+      } else if (typeof XDomainRequest !== 'undefined') {
+        XHR = XDomainRequest;
+        setRequestHeader = noop;
+        getLoadStatus = xdrGetLoadStatus;
+      }
+    } catch( exception ) {
+      if (typeof XDomainRequest !== 'undefined') {
+        XHR = XDomainRequest;
+        setRequestHeader = noop;
+        getLoadStatus = xdrGetLoadStatus;
+      }
     }
     // else inline adapter with cross-domain cards is not going to work
 
@@ -4128,7 +4191,7 @@ define("conductor",
 
     Conductor.prototype = {
       configure: function (name, value) {
-        if ('eventCallback' === name) {
+        if ('eventCallback' === name || 'allowSameOrigin' === name) {
           this.oasis.configure(name, value);
         } else {
           throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");

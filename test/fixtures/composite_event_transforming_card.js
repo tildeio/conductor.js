@@ -4,8 +4,6 @@ Conductor.card({
     start();
 
     var conductor = new Conductor({ testing: true });
-    // TODO: Update test environment to not depend on this for older browsers.
-    conductor.oasis.configure('allowSameOrigin', true);
     conductor.addDefaultCapability('assertion', Conductor.MultiplexService.extend({
       upstream: this.consumers.assertion,
       transformEvent: function (eventName, data) {
