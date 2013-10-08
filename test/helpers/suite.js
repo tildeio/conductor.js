@@ -28,3 +28,12 @@ function newConductor( options ) {
 
   return conductor;
 }
+
+function isSandboxAttributeSupported() {
+  if( typeof Window === "undefined" ) return false;
+
+  var iframe = document.createElement('iframe');
+
+  return iframe.sandbox !== undefined;
+}
+

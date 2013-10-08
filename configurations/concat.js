@@ -39,7 +39,7 @@ module.exports = {
   },
 
   tests: {
-    src: ['test/helpers/*', 'test/tests/**/*_test.js'],
+    src: ['test/helpers/*', 'test/tests/**/*.js'],
     dest: 'tmp/public/conductor_tests.js'
   }
 };
