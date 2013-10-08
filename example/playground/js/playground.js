@@ -16,7 +16,7 @@ window.Playground = {
       conductorURL: destinationUrl + '/conductor-0.3.0.js.html'
     });
 
-    this.conductor.oasis.configure('allowSameOrigin', true);
+    this.conductor.configure('allowSameOrigin', true);
 
     // Wiretap the card and configure any events
     // to be displayed in the analytics panel on
