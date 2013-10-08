@@ -4,7 +4,7 @@ module.exports = {
     'vendor/*',
     'test/tests/*',
     'test/helpers/*',
-    'test/fixtures/*',
+    'test/fixtures/**/*',
     'node_modules/jsframe/*',
     'example/**/*'
   ],
