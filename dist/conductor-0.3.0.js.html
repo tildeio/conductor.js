@@ -4685,16 +4685,17 @@ define("conductor/height_consumer",
       initialize: function () {
         var consumer = this;
 
-        this.card.waitForActivation().then(function () {
-          if (!consumer.autoUpdate) {
-            return;
-          } else if (typeof MutationObserver === "undefined") {
-            Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
-            return;
-          }
+        // TODO: fix autoupdate
+        // this.card.waitForActivation().then(function () {
+          // if (!consumer.autoUpdate) {
+            // return;
+          // } else if (typeof MutationObserver === "undefined") {
+            // Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
+            // return;
+          // }
 
-          consumer.setUpAutoupdate();
-        });
+          // consumer.setUpAutoupdate();
+        // });
       },
 
       update: function (dimensions) {
