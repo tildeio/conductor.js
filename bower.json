@@ -23,7 +23,7 @@
     "tests"
   ],
   "dependencies": {
-    "oasis.js": "fix_tutorial"
+    "oasis.js": "xhr_allow-same-origin"
   },
   "devDependencies": {
     "qunit": "1.12.0",

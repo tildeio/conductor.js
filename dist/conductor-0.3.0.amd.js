@@ -36,6 +36,8 @@ define("conductor",
     Conductor.require = requireURL;
     Conductor.requireCSS = requireCSS;
     Conductor.MultiplexService = MultiplexService;
+    //For debugging purpose
+    Conductor.ConductorShims = ConductorShims;
 
     var RSVP = Conductor.Oasis.RSVP,
         Promise = RSVP.Promise;
@@ -728,10 +730,10 @@ define("conductor/height_consumer",
     var HeightConsumer = Oasis.Consumer.extend({
       autoUpdate: true,
 
-      initialize: function () {
-        var consumer = this;
+      // TODO: fix autoupdate
+      // initialize: function () {
+        // var consumer = this;
 
-        // TODO: fix autoupdate
         // this.card.waitForActivation().then(function () {
           // if (!consumer.autoUpdate) {
             // return;
@@ -742,7 +744,7 @@ define("conductor/height_consumer",
 
           // consumer.setUpAutoupdate();
         // });
-      },
+      // },
 
       update: function (dimensions) {
         if (typeof dimensions === "undefined") {
@@ -1251,9 +1253,50 @@ define("conductor/shims",
       return -1;
     };
 
+    // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+    var o_keys = Object.keys ? Object.keys : (function () {
+      'use strict';
+      var hasOwnProperty = Object.prototype.hasOwnProperty,
+          hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+          dontEnums = [
+            'toString',
+            'toLocaleString',
+            'valueOf',
+            'hasOwnProperty',
+            'isPrototypeOf',
+            'propertyIsEnumerable',
+            'constructor'
+          ],
+          dontEnumsLength = dontEnums.length;
+
+      return function (obj) {
+        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+          throw new TypeError('Object.keys called on non-object');
+        }
+
+        var result = [], prop, i;
+
+        for (prop in obj) {
+          if (hasOwnProperty.call(obj, prop)) {
+            result.push(prop);
+          }
+        }
+
+        if (hasDontEnumBug) {
+          for (i = 0; i < dontEnumsLength; i++) {
+            if (hasOwnProperty.call(obj, dontEnums[i])) {
+              result.push(dontEnums[i]);
+            }
+          }
+        }
+        return result;
+      };
+    }());
+
 
     __exports__.a_filter = a_filter;
     __exports__.a_indexOf = a_indexOf;
+    __exports__.o_keys = o_keys;
   });
 define("conductor/version",
   [],
