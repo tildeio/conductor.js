@@ -993,10 +993,15 @@ define("conductor/lang",
     }
 
     function setDiff(a, b) {
-      return a_filter.call(a, function (item) {
-        var inB = a_indexOf.call(b, item);
-        return !inB;
-      });
+      var differences  = [];
+
+      for(var prop in a) {
+        if( a[prop] !== b[prop] ) {
+          differences.push( prop );
+        }
+      }
+
+      return differences;
     }
 
     __exports__.copy = copy;
