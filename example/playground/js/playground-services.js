@@ -36,9 +36,9 @@
 
   $.extend(Playground, {
     initializeServices: function () {
-      Conductor.services.video = Playground.VideoService;
-      Conductor.services.survey = Playground.SurveyService;
-      Conductor.services.slotMachine = Playground.SlotMachine;
+      this.conductor.addDefaultCapability('video', Playground.VideoService);
+      this.conductor.addDefaultCapability('survey', Playground.SurveyService);
+      this.conductor.addDefaultCapability('slotMachine', Playground.SlotMachine);
     }
   });
 })();
