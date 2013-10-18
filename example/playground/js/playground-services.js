@@ -6,12 +6,23 @@
   Playground.VideoService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.videoPort = port;
+      window.videoPort = port;
+    },
+    events: {
+      videoWatched: function () {
+        console.log("User watched a video");
+      }
     }
   });
 
   Playground.SurveyService = Conductor.Oasis.Service.extend({
     initialize: function (port) {
       this.sandbox.surveyPort = port;
+    },
+    events: {
+      surveyTaken: function (data) {
+        console.log("User took a survey:", data);
+      }
     }
   });
 
@@ -36,9 +47,9 @@
 
   $.extend(Playground, {
     initializeServices: function () {
-      Conductor.services.video = Playground.VideoService;
-      Conductor.services.survey = Playground.SurveyService;
-      Conductor.services.slotMachine = Playground.SlotMachine;
+      this.conductor.addDefaultCapability('video', Playground.VideoService);
+      this.conductor.addDefaultCapability('survey', Playground.SurveyService);
+      this.conductor.addDefaultCapability('slotMachine', Playground.SlotMachine);
     }
   });
 })();

@@ -805,7 +805,7 @@ function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(
   }
 
   function isInWorker() {
-    return  typeof Worker === 'undefined' && typeof Window === 'undefined'
+    return  typeof Worker === 'undefined' && typeof Window === 'undefined';
   }
 
   if( usePoly || !self.MessageChannel ) {
@@ -1117,6 +1117,7 @@ function UUID(){}UUID.generate=function(){var a=UUID._gri,b=UUID._ha;return b(a(
           }
         }
         fakeEvent.data = event.data;
+        fakeEvent.source = messageEvent.source;
         fakeEvent.messageChannel = event.messageChannel;
       }
 
@@ -1606,7 +1607,7 @@ define("oasis/base_adapter",
         if (sandbox.type === 'js') {
           scriptURLs.push(sandboxURL);
         }
-        
+
         return scriptURLs;
       },
 
@@ -1874,6 +1875,7 @@ define("oasis/iframe_adapter",
     "use strict";
     var assert = __dependency1__.assert;
     var extend = __dependency1__.extend;
+    var a_forEach = __dependency2__.a_forEach;
     var addEventListener = __dependency2__.addEventListener;
     var removeEventListener = __dependency2__.removeEventListener;
     var a_map = __dependency2__.a_map;
@@ -1885,18 +1887,24 @@ define("oasis/iframe_adapter",
       var iframe = document.createElement('iframe'),
           link;
 
-      if( !oasis.configuration.allowSameOrigin && iframe.sandbox === undefined ) {
-        // The sandbox attribute isn't supported,
+      if( (oasis.configuration.allowSameOrigin && iframe.sandbox !== undefined) ||
+          (iframe.sandbox === undefined) ) {
+        // The sandbox attribute isn't supported (IE8/9) or we want a child iframe
+        // to access resources from its own domain (youtube iframe),
         // we need to make sure the sandbox is loaded from a separate domain
         link = document.createElement('a');
         link.href = sandboxUrl;
 
         if( !link.host || (link.protocol === window.location.protocol && link.host === window.location.host) ) {
           throw new Error("Security: iFrames from the same host cannot be sandboxed in older browsers and is disallowed.  " +
-                          "You can override this behaviour with `Oasis.configure('allowSameOrigin', true)`, but please be " +
-                          "absolutely sure you know this is safe for your environment before doing so.");
+                          "For HTML5 browsers supporting the `sandbox` attribute on iframes, you can add the `allow-same-origin` flag" +
+                          "only if you host the sandbox on a separate domain.");
         }
       }
+    }
+    function isUrl(s) {
+      var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+      return regexp.test(s);
     }
 
     var IframeAdapter = extend(BaseAdapter, {
@@ -1906,10 +1914,15 @@ define("oasis/iframe_adapter",
       initializeSandbox: function(sandbox) {
         var options = sandbox.options,
             iframe = document.createElement('iframe'),
-            oasisURL = this.oasisURL(sandbox);
+            oasisURL = this.oasisURL(sandbox),
+            sandboxAttributes = ['allow-scripts'];
+
+        if( sandbox.oasis.configuration.allowSameOrigin ) {
+          sandboxAttributes.push('allow-same-origin');
+        }
 
         iframe.name = sandbox.options.url + '?uuid=' + UUID.generate();
-        iframe.sandbox = 'allow-scripts';
+        iframe.sandbox = sandboxAttributes.join(' ');
         iframe.seamless = true;
 
         // rendering-specific code
@@ -1918,6 +1931,22 @@ define("oasis/iframe_adapter",
         } else if (options.height) {
           iframe.height = options.height;
         }
+
+        // Error handling inside the iFrame
+        iframe.errorHandler = function(event) {
+          if(!event.data.sandboxException) {return;}
+          try {
+            // verify this message came from the expected sandbox; try/catch
+            // because ie8 will disallow reading contentWindow in the case of
+            // another sandbox's message
+            if( event.source !== iframe.contentWindow ) {return;}
+          } catch(e) {
+            return;
+          }
+
+          sandbox.onerror( event.data.sandboxException );
+        };
+        addEventListener(window, 'message', iframe.errorHandler);
 
         switch (sandbox.type) {
           case 'js':
@@ -2037,12 +2066,26 @@ define("oasis/iframe_adapter",
         baseElement.href = base;
         head.insertBefore(baseElement, head.childNodes[0] || null);
 
-        for (var i = 0; i < scriptURLs.length; ++i ) {
+        a_forEach.call( scriptURLs, function(scriptURL) {
+          if( isUrl( scriptURL ) ) {
+            var link = document.createElement('a'),
+                exception;
+
+            link.href = scriptURL;
+
+            if( window.location.host !== link.host ) {
+              exception = "You can not load a resource (" + scriptURL +  ") from a domain other than " + window.location.host;
+              Window.postMessage( window.parent, {sandboxException: exception}, '*' );
+              // Stop loading
+              throw exception;
+            }
+          }
+
           scriptElement = document.createElement('script');
-          scriptElement.src = scriptURLs[i];
+          scriptElement.src = scriptURL;
           scriptElement.async = false;
           head.appendChild(scriptElement);
-        }
+        });
       },
 
       name: function(sandbox) {
@@ -2711,6 +2754,10 @@ define("oasis/sandbox",
         sandbox.oasis.services = [];
       },
 
+      onerror: function(error) {
+        throw error;
+      },
+
       name: function() {
         return this.adapter.name(this);
       },
@@ -3236,7 +3283,7 @@ define("oasis/version",
   function() {
     "use strict";
 
-    return '0.3.0';
+    return '0.4.0';
   });
 define("oasis/webworker_adapter",
   ["oasis/util","oasis/shims","rsvp","oasis/logger","oasis/base_adapter"],
@@ -3262,6 +3309,14 @@ define("oasis/webworker_adapter",
         var worker = new Worker(oasisURL);
         worker.name = sandbox.options.url + '?uuid=' + UUID.generate();
         sandbox.worker = worker;
+
+        // Error handling inside the worker
+        worker.errorHandler = function(event) {
+          if(!event.data.sandboxException) {return;}
+
+          sandbox.onerror( event.data.sandboxException );
+        };
+        addEventListener(worker, 'message', worker.errorHandler);
 
         sandbox._waitForLoadDeferred().resolve(new RSVP.Promise( function(resolve, reject) {
           worker.initializationHandler = function (event) {
@@ -3392,14 +3447,22 @@ define("oasis/xhr",
 
     var XHR, setRequestHeader, getLoadStatus, send;
 
-    if ('withCredentials' in new XMLHttpRequest()) {
-      XHR = XMLHttpRequest;
-      setRequestHeader = xhrSetRequestHeader;
-      getLoadStatus = xhrGetLoadStatus;
-    } else if (typeof XDomainRequest !== 'undefined') {
-      XHR = XDomainRequest;
-      setRequestHeader = noop;
-      getLoadStatus = xdrGetLoadStatus;
+    try {
+      if ('withCredentials' in new XMLHttpRequest()) {
+        XHR = XMLHttpRequest;
+        setRequestHeader = xhrSetRequestHeader;
+        getLoadStatus = xhrGetLoadStatus;
+      } else if (typeof XDomainRequest !== 'undefined') {
+        XHR = XDomainRequest;
+        setRequestHeader = noop;
+        getLoadStatus = xdrGetLoadStatus;
+      }
+    } catch( exception ) {
+      if (typeof XDomainRequest !== 'undefined') {
+        XHR = XDomainRequest;
+        setRequestHeader = noop;
+        getLoadStatus = xdrGetLoadStatus;
+      }
     }
     // else inline adapter with cross-domain cards is not going to work
 
@@ -4086,8 +4149,8 @@ define("rsvp",
     __exports__.reject = reject;
   });
 define("conductor",
-  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/shims","conductor/multiplex_service","conductor/adapters"],
-  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, ConductorShims, MultiplexService, adapters) {
+  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/multiplex_service","conductor/adapters"],
+  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, MultiplexService, adapters) {
     "use strict";
     var o_create = __dependency1__.o_create;
     var a_forEach = __dependency1__.a_forEach;
@@ -4128,7 +4191,7 @@ define("conductor",
 
     Conductor.prototype = {
       configure: function (name, value) {
-        if ('eventCallback' === name) {
+        if ('eventCallback' === name || 'allowSameOrigin' === name) {
           this.oasis.configure(name, value);
         } else {
           throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");
@@ -4351,7 +4414,7 @@ define("conductor/assertion_service",
     return AssertionService;
   });
 define("conductor/capabilities",
-  ["conductor/services","conductor/lang","conductor/shims","oasis"],
+  ["conductor/services","conductor/lang","oasis/shims","oasis"],
   function(__dependency1__, __dependency2__, __dependency3__, Oasis) {
     "use strict";
     var services = __dependency1__.services;
@@ -4472,15 +4535,15 @@ define("conductor/card",
       },
 
       /**
-       A card can contain other cards.
+        A card can contain other cards.
 
-       `childCards` is an array of objects describing the differents cards. The accepted attributes are:
-       * `url` {String} the url of the card
-       * `id` {String} a unique identifier for this instance (per type)
-       * `options` {Object} Options passed to `Conductor.load` (optional)
-       * `data` {Object} passed to `Conductor.loadData`
+        `childCards` is an array of objects describing the differents cards. The accepted attributes are:
+        * `url` {String} the url of the card
+        * `id` {String} a unique identifier for this instance (per type)
+        * `options` {Object} Options passed to `Conductor.load` (optional)
+        * `data` {Object} passed to `Conductor.loadData`
 
-       Example:
+        Example:
 
           Conductor.card({
             childCards: [
@@ -4488,10 +4551,10 @@ define("conductor/card",
             ]
           });
 
-       Any `Conductor.Oasis.Service` needed for a child card can be simply
-       declared with the `services` attribute.  A card can contain other cards.
+        Any `Conductor.Oasis.Service` needed for a child card can be simply
+        declared with the `services` attribute.  A card can contain other cards.
 
-       Example:
+        Example:
 
           Conductor.card({
             services: {
@@ -4502,13 +4565,13 @@ define("conductor/card",
             ]
           });
 
-       `loadDataForChildCards` can be defined when a child card needs data passed
-       to the parent card.
+        `loadDataForChildCards` can be defined when a child card needs data passed
+        to the parent card.
 
-       Once `initializeChildCards` has been called, the loaded card can be
-       accessed through the `childCards` attribute.
+        Once `initializeChildCards` has been called, the loaded card can be
+        accessed through the `childCards` attribute.
 
-       Example:
+        Example:
 
           var card = Conductor.card({
             childCards: [
@@ -4516,19 +4579,59 @@ define("conductor/card",
             ]
           });
 
-
           // After `initializeChildCards` has been called
           var surveyCard = card.childCards[0].card;
 
         Child cards can be added to the DOM by overriding `initializeDOM`.  The
         default behavior of `initializeDOM` is to add all child cards to the body
         element.
+
+        You can pass the configuration to be used with Conductor on the instance used to load
+        the child cards. This will be passed to `conductor.configure`.
+
+        Example:
+
+          Conductor.card({
+            conductorConfiguration: { allowSameOrigin: true },
+            childCards: [
+              { url: '../cards/survey', id: 1 , options: {}, data: '' }
+            ]
+          });
+
+        If you use child cards and `allowSameOrigin`, you'll need to specify in the parent card
+        a different url for Conductor.js. This will ensure that the child cards can't access
+        their parent.
+
+        Example:
+
+          Conductor.card({
+            conductorConfiguration: {
+              conductorURL: "...", // specify here a link to Conductor hosted on a separate domain
+              allowSameOrigin: true
+            },
+            childCards: [
+              { url: '../cards/survey', id: 1 , options: {}, data: '' }
+            ]
+          });
        */
       initializeChildCards: function( data ) {
-        var prop;
+        var prop,
+            conductorOptions = {};
 
         if(this.childCards) {
-          this.conductor = new Conductor();
+          if( this.conductorConfiguration ) {
+            conductorOptions.conductorURL = this.conductorConfiguration.conductorURL;
+            delete this.conductorConfiguration.conductorURL;
+          }
+
+          this.conductor = new Conductor( conductorOptions );
+
+          if( this.conductorConfiguration ) {
+            for( prop in this.conductorConfiguration ) {
+              this.conductor.configure( prop, this.conductorConfiguration[prop] );
+            }
+          }
+
           this.conductor.addDefaultCapability('xhr', MultiplexService.extend({
             upstream: this.consumers.xhr,
             transformRequest: function (requestEventName, data) {
@@ -4877,20 +4980,21 @@ define("conductor/height_consumer",
     var HeightConsumer = Oasis.Consumer.extend({
       autoUpdate: true,
 
-      initialize: function () {
-        var consumer = this;
+      // TODO: fix autoupdate
+      // initialize: function () {
+        // var consumer = this;
 
-        this.card.waitForActivation().then(function () {
-          if (!consumer.autoUpdate) {
-            return;
-          } else if (typeof MutationObserver === "undefined") {
-            Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
-            return;
-          }
+        // this.card.waitForActivation().then(function () {
+          // if (!consumer.autoUpdate) {
+            // return;
+          // } else if (typeof MutationObserver === "undefined") {
+            // Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
+            // return;
+          // }
 
-          consumer.setUpAutoupdate();
-        });
-      },
+          // consumer.setUpAutoupdate();
+        // });
+      // },
 
       update: function (dimensions) {
         if (typeof dimensions === "undefined") {
@@ -5039,10 +5143,15 @@ define("conductor/lang",
     }
 
     function setDiff(a, b) {
-      return a_filter.call(a, function (item) {
-        var inB = a_indexOf.call(b, item);
-        return !inB;
-      });
+      var differences  = [];
+
+      for(var prop in a) {
+        if( a[prop] !== b[prop] ) {
+          differences.push( prop );
+        }
+      }
+
+      return differences;
     }
 
     __exports__.copy = copy;
@@ -5234,12 +5343,11 @@ define("conductor/nested_wiretapping_service",
     return NestedWiretappingService;
   });
 define("conductor/path",
-  ["conductor/shims"],
-  function(ConductorShims) {
+  ["oasis/shims"],
+  function(__dependency1__) {
     "use strict";
+    var a_filter = __dependency1__.a_filter;
     /* global PathUtils:true */
-
-    var a_filter = ConductorShims.a_filter;
 
     var PathUtils = window.PathUtils = {
       dirname: function (path) {
@@ -5365,77 +5473,6 @@ define("conductor/services",
     __exports__.services = services;
     __exports__.capabilities = capabilities;
   });
-define("conductor/shims",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function isNativeFunc(func) {
-      // This should probably work in all browsers likely to have ES5 array methods
-      return func && Function.prototype.toString.call(func).indexOf('[native code]') > -1;
-    }
-
-    var a_filter = isNativeFunc(Array.prototype.filter) ? Array.prototype.filter : function(fun /*, thisp*/) {
-      "use strict";
-
-      if (this == null)
-        throw new TypeError();
-
-      var t = Object(this);
-      var len = t.length >>> 0;
-      if (typeof fun != "function")
-        throw new TypeError();
-
-      var res = [];
-      var thisp = arguments[1];
-      for (var i = 0; i < len; i++)
-      {
-        if (i in t)
-        {
-          var val = t[i]; // in case fun mutates this
-          if (fun.call(thisp, val, i, t))
-            res.push(val);
-        }
-      }
-
-      return res;
-    };
-
-    var a_indexOf = isNativeFunc(Array.prototype.indexOf) ? Array.prototype.indexOf : function (searchElement /*, fromIndex */ ) {
-      "use strict";
-      if (this == null) {
-        throw new TypeError();
-      }
-      var t = Object(this);
-      var len = t.length >>> 0;
-
-      if (len === 0) {
-        return -1;
-      }
-      var n = 0;
-      if (arguments.length > 1) {
-        n = Number(arguments[1]);
-        if (n != n) { // shortcut for verifying if it's NaN
-          n = 0;
-        } else if (n != 0 && n != Infinity && n != -Infinity) {
-          n = (n > 0 || -1) * Math.floor(Math.abs(n));
-        }
-      }
-      if (n >= len) {
-        return -1;
-      }
-      var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-      for (; k < len; k++) {
-        if (k in t && t[k] === searchElement) {
-          return k;
-        }
-      }
-      return -1;
-    };
-
-
-    __exports__.a_filter = a_filter;
-    __exports__.a_indexOf = a_indexOf;
-  });
 define("conductor/version",
   [],
   function() {
@@ -5467,9 +5504,10 @@ define("conductor/xhr_consumer",
 
         function processJavaScript(data) {
           var script = document.createElement('script');
+          var head = document.head || document.documentElement.getElementsByTagName('head')[0];
           // textContent is ie9+
           script.text = script.textContent = data;
-          document.body.appendChild(script);
+          head.appendChild(script);
         }
 
         function processCSS(data) {

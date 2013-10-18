@@ -1,6 +1,6 @@
 define("conductor",
-  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/shims","conductor/multiplex_service","conductor/adapters"],
-  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, ConductorShims, MultiplexService, adapters) {
+  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/multiplex_service","conductor/adapters"],
+  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, MultiplexService, adapters) {
     "use strict";
     var o_create = __dependency1__.o_create;
     var a_forEach = __dependency1__.a_forEach;
@@ -41,7 +41,7 @@ define("conductor",
 
     Conductor.prototype = {
       configure: function (name, value) {
-        if ('eventCallback' === name) {
+        if ('eventCallback' === name || 'allowSameOrigin' === name) {
           this.oasis.configure(name, value);
         } else {
           throw new Error("Unexpected Configuration `" + name + "` = `" + value + "`");
@@ -264,7 +264,7 @@ define("conductor/assertion_service",
     return AssertionService;
   });
 define("conductor/capabilities",
-  ["conductor/services","conductor/lang","conductor/shims","oasis"],
+  ["conductor/services","conductor/lang","oasis/shims","oasis"],
   function(__dependency1__, __dependency2__, __dependency3__, Oasis) {
     "use strict";
     var services = __dependency1__.services;
@@ -385,15 +385,15 @@ define("conductor/card",
       },
 
       /**
-       A card can contain other cards.
+        A card can contain other cards.
 
-       `childCards` is an array of objects describing the differents cards. The accepted attributes are:
-       * `url` {String} the url of the card
-       * `id` {String} a unique identifier for this instance (per type)
-       * `options` {Object} Options passed to `Conductor.load` (optional)
-       * `data` {Object} passed to `Conductor.loadData`
+        `childCards` is an array of objects describing the differents cards. The accepted attributes are:
+        * `url` {String} the url of the card
+        * `id` {String} a unique identifier for this instance (per type)
+        * `options` {Object} Options passed to `Conductor.load` (optional)
+        * `data` {Object} passed to `Conductor.loadData`
 
-       Example:
+        Example:
 
           Conductor.card({
             childCards: [
@@ -401,10 +401,10 @@ define("conductor/card",
             ]
           });
 
-       Any `Conductor.Oasis.Service` needed for a child card can be simply
-       declared with the `services` attribute.  A card can contain other cards.
+        Any `Conductor.Oasis.Service` needed for a child card can be simply
+        declared with the `services` attribute.  A card can contain other cards.
 
-       Example:
+        Example:
 
           Conductor.card({
             services: {
@@ -415,13 +415,13 @@ define("conductor/card",
             ]
           });
 
-       `loadDataForChildCards` can be defined when a child card needs data passed
-       to the parent card.
+        `loadDataForChildCards` can be defined when a child card needs data passed
+        to the parent card.
 
-       Once `initializeChildCards` has been called, the loaded card can be
-       accessed through the `childCards` attribute.
+        Once `initializeChildCards` has been called, the loaded card can be
+        accessed through the `childCards` attribute.
 
-       Example:
+        Example:
 
           var card = Conductor.card({
             childCards: [
@@ -429,19 +429,59 @@ define("conductor/card",
             ]
           });
 
-
           // After `initializeChildCards` has been called
           var surveyCard = card.childCards[0].card;
 
         Child cards can be added to the DOM by overriding `initializeDOM`.  The
         default behavior of `initializeDOM` is to add all child cards to the body
         element.
+
+        You can pass the configuration to be used with Conductor on the instance used to load
+        the child cards. This will be passed to `conductor.configure`.
+
+        Example:
+
+          Conductor.card({
+            conductorConfiguration: { allowSameOrigin: true },
+            childCards: [
+              { url: '../cards/survey', id: 1 , options: {}, data: '' }
+            ]
+          });
+
+        If you use child cards and `allowSameOrigin`, you'll need to specify in the parent card
+        a different url for Conductor.js. This will ensure that the child cards can't access
+        their parent.
+
+        Example:
+
+          Conductor.card({
+            conductorConfiguration: {
+              conductorURL: "...", // specify here a link to Conductor hosted on a separate domain
+              allowSameOrigin: true
+            },
+            childCards: [
+              { url: '../cards/survey', id: 1 , options: {}, data: '' }
+            ]
+          });
        */
       initializeChildCards: function( data ) {
-        var prop;
+        var prop,
+            conductorOptions = {};
 
         if(this.childCards) {
-          this.conductor = new Conductor();
+          if( this.conductorConfiguration ) {
+            conductorOptions.conductorURL = this.conductorConfiguration.conductorURL;
+            delete this.conductorConfiguration.conductorURL;
+          }
+
+          this.conductor = new Conductor( conductorOptions );
+
+          if( this.conductorConfiguration ) {
+            for( prop in this.conductorConfiguration ) {
+              this.conductor.configure( prop, this.conductorConfiguration[prop] );
+            }
+          }
+
           this.conductor.addDefaultCapability('xhr', MultiplexService.extend({
             upstream: this.consumers.xhr,
             transformRequest: function (requestEventName, data) {
@@ -790,20 +830,21 @@ define("conductor/height_consumer",
     var HeightConsumer = Oasis.Consumer.extend({
       autoUpdate: true,
 
-      initialize: function () {
-        var consumer = this;
+      // TODO: fix autoupdate
+      // initialize: function () {
+        // var consumer = this;
 
-        this.card.waitForActivation().then(function () {
-          if (!consumer.autoUpdate) {
-            return;
-          } else if (typeof MutationObserver === "undefined") {
-            Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
-            return;
-          }
+        // this.card.waitForActivation().then(function () {
+          // if (!consumer.autoUpdate) {
+            // return;
+          // } else if (typeof MutationObserver === "undefined") {
+            // Conductor.warn("MutationObserver is not defined.  Height service cannot autoupdate.  You must manually call `update` for your height consumer.  You may want to disable autoupdate when your card activates with `this.consumers.height.autoUpdate = false;`");
+            // return;
+          // }
 
-          consumer.setUpAutoupdate();
-        });
-      },
+          // consumer.setUpAutoupdate();
+        // });
+      // },
 
       update: function (dimensions) {
         if (typeof dimensions === "undefined") {
@@ -952,10 +993,15 @@ define("conductor/lang",
     }
 
     function setDiff(a, b) {
-      return a_filter.call(a, function (item) {
-        var inB = a_indexOf.call(b, item);
-        return !inB;
-      });
+      var differences  = [];
+
+      for(var prop in a) {
+        if( a[prop] !== b[prop] ) {
+          differences.push( prop );
+        }
+      }
+
+      return differences;
     }
 
     __exports__.copy = copy;
@@ -1147,12 +1193,11 @@ define("conductor/nested_wiretapping_service",
     return NestedWiretappingService;
   });
 define("conductor/path",
-  ["conductor/shims"],
-  function(ConductorShims) {
+  ["oasis/shims"],
+  function(__dependency1__) {
     "use strict";
+    var a_filter = __dependency1__.a_filter;
     /* global PathUtils:true */
-
-    var a_filter = ConductorShims.a_filter;
 
     var PathUtils = window.PathUtils = {
       dirname: function (path) {
@@ -1278,77 +1323,6 @@ define("conductor/services",
     __exports__.services = services;
     __exports__.capabilities = capabilities;
   });
-define("conductor/shims",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function isNativeFunc(func) {
-      // This should probably work in all browsers likely to have ES5 array methods
-      return func && Function.prototype.toString.call(func).indexOf('[native code]') > -1;
-    }
-
-    var a_filter = isNativeFunc(Array.prototype.filter) ? Array.prototype.filter : function(fun /*, thisp*/) {
-      "use strict";
-
-      if (this == null)
-        throw new TypeError();
-
-      var t = Object(this);
-      var len = t.length >>> 0;
-      if (typeof fun != "function")
-        throw new TypeError();
-
-      var res = [];
-      var thisp = arguments[1];
-      for (var i = 0; i < len; i++)
-      {
-        if (i in t)
-        {
-          var val = t[i]; // in case fun mutates this
-          if (fun.call(thisp, val, i, t))
-            res.push(val);
-        }
-      }
-
-      return res;
-    };
-
-    var a_indexOf = isNativeFunc(Array.prototype.indexOf) ? Array.prototype.indexOf : function (searchElement /*, fromIndex */ ) {
-      "use strict";
-      if (this == null) {
-        throw new TypeError();
-      }
-      var t = Object(this);
-      var len = t.length >>> 0;
-
-      if (len === 0) {
-        return -1;
-      }
-      var n = 0;
-      if (arguments.length > 1) {
-        n = Number(arguments[1]);
-        if (n != n) { // shortcut for verifying if it's NaN
-          n = 0;
-        } else if (n != 0 && n != Infinity && n != -Infinity) {
-          n = (n > 0 || -1) * Math.floor(Math.abs(n));
-        }
-      }
-      if (n >= len) {
-        return -1;
-      }
-      var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-      for (; k < len; k++) {
-        if (k in t && t[k] === searchElement) {
-          return k;
-        }
-      }
-      return -1;
-    };
-
-
-    __exports__.a_filter = a_filter;
-    __exports__.a_indexOf = a_indexOf;
-  });
 define("conductor/version",
   [],
   function() {
@@ -1380,9 +1354,10 @@ define("conductor/xhr_consumer",
 
         function processJavaScript(data) {
           var script = document.createElement('script');
+          var head = document.head || document.documentElement.getElementsByTagName('head')[0];
           // textContent is ie9+
           script.text = script.textContent = data;
-          document.body.appendChild(script);
+          head.appendChild(script);
         }
 
         function processCSS(data) {

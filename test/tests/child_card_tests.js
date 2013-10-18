@@ -12,7 +12,7 @@ test("A child card can require files through his parent", function() {
   expect(1);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/child/require_parent_card.js");
@@ -27,7 +27,7 @@ test("A card with child cards loads the needed services", function() {
   expect(1);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/child/service_parent_card.js");
@@ -40,7 +40,7 @@ test("A card with child cards loads without new services", function() {
   expect(4);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/child/no_service_parent_card.js");
@@ -52,7 +52,7 @@ test("A card with child cards can load without defining `loadDataForChildCards`"
   expect(3);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       card;
 
   card = conductor.load("/test/fixtures/child/no_custom_data_parent_card.js");
@@ -64,7 +64,7 @@ test("A card with child cards calls `loadDataForChildCards` if available before 
   expect(3);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       parentCardUrl = "/test/fixtures/child/custom_data_parent_card.js",
       card;
 
@@ -78,9 +78,39 @@ test("A card with child cards loads the data and the associated card", function(
   expect(3);
   stop();
 
-  var conductor = new Conductor({ testing: true }),
+  var conductor = newConductor(),
       parentCardUrl = "/test/fixtures/child/config_data_parent_card.js",
       card;
+
+  card = conductor.load(parentCardUrl, 1);
+  card.appendTo(qunitFixture);
+  card.render();
+});
+
+test("A card with child cards and `allowSameOrigin` sets to true loads the data and the associated card", function() {
+  expect(3);
+  stop(1);
+
+  var conductor = newConductor(),
+      parentCardUrl = "/test/fixtures/child/config_conductor_parent_card.js",
+      card;
+
+  conductor.configure('allowSameOrigin', true);
+
+  card = conductor.load(parentCardUrl, 1);
+  card.appendTo(qunitFixture);
+  card.render();
+});
+
+test("A child card can load and communicate with an iframe on the same origin", function() {
+  expect(2);
+  stop(1);
+
+  var conductor = newConductor(),
+      parentCardUrl = "/test/fixtures/child/simple_iframe_parent_card.js",
+      card;
+
+  conductor.configure('allowSameOrigin', true);
 
   card = conductor.load(parentCardUrl, 1);
   card.appendTo(qunitFixture);

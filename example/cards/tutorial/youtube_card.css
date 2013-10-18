@@ -1,0 +1,15 @@
+/* Avoid default padding */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Avoid bottom spacing in iframes because they're inline by default, and will
+ * therefore rest on the text baseline. */
+iframe {
+  display: block;
+}
+
+#thumbnail {
+  display: block;
+}

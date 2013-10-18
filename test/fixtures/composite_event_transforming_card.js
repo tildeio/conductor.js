@@ -3,9 +3,12 @@ Conductor.card({
     ok(true, "Card was activated");
     start();
 
-    var conductor = new Conductor({ testing: true });
-    // TODO: Update test environment to not depend on this for older browsers.
-    conductor.oasis.configure('allowSameOrigin', true);
+    var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 2);
+    var conductor = new Conductor({
+      testing: true,
+      conductorURL: destinationUrl + '/conductor-0.3.0.js.html'
+    });
+
     conductor.addDefaultCapability('assertion', Conductor.MultiplexService.extend({
       upstream: this.consumers.assertion,
       transformEvent: function (eventName, data) {

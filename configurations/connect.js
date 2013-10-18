@@ -57,6 +57,12 @@ module.exports = {
     }
   },
 
+  crossOriginChildServer: {
+    options: {
+      port: port + 3,
+    }
+  },
+
   playground: {
     options: {
       base: '',
