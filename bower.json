@@ -23,7 +23,8 @@
     "tests"
   ],
   "dependencies": {
-    "oasis.js": "5806e277f98635ab83f4750600f2b2ca8ab7ef50"
+    "oasis.js": "5806e277f98635ab83f4750600f2b2ca8ab7ef50",
+    "almond": "0.2.6"
   },
   "devDependencies": {
     "qunit": "1.12.0",

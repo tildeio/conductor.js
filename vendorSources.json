@@ -1,5 +1,5 @@
 [
-  "vendor/loader.js",
+  "bower_components/almond/almond.js",
   "vendor/**/*.js",
   "bower_components/UUID.js/dist/uuid.core.js",
   "bower_components/kamino.js/lib/kamino.js",

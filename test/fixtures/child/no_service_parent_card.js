@@ -1,4 +1,4 @@
-var setDiff = requireModule('conductor/lang').setDiff;
+var setDiff = require('conductor/lang').setDiff;
 var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 2);
 
 Conductor.card({
