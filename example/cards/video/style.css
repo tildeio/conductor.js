@@ -5,6 +5,7 @@ html, body {
 
 iframe {
   display: block;
+  border: none;
 }
 
 #thumbnail {

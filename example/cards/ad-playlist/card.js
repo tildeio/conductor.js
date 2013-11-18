@@ -1,6 +1,9 @@
 Conductor.require('/vendor/jquery.js');
+Conductor.requireCSS('style.css');
 
 var AdCardUrl = '../cards/ad/card.js';
+var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+var conductorUrl = destinationUrl + '/conductor-0.3.0.js.html';
 
 var VideoService = Conductor.Oasis.Service.extend({
   initialize: function (port) {
@@ -37,6 +40,11 @@ var card = Conductor.card({
     video: VideoService
   },
 
+  conductorConfiguration: {
+    conductorURL: conductorUrl,
+    allowSameOrigin: true,
+  },
+
   activate: function (data) {
     this.consumers.height.autoUpdate = false;
     // this may need to go in loadDataForChildCards
@@ -44,7 +52,7 @@ var card = Conductor.card({
     for (var prop in data) {
       if ( ! data.hasOwnProperty(prop)) { continue; }
 
-      this.adIds.push(data[prop]);
+      this.adIds.push(prop);
     }
   },
 
@@ -130,7 +138,7 @@ var card = Conductor.card({
     this.render('small');
 
     if (autoplay) {
-      this.videoAdCard.then(function () {
+      this.videoAdCard.waitForLoad().then(function () {
         card.videoAdCard.sandbox.videoPort.send('play');
       });
     }

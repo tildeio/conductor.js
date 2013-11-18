@@ -63,10 +63,33 @@ module.exports = {
     }
   },
 
-  playground: {
+  playground0: {
     options: {
-      base: '',
-      port: port + 2,
+      port: port + 4,
     }
-  }
+  },
+
+  playground1: {
+    options: {
+      port: port + 5,
+    }
+  },
+
+  playground2: {
+    options: {
+      port: port + 6,
+    }
+  },
+
+  playground3: {
+    options: {
+      port: port + 7,
+    }
+  },
+
+  playground4: {
+    options: {
+      port: port + 8,
+    }
+  },
 };
