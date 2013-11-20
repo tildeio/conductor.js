@@ -1,4 +1,4 @@
-/*globals $*/
+/*globals $,RSVP*/
 
 // Pluck off the RSVP object from Conductor and
 // re-export it to the global scope.
@@ -18,11 +18,6 @@ window.Playground = {
 
     this.conductor.configure('allowSameOrigin', true);
 
-    // Wiretap the card and configure any events
-    // to be displayed in the analytics panel on
-    // screen.
-    //this.initializeAnalytics();
-
     this.initializeServices();
     this.initializeCards();
     this.initializeAnalytics();
@@ -33,7 +28,7 @@ window.Playground = {
 
     this.cardTemplate = $('.card-wrapper').hide();
 
-    this.addCard('../cards/tutorial/ad_card.js', 1, ['video', 'survey']);
+    this.addCard('../cards/superbowl/card.js', 1, []);
   }
 };
 

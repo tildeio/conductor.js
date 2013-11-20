@@ -1,4 +1,5 @@
 iframe {
-  float: left;
+  display: block;
   border: none;
 }
+
