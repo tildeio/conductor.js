@@ -295,7 +295,7 @@ define("conductor/capabilities",
 
       removeDefaultCapability: function (capability) {
         var index = a_indexOf.call(this.capabilities, capability);
-        if (index) {
+        if (index !== -1) {
           return this.capabilities.splice(index, 1);
         }
       }
