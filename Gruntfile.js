@@ -1,4 +1,9 @@
 module.exports = function(grunt) {
+  var buildTasks,
+      transpileTasks = ['transpile'],
+      jsframeTasks = ['jsframe:conductor', 'jsframe:conductorDev'],
+      fixupLinefeed = grunt.util.linefeed !== '\n';
+
   require('matchdep').
     filterDev('grunt-*').
     filter(function(name){ return name !== 'grunt-cli'; }).
@@ -13,20 +18,30 @@ module.exports = function(grunt) {
   // a new build.
   this.registerTask('default', ['build']);
 
-  // Build a new version of the library
-  this.registerTask('build', "Builds a distributable version of Conductor.js", [
+  if (fixupLinefeed) {
+    transpileTasks = ['lineending:lib', 'copy:LFlib'].
+                      concat(transpileTasks).
+                      concat(['lineending:amd', 'copy:CRLFamd']);
+
+    jsframeTasks = ['lineending:jsframeLF', 'copy:LFjsframe'].
+                    concat(jsframeTasks).
+                    concat(['lineending:jsframeCRLF', 'copy:CRLFjsframe']);
+  }
+
+  buildTasks = [
     'clean',
     'jshint',
     'copy:lib',         // reorganize folder
     'jst',
-    'transpile',        // convert conductor files to amd modules
+  ].concat(transpileTasks).concat([
     'concat:amd',       // generate conductor.amd.js
     'concat:amdDev',
     'concat:browser',
     'concat:browserDev',
-    'jsframe:conductor', // create polyglot
-    'jsframe:conductorDev'
-  ]);
+  ]).concat(jsframeTasks);
+
+  // Build a new version of the library
+  this.registerTask('build', "Builds a distributable version of Conductor.js", buildTasks);
 
   // Run a server. This is ideal for running the QUnit tests in the browser.
   this.registerTask('server', ['prepare_test', 'connect', 'watch']);
@@ -44,6 +59,7 @@ module.exports = function(grunt) {
     rename: config('rename'),
     copy: config('copy'),
     jshint: config('jshint'),
+    lineending: config('lineending'),
     'saucelabs-qunit': config('saucelabs-qunit'),
     transpile: config('transpile'),
     watch: config('watch'),

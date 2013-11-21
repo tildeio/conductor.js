@@ -16,6 +16,44 @@ module.exports = {
     }]
   },
 
+  // overwrite tmp/lib with converted lineendings to work around transpiler
+  // 0.2.x issue
+  LFlib: {
+    files: [{
+      cwd: 'tmp/libLF',
+      src: ['**/*'],
+      dest: 'tmp/lib/',
+      expand: true,
+    }]
+  },
+
+  CRLFamd: {
+    files: [{
+      cwd: 'tmp/amdCRLF',
+      src: ['**/*'],
+      dest: 'tmp/amd/',
+      expand: true,
+    }]
+  },
+
+  LFjsframe: {
+    files: [{
+      cwd: 'tmp/browserLF',
+      src: ['**/*'],
+      dest: 'tmp/browser',
+      expand: true,
+    }]
+  },
+
+  CRLFjsframe: {
+    files: [{
+      cwd: 'tmp/distCRLF',
+      src: ['**/*'],
+      dest: 'dist/',
+      expand: true,
+    }]
+  },
+
   tests: {
     files: [{
       cwd: 'dist/',
