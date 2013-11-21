@@ -63,7 +63,6 @@ module.exports = function(grunt) {
     'saucelabs-qunit': config('saucelabs-qunit'),
     transpile: config('transpile'),
     watch: config('watch'),
-    symlink: config('symlink'),
 
     jsframe: {
       conductor: {
@@ -77,7 +76,7 @@ module.exports = function(grunt) {
     },
   });
 
-  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'rename:tests', 'copy:testsVendor', 'symlink']);
+  grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'rename:tests', 'copy:testsVendor', 'copy:example']);
   grunt.registerTask('test', "Run full test suite", ['prepare_test', 'connect', 'saucelabs-qunit']);
   grunt.registerTask('test:ie', "Run tests suite in IE", ['prepare_test', 'connect', 'saucelabs-qunit:ie']);
   grunt.registerTask('test:safari', "Run tests suite in Safari", ['prepare_test', 'connect', 'saucelabs-qunit:safari']);

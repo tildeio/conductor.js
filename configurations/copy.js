@@ -81,5 +81,11 @@ module.exports = {
     ],
     flatten: true,
     dest: 'tmp/public/vendor/'
+  },
+
+  example: {
+    expand: true,
+    src: ['example/**/*'],
+    dest: 'tmp/public/',
   }
 };
