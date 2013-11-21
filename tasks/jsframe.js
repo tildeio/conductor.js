@@ -8,6 +8,8 @@ module.exports = function(grunt) {
         dest = this.data.dest,
         src = this.data.src;
 
+    grunt.file.mkdir(dest);
+
     src.forEach( function(pattern) {
       var files = Globule.find(pattern);
       files.forEach( function(filePath) {
@@ -15,9 +17,8 @@ module.exports = function(grunt) {
             targetName = Path.join(dest, basename) + '.html',
             outFd = File.openSync(targetName, 'w');
 
-        console.log(filePath + " → " + targetName);
         jsf.process(filePath, outFd);
-        File.close(outFd);
+        File.closeSync(outFd);
       });
     });
   });
