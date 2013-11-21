@@ -1,11 +1,18 @@
-define("conductor",
-  ["oasis/shims","oasis/util","oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","conductor/capabilities","conductor/multiplex_service","conductor/adapters"],
-  function(__dependency1__, __dependency2__, Oasis, Version, CardReference, CardDependencies, ConductorCapabilities, MultiplexService, adapters) {
+define("conductor", 
+  ["oasis","conductor/version","conductor/card_reference","conductor/card_dependencies","oasis/shims","oasis/util","conductor/capabilities","conductor/multiplex_service","conductor/adapters","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
-    var o_create = __dependency1__.o_create;
-    var a_forEach = __dependency1__.a_forEach;
-    var a_indexOf = __dependency1__.a_indexOf;
-    var delegate = __dependency2__.delegate;
+    var Oasis = __dependency1__["default"];
+    var Version = __dependency2__["default"];
+    var CardReference = __dependency3__["default"];
+    var CardDependencies = __dependency4__["default"];
+    var o_create = __dependency5__.o_create;
+    var a_forEach = __dependency5__.a_forEach;
+    var a_indexOf = __dependency5__.a_indexOf;
+    var delegate = __dependency6__.delegate;
+    var ConductorCapabilities = __dependency7__["default"];
+    var MultiplexService = __dependency8__["default"];
+    var adapters = __dependency9__["default"];
 
     function Conductor(options) {
       this.options = options || {};
@@ -186,26 +193,27 @@ define("conductor",
       removeDefaultCapability: delegate('_capabilities', 'removeDefaultCapability')
     };
 
-
-    return Conductor;
+    __exports__["default"] = Conductor;
   });
-define("conductor/adapters",
-  ["oasis","conductor/inline_adapter"],
-  function(Oasis, inlineAdapter) {
+define("conductor/adapters", 
+  ["oasis","conductor/inline_adapter","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
+    var inlineAdapter = __dependency2__["default"];
 
     var adapters = {
       iframe: Oasis.adapters.iframe,
       inline: inlineAdapter
     };
 
-
-    return adapters;
+    __exports__["default"] = adapters;
   });
-define("conductor/assertion_consumer",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/assertion_consumer", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var AssertionConsumer = Oasis.Consumer.extend({
       initialize: function() {
@@ -232,13 +240,13 @@ define("conductor/assertion_consumer",
       }
     });
 
-
-    return AssertionConsumer;
+    __exports__["default"] = AssertionConsumer;
   });
-define("conductor/assertion_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/assertion_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var AssertionService = Oasis.Service.extend({
       initialize: function(port) {
@@ -260,16 +268,16 @@ define("conductor/assertion_service",
       }
     });
 
-
-    return AssertionService;
+    __exports__["default"] = AssertionService;
   });
-define("conductor/capabilities",
-  ["conductor/services","conductor/lang","oasis/shims","oasis"],
-  function(__dependency1__, __dependency2__, __dependency3__, Oasis) {
+define("conductor/capabilities", 
+  ["oasis","conductor/services","conductor/lang","oasis/shims","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var services = __dependency1__.services;
-    var copy = __dependency2__.copy;
-    var a_indexOf = __dependency3__.a_indexOf;
+    var Oasis = __dependency1__["default"];
+    var services = __dependency2__.services;
+    var copy = __dependency3__.copy;
+    var a_indexOf = __dependency4__.a_indexOf;
 
     function ConductorCapabilities() {
       this.capabilities = [
@@ -301,13 +309,24 @@ define("conductor/capabilities",
       }
     };
 
-
-    return ConductorCapabilities;
+    __exports__["default"] = ConductorCapabilities;
   });
-define("conductor/card",
+define("conductor/card", 
   ["conductor","oasis","conductor/assertion_consumer","conductor/xhr_consumer","conductor/render_consumer","conductor/metadata_consumer","conductor/data_consumer","conductor/lifecycle_consumer","conductor/height_consumer","conductor/nested_wiretapping_consumer","conductor/multiplex_service","oasis/shims"],
-  function(Conductor, Oasis, AssertionConsumer, XhrConsumer, RenderConsumer, MetadataConsumer, DataConsumer, LifecycleConsumer, HeightConsumer, NestedWiretapping, MultiplexService, OasisShims) {
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
+    var Conductor = __dependency1__["default"];
+    var Oasis = __dependency2__["default"];
+    var AssertionConsumer = __dependency3__["default"];
+    var XhrConsumer = __dependency4__["default"];
+    var RenderConsumer = __dependency5__["default"];
+    var MetadataConsumer = __dependency6__["default"];
+    var DataConsumer = __dependency7__["default"];
+    var LifecycleConsumer = __dependency8__["default"];
+    var HeightConsumer = __dependency9__["default"];
+    var NestedWiretapping = __dependency10__["default"];
+    var MultiplexService = __dependency11__["default"];
+    var OasisShims = __dependency12__["default"];
 
     var RSVP = Oasis.RSVP,
         Promise = RSVP.Promise,
@@ -569,11 +588,10 @@ define("conductor/card",
     Conductor.card = function(options) {
       return new Card(options);
     };
-
   });
-define("conductor/card_dependencies",
-  [],
-  function() {
+define("conductor/card_dependencies", 
+  ["exports"],
+  function(__exports__) {
     "use strict";
     function CardDependencies() {
       this.requiredJavaScriptURLs = [];
@@ -589,13 +607,13 @@ define("conductor/card_dependencies",
       }
     };
 
-
-    return CardDependencies;
+    __exports__["default"] = CardDependencies;
   });
-define("conductor/card_reference",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/card_reference", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var RSVP = Oasis.RSVP,
         Promise = RSVP.Promise;
@@ -666,13 +684,13 @@ define("conductor/card_reference",
 
     Oasis.RSVP.EventTarget.mixin(CardReference.prototype);
 
-
-    return CardReference;
+    __exports__["default"] = CardReference;
   });
-define("conductor/data_consumer",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/data_consumer", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var DataConsumer = Oasis.Consumer.extend({
       events: {
@@ -695,13 +713,13 @@ define("conductor/data_consumer",
       }
     });
 
-
-    return DataConsumer;
+    __exports__["default"] = DataConsumer;
   });
-define("conductor/data_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/data_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var DataService = Oasis.Service.extend({
       initialize: function(port) {
@@ -718,12 +736,11 @@ define("conductor/data_service",
       }
     });
 
-
-    return DataService;
+    __exports__["default"] = DataService;
   });
-define("conductor/dom",
-  [],
-  function() {
+define("conductor/dom", 
+  ["exports"],
+  function(__exports__) {
     "use strict";
     /* global DomUtils:true */
 
@@ -757,10 +774,9 @@ define("conductor/dom",
       return style;
     };
 
-
-    return DomUtils;
+    __exports__["default"] = DomUtils;
   });
-define("conductor/error",
+define("conductor/error", 
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -776,18 +792,17 @@ define("conductor/error",
       throw exception;
     }
 
-    function warn() {
+    __exports__.error = error;function warn() {
       if (console.warn) {
         return console.warn.apply(this, arguments);
       }
     }
 
-    __exports__.error = error;
     __exports__.warn = warn;
   });
-define("conductor/height_consumer",
-  ["oasis","conductor","conductor/dom"],
-  function(Oasis, Conductor, DomUtils) {
+define("conductor/height_consumer", 
+  ["oasis","conductor","conductor/dom","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /*global MutationObserver:true */
 
@@ -824,6 +839,9 @@ define("conductor/height_consumer",
       card.consumers.height.update();
       ```
     */
+    var Oasis = __dependency1__["default"];
+    var Conductor = __dependency2__["default"];
+    var DomUtils = __dependency3__["default"];
 
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -903,14 +921,15 @@ define("conductor/height_consumer",
       }
     });
 
-
-    return HeightConsumer;
+    __exports__["default"] = HeightConsumer;
   });
-define("conductor/height_service",
-  ["oasis","conductor/dom"],
-  function(Oasis, DomUtils) {
+define("conductor/height_service", 
+  ["oasis","conductor/dom","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /*global DomUtils*/
+    var Oasis = __dependency1__["default"];
+    var DomUtils = __dependency2__["default"];
 
     function maxDim(element, dim) {
       var max = DomUtils.getComputedStyleProperty(element, 'max' + dim);
@@ -946,14 +965,14 @@ define("conductor/height_service",
       }
     });
 
-
-    return HeightService;
+    __exports__["default"] = HeightService;
   });
-define("conductor/inline_adapter",
-  ["oasis/util","oasis/inline_adapter"],
-  function(__dependency1__, OasisInlineAdapter) {
+define("conductor/inline_adapter", 
+  ["oasis/util","oasis/inline_adapter","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var extend = __dependency1__.extend;
+    var OasisInlineAdapter = __dependency2__["default"];
 
     var InlineAdapter = extend(OasisInlineAdapter, {
       wrapResource: function (data, oasis) {
@@ -972,10 +991,9 @@ define("conductor/inline_adapter",
 
     inlineAdapter.addUnsupportedCapability('height');
 
-
-    return inlineAdapter;
+    __exports__["default"] = inlineAdapter;
   });
-define("conductor/lang",
+define("conductor/lang", 
   ["oasis/shims","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -992,7 +1010,7 @@ define("conductor/lang",
       return b;
     }
 
-    function setDiff(a, b) {
+    __exports__.copy = copy;function setDiff(a, b) {
       var differences  = [];
 
       for(var prop in a) {
@@ -1004,13 +1022,13 @@ define("conductor/lang",
       return differences;
     }
 
-    __exports__.copy = copy;
     __exports__.setDiff = setDiff;
   });
-define("conductor/lifecycle_consumer",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/lifecycle_consumer", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var LifecycleConsumer = Oasis.Consumer.extend({
       initialize: function() {
@@ -1022,13 +1040,13 @@ define("conductor/lifecycle_consumer",
       }
     });
 
-
-    return LifecycleConsumer;
+    __exports__["default"] = LifecycleConsumer;
   });
-define("conductor/lifecycle_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/lifecycle_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var LifecycleService = Oasis.Service.extend({
       events: {
@@ -1038,13 +1056,13 @@ define("conductor/lifecycle_service",
       }
     });
 
-
-    return LifecycleService;
+    __exports__["default"] = LifecycleService;
   });
-define("conductor/metadata_consumer",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/metadata_consumer", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var MetadataConsumer = Oasis.Consumer.extend({
       requests: {
@@ -1077,13 +1095,13 @@ define("conductor/metadata_consumer",
       }
     });
 
-
-    return MetadataConsumer;
+    __exports__["default"] = MetadataConsumer;
   });
-define("conductor/metadata_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/metadata_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var MetadataService = Oasis.Service.extend({
       initialize: function(port) {
@@ -1091,12 +1109,11 @@ define("conductor/metadata_service",
       }
     });
 
-
-    return MetadataService;
+    __exports__["default"] = MetadataService;
   });
-define("conductor/multiplex_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/multiplex_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
       Passes requests from each instance to `upstream`, a
@@ -1130,6 +1147,7 @@ define("conductor/multiplex_service",
         });
     */
 
+    var Oasis = __dependency1__["default"];
 
     var MultiplexService = Oasis.Service.extend({
       initialize: function () {
@@ -1165,23 +1183,23 @@ define("conductor/multiplex_service",
       }
     });
 
-
-    return MultiplexService;
+    __exports__["default"] = MultiplexService;
   });
-define("conductor/nested_wiretapping_consumer",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/nested_wiretapping_consumer", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var NestedWiretapping = Oasis.Consumer;
 
-
-    return NestedWiretapping;
+    __exports__["default"] = NestedWiretapping;
   });
-define("conductor/nested_wiretapping_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/nested_wiretapping_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var NestedWiretappingService = Oasis.Service.extend({
       initialize: function (port) {
@@ -1189,15 +1207,14 @@ define("conductor/nested_wiretapping_service",
       }
     });
 
-
-    return NestedWiretappingService;
+    __exports__["default"] = NestedWiretappingService;
   });
-define("conductor/path",
-  ["oasis/shims"],
-  function(__dependency1__) {
+define("conductor/path", 
+  ["oasis/shims","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var a_filter = __dependency1__.a_filter;
     /* global PathUtils:true */
+    var a_filter = __dependency1__.a_filter;
 
     var PathUtils = window.PathUtils = {
       dirname: function (path) {
@@ -1231,15 +1248,16 @@ define("conductor/path",
       }
     };
 
-
-    return PathUtils;
+    __exports__["default"] = PathUtils;
   });
-define("conductor/render_consumer",
-  ["oasis","conductor/dom"],
-  function(Oasis, DomUtils) {
+define("conductor/render_consumer", 
+  ["oasis","conductor/dom","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /*global DomUtils */
 
+    var Oasis = __dependency1__["default"];
+    var DomUtils = __dependency2__["default"];
 
     var domInitialized = false;
 
@@ -1279,13 +1297,13 @@ define("conductor/render_consumer",
       }
     });
 
-
-    return RenderConsumer;
+    __exports__["default"] = RenderConsumer;
   });
-define("conductor/render_service",
-  ["oasis"],
-  function(Oasis) {
+define("conductor/render_service", 
+  ["oasis","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
 
     var RenderService = Oasis.Service.extend({
       initialize: function(port) {
@@ -1293,13 +1311,20 @@ define("conductor/render_service",
       }
     });
 
-
-    return RenderService;
+    __exports__["default"] = RenderService;
   });
-define("conductor/services",
+define("conductor/services", 
   ["conductor/assertion_service","conductor/xhr_service","conductor/render_service","conductor/metadata_service","conductor/data_service","conductor/lifecycle_service","conductor/height_service","conductor/nested_wiretapping_service","exports"],
-  function(AssertionService, XhrService, RenderService, MetadataService, DataService, LifecycleService, HeightService, NestedWiretappingService, __exports__) {
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
+    var AssertionService = __dependency1__["default"];
+    var XhrService = __dependency2__["default"];
+    var RenderService = __dependency3__["default"];
+    var MetadataService = __dependency4__["default"];
+    var DataService = __dependency5__["default"];
+    var LifecycleService = __dependency6__["default"];
+    var HeightService = __dependency7__["default"];
+    var NestedWiretappingService = __dependency8__["default"];
 
     /**
       Default Conductor services provided to every conductor instance.
@@ -1314,26 +1339,26 @@ define("conductor/services",
       height: HeightService,
       nestedWiretapping: NestedWiretappingService
     };
-
+    __exports__.services = services;
     var capabilities = [
       'xhr', 'metadata', 'render', 'data', 'lifecycle', 'height',
       'nestedWiretapping'
     ];
-
-    __exports__.services = services;
     __exports__.capabilities = capabilities;
   });
-define("conductor/version",
-  [],
-  function() {
+define("conductor/version", 
+  ["exports"],
+  function(__exports__) {
     "use strict";
-
-    return '0.3.0';
+    __exports__["default"] = '0.3.0';
   });
-define("conductor/xhr_consumer",
-  ["oasis","oasis/shims","conductor/dom"],
-  function(Oasis, OasisShims, DomUtils) {
+define("conductor/xhr_consumer", 
+  ["oasis","oasis/shims","conductor/dom","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    var Oasis = __dependency1__["default"];
+    var OasisShims = __dependency2__["default"];
+    var DomUtils = __dependency3__["default"];
 
     var a_forEach = OasisShims.a_forEach;
 
@@ -1380,15 +1405,16 @@ define("conductor/xhr_consumer",
       }
     });
 
-
-    return XhrConsumer;
+    __exports__["default"] = XhrConsumer;
   });
-define("conductor/xhr_service",
-  ["oasis/xhr","oasis","conductor/path"],
-  function(__dependency1__, Oasis, PathUtils) {
+define("conductor/xhr_service", 
+  ["oasis","conductor/path","oasis/xhr","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var xhr = __dependency1__.xhr;
     /*global PathUtils */
+    var Oasis = __dependency1__["default"];
+    var PathUtils = __dependency2__["default"];
+    var xhr = __dependency3__.xhr;
 
     var XhrService = Oasis.Service.extend({
       requests: {
@@ -1401,13 +1427,13 @@ define("conductor/xhr_service",
       }
     });
 
-
-    return XhrService;
+    __exports__["default"] = XhrService;
   });
-define("conductor/dev",
+define("conductor/dev", 
   ["rsvp"],
-  function(RSVP) {
+  function(__dependency1__) {
     "use strict";
+    var RSVP = __dependency1__["default"];
 
     RSVP.configure('onerror', function (error) {
       if (typeof console !== 'undefined' && console.assert) {
@@ -1423,5 +1449,4 @@ define("conductor/dev",
     // RSVP.configure('async', function (callback, arg) {
     //   callback(arg);
     // });
-
   });
