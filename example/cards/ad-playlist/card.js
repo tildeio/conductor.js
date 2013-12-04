@@ -1,9 +1,8 @@
 Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('style.css');
 
-var AdCardUrl = '../cards/ad/card.js';
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
-var conductorUrl = destinationUrl + '/conductor-0.3.0.js.html';
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+var AdCardUrl = crossOrigin + '/example/cards/ad/card.html';
 
 var VideoService = Conductor.Oasis.Service.extend({
   initialize: function (port) {
@@ -41,7 +40,6 @@ var card = Conductor.card({
   },
 
   conductorConfiguration: {
-    conductorURL: conductorUrl,
     allowSameOrigin: true,
   },
 

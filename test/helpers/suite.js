@@ -12,19 +12,45 @@ function within(actual, expectedMin, expectedMax, message) {
   ok(actual <= expectedMax, message);
 }
 
-var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1),
+    convertUrl = function(url, jsUrl) {
+      if(!url.match(/^http/)) {
+        if(url[0] !== '/') {
+          url = '/' + url;
+        }
 
-function newConductor( options ) {
+        url = crossOrigin + url;
+      }
+
+      if( !jsUrl ) {
+        url = url.replace(/\.js$/, ".html");
+      }
+
+      return url;
+    };
+
+function newConductor( options, jsUrl ) {
   var conductor;
 
   options = options || {};
   options.testing = true;
-  if( !options.conductorURL ) {
-    options.conductorURL = crossOrigin + '/conductor-' + Conductor.Version + '.js.html';
-  }
-
   conductor = new Conductor( options );
   conductor.oasis.logger.enable();
+
+  var originalLoad = conductor.load,
+      originalLoadData = conductor.loadData;
+
+  conductor.load = function() {
+    arguments[0] = convertUrl(arguments[0], jsUrl);
+
+    return originalLoad.apply(conductor, arguments);
+  };
+
+  conductor.loadData = function() {
+    arguments[0] = convertUrl(arguments[0], jsUrl);
+
+    return originalLoadData.apply(conductor, arguments);
+  };
 
   return conductor;
 }

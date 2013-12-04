@@ -13,6 +13,7 @@
         "require",
         "requireModule",
         "newConductor",
+        "crossOrigin",
         "equal",
         "notEqual",
         "notStrictEqual",

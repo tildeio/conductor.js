@@ -36,33 +36,15 @@ module.exports = {
     }]
   },
 
-  LFjsframe: {
-    files: [{
-      cwd: 'tmp/browserLF',
-      src: ['**/*'],
-      dest: 'tmp/browser',
-      expand: true,
-    }]
-  },
-
-  CRLFjsframe: {
-    files: [{
-      cwd: 'tmp/distCRLF',
-      src: ['**/*'],
-      dest: 'dist/',
-      expand: true,
-    }]
-  },
-
   tests: {
     files: [{
       cwd: 'dist/',
-      src: ['conductor-<%= pkg.version %>-dev.js.html'],
+      src: ['conductor-<%= pkg.version %>-dev.js'],
       dest: 'tmp/public/',
       expand: true
     }, {
       cwd: 'test/',
-      src: [ 'lib/*', 'index.html'].concat(vendorSources).concat(['vendor/*' ]),
+      src: [ 'lib/*', 'index.html'].concat(vendorSources),
       dest: 'tmp/public/',
       expand: true
     }, {

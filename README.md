@@ -76,8 +76,8 @@ interact with their host environment.
 ## Authoring Conductor.js Cards
 
 A _card_ is an application that can be embedded in a parent environment
-using Conductor.js. The entry point to a card is a single JavaScript
-file, although the main file may load other resources asynchronously.
+using Conductor.js. The entry point to a card is an HTML page that loads
+Conductor.js.
 
 At its most basic, your card should call the `Conductor.card` method.
 The object passed to `Conductor.card` defines the behavior of the card,
@@ -98,8 +98,8 @@ Conductor.card({
 
 ### Loading Dependencies
 
-While a card starts off as a single JavaScript file, it can load
-additional javascript dependencies by using the `Conductor.require` method:
+A card can load additional javascript dependencies by using the 
+`Conductor.require` method:
 
 ```js
 Conductor.require('alert.js');

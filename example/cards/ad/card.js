@@ -1,8 +1,7 @@
 Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('style.css');
 
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
-var conductorUrl = destinationUrl + '/conductor-0.3.0.js.html';
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
 
 var card = Conductor.card({
   consumers: {
@@ -23,8 +22,8 @@ var card = Conductor.card({
   },
 
   childCards: [
-    {url: '../cards/video/card.js', options: { capabilities: ['video']}},
-    {url: '../cards/survey/card.js', options: { capabilities: ['survey']}}
+    {url: crossOrigin + '/example/cards/video/card.html', options: { capabilities: ['video']}},
+    {url: crossOrigin + '/example/cards/survey/card.html', options: { capabilities: ['survey']}}
   ],
 
   services: {
@@ -51,7 +50,6 @@ var card = Conductor.card({
   },
 
   conductorConfiguration: {
-    conductorURL: conductorUrl,
     allowSameOrigin: true,
   },
 

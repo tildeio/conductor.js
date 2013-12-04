@@ -9,12 +9,11 @@ var CustomService = Conductor.Oasis.Service.extend({
 });
 
 Conductor.card({
-  conductorConfiguration: {
-    conductorURL: destinationUrl + "/conductor-0.3.0.js.html"
-  },
-  childCards: [
-    {url: '/test/fixtures/custom_consumer_card.js', id: 1, options: {capabilities: ['custom']}}
-  ],
+  childCards: [{
+    url: destinationUrl + '/test/fixtures/custom_consumer_card.html',
+    id: 1,
+    options: {capabilities: ['custom']}
+  }],
   services: {
     custom: CustomService
   }

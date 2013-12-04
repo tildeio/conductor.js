@@ -1,10 +1,9 @@
 Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('style.css');
 
-var AdPlaylistCardUrl = '../cards/ad-playlist/card.js';
-var SlotMachineCardUrl = '../cards/slot_machine/card.js';
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
-var conductorUrl = destinationUrl + '/conductor-0.3.0.js.html';
+var crossOrigin = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
+var AdPlaylistCardUrl = crossOrigin + '/example/cards/ad-playlist/card.html';
+var SlotMachineCardUrl = crossOrigin + '/example/cards/slot_machine/card.html';
 
 var SlotMachineService = Conductor.Oasis.Service.extend({
   initialize: function (port) {
@@ -47,7 +46,6 @@ var card = Conductor.card({
   },
 
   conductorConfiguration: {
-    conductorURL: conductorUrl,
     allowSameOrigin: true,
   },
 

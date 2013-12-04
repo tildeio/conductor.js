@@ -9,7 +9,7 @@
     "Yehuda Katz <yehuda@tilde.io>"
   ],
   "description": "Conductor.js is a library, built on top of Oasis.js, for embedding untrusted rich content that can still participate in a larger ecosystem.",
-  "main": "dist/conductor.js.html",
+  "main": "dist/conductor.js",
   "keywords": [
     "postMessage",
     "MessageChannel"
@@ -23,7 +23,7 @@
     "tests"
   ],
   "dependencies": {
-    "oasis.js": "5806e277f98635ab83f4750600f2b2ca8ab7ef50"
+    "oasis.js": "https://github.com/tildeio/oasis.js.git#95a49af324e7d739418a304893c4e001c8149963"
   },
   "devDependencies": {
     "qunit": "1.12.0",

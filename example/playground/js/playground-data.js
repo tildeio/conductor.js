@@ -31,6 +31,7 @@
           data = CardData[url] && CardData[url][id];
 
       if (data) {
+        url = Playground.crossOriginHtmlUrl(url);
         this.conductor.loadData(url, id, data);
       }
     }
