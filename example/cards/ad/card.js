@@ -1,9 +1,6 @@
 Conductor.require('/vendor/jquery.js');
 Conductor.requireCSS('style.css');
 
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
-var conductorUrl = destinationUrl + '/conductor-0.3.0.js.html';
-
 var card = Conductor.card({
   consumers: {
     survey: Conductor.Oasis.Consumer,
@@ -51,7 +48,6 @@ var card = Conductor.card({
   },
 
   conductorConfiguration: {
-    conductorURL: conductorUrl,
     allowSameOrigin: true,
   },
 

@@ -193,3 +193,11 @@ grunt server
 Once the server is running, visit `http://localhost:8000` in your
 browser. Conductor will automatically be rebuilt if you make any changes
 to its constituent files while the server is running.
+
+
+# TODO
+
+- convert examples
+- convert playground
+- update docs & tutorial
+

@@ -15,7 +15,7 @@ test("card references have a promise resolved when the sandbox is ready", functi
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/empty_card.js");
+  card = conductor.load("/test/fixtures/empty_card.html");
 
   equal(undefined, card.sandbox.dataPort, "sandbox is not initially initialised");
 
@@ -33,7 +33,7 @@ test("cards have a promise resolved when the card is activated", function() {
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/promise_card.js");
+  card = conductor.load("/test/fixtures/promise_card.html");
   card.appendTo(qunitFixture);
 });
 
@@ -44,7 +44,7 @@ test("cards may return a promise in `activate` to defer activation", function() 
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/card_defer_activation_with_promise.js");
+  card = conductor.load("/test/fixtures/card_defer_activation_with_promise.html");
   card.appendTo(qunitFixture);
 });
 
@@ -57,7 +57,7 @@ test("consumers' `error` functions are invoked if their capabilities are not pro
       card;
 
   card = conductor.load(
-    "/test/fixtures/unfulfilled_capability_card.js", 
+    "/test/fixtures/unfulfilled_capability_card.html", 
     1,
     {
       capabilities: ['fulfilledCapability'],
@@ -74,7 +74,7 @@ test("errors in `activate` cause the card's promise to fail", function() {
 
   stop();
 
-  card = conductor.load("/test/fixtures/activation_error_card.js");
+  card = conductor.load("/test/fixtures/activation_error_card.html");
   card.appendTo(qunitFixture);
 });
 

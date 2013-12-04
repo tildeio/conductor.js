@@ -53,7 +53,7 @@ test("conductor.load can load cards with additional default capabilities", funct
   expect(1);
   stop();
   conductor.addDefaultCapability('myDefaultCapability');
-  card = conductor.load('/test/fixtures/custom_default_capability_card.js');
+  card = conductor.load('/test/fixtures/custom_default_capability_card.html');
 
   card.appendTo(qunitFixture);
 });

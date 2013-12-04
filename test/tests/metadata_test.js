@@ -6,7 +6,7 @@ module("Metadata Service", {
   setup: function() {
     conductor = newConductor();
 
-    card = conductor.load('/test/fixtures/metadata/multi_metadata_card.js');
+    card = conductor.load('/test/fixtures/metadata/multi_metadata_card.html');
     card.appendTo('#qunit-fixture');
   },
 

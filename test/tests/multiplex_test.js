@@ -20,7 +20,7 @@ test("Multiple grandchild cards can share a child's xhr service", function() {
   stop();
 
   var conductor = newConductor(),
-      card = conductor.load("/test/fixtures/composite_card.js");
+      card = conductor.load("/test/fixtures/composite_card.html");
 
   card.appendTo(domFixture);
 });
@@ -33,7 +33,7 @@ test("Multiplexed services can transform request data", function() {
   stop();
 
   var conductor = newConductor(),
-      card = conductor.load("/test/fixtures/composite_request_transforming_card.js");
+      card = conductor.load("/test/fixtures/composite_request_transforming_card.html");
 
   card.appendTo(domFixture);
 });
@@ -46,7 +46,7 @@ test("Multiplexed services can transform event data", function() {
   stop();
 
   var conductor = newConductor(),
-      card = conductor.load("/test/fixtures/composite_event_transforming_card.js");
+      card = conductor.load("/test/fixtures/composite_event_transforming_card.html");
 
   card.waitForLoad().then(function () {
     card.sandbox.assertionPort.on('go', function (data) {

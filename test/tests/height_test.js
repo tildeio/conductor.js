@@ -10,27 +10,30 @@ module('Height Service', {
 test("on a resize event, HeightService resizes the sandbox", function() {
   stop();
 
-  card = conductor.load('/test/fixtures/resize_card.js');
-  card.waitForLoad().then(function () {
+  card = conductor.load('/test/fixtures/resize_card.html');
+
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
       start();
     });
   });
+
   card.appendTo(qunitFixture);
 });
 
 test("HeightService does not resize beyond the sandbox's max-{width, height} properties", function() {
   stop();
 
-  card = conductor.load('/test/fixtures/resize_card.js');
-  card.waitForLoad().then(function () {
-    $(card.sandbox.el).css({
-      maxWidth: '35px',
-      maxHeight: '25px'
-    });
+  card = conductor.load('/test/fixtures/resize_card.html');
 
+  $(card.sandbox.el).css({
+    maxWidth: '35px',
+    maxHeight: '25px'
+  });
+
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 30, 40, "HeightService updated width");
       within($(card.sandbox.el).height(), 20, 30, "HeightService updated height");
@@ -45,8 +48,8 @@ test("HeightService does not resize beyond the sandbox's max-{width, height} pro
 test("HeightConsumer's `update` with dimensions sends those dimensions in a resize event", function() {
   stop();
 
-  card = conductor.load('/test/fixtures/resize_explicit_dimensions_card.js');
-  card.waitForLoad().then(function () {
+  card = conductor.load('/test/fixtures/resize_explicit_dimensions_card.html');
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
@@ -60,9 +63,9 @@ test("HeightConsumer's `update` with dimensions sends those dimensions in a resi
 test("HeightConsumer's `update` without dimensions sends the dimensions of the document in a resize event", function() {
   stop();
 
-  card = conductor.load('/test/fixtures/resize_implicit_dimensions_card.js');
+  card = conductor.load('/test/fixtures/resize_implicit_dimensions_card.html');
 
-  card.waitForLoad().then(function () {
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 610, 620, "HeightService updated width");
       within($(card.sandbox.el).height(), 700, 720, "HeightService updated height");
@@ -77,7 +80,7 @@ if (typeof MutationObserver !== 'undefined' || typeof WebkitMutationObserver !==
   test("HeightConsumer will not autoupdate if autoupdate is set to false during card activation", function() {
     stop();
 
-    card = conductor.load('/test/fixtures/resize_no_auto_card.js');
+    card = conductor.load('/test/fixtures/resize_no_auto_card.html');
 
     card.waitForLoad().then(function () {
       card.sandbox.heightPort.on('resize', function () {
@@ -99,7 +102,7 @@ if (typeof MutationObserver !== 'undefined' || typeof WebkitMutationObserver !==
     // stop();
     // stop();
 
-    // card = conductor.load('/test/fixtures/resize_auto_card.js');
+    // card = conductor.load('/test/fixtures/resize_auto_card.html');
 
     // card.waitForLoad().then(function () {
       // card.sandbox.heightPort.on('resize', function () {

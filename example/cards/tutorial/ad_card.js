@@ -5,7 +5,6 @@ Conductor.require('/example/libs/handlebars-1.0.0-rc.3.js');
 Conductor.requireCSS('/example/cards/tutorial/ad_card.css');
 
 var RSVP = Conductor.Oasis.RSVP;
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 2);
 var videoSelectTemplate = '<div id="selectWrapper">Load Video: <select id="videoSelect">{{#each videoIds}}<option value="{{this}}">{{this}}</option>{{/each}}</select></div>';
 
 var card = Conductor.card({
@@ -52,7 +51,6 @@ var card = Conductor.card({
   },
 
   conductorConfiguration: {
-    conductorURL: destinationUrl + '/conductor-0.3.0.js.html',
     allowSameOrigin: true
   },
 

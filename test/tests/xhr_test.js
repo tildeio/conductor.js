@@ -12,7 +12,7 @@ test("The card can declare a custom xhr consumer that triggers the activation of
   stop();
   expect(5);
 
-  var url = '/test/fixtures/custom_xhr_consumer_card.js';
+  var url = '/test/fixtures/custom_xhr_consumer_card.html';
 
   card = conductor.load( url, 1 );
 

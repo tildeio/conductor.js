@@ -9,7 +9,7 @@ module("Render Service", {
 });
 
 test("A card can be rendered", function() {
-  var card = conductor.load('/test/fixtures/render/render_card.js');
+  var card = conductor.load('/test/fixtures/render/render_card.html');
 
   stop();
 
@@ -19,7 +19,7 @@ test("A card can be rendered", function() {
 });
 
 test("A card can receive rendering dimensions", function() {
-  var card = conductor.load('/test/fixtures/render/render_dimensions_card.js');
+  var card = conductor.load('/test/fixtures/render/render_dimensions_card.html');
 
   stop();
 
@@ -29,7 +29,7 @@ test("A card can receive rendering dimensions", function() {
 });
 
 test("The render method on a card is always invoked after activate", function() {
-  var card = conductor.load('/test/fixtures/render/activate_then_render_card.js');
+  var card = conductor.load('/test/fixtures/render/activate_then_render_card.html');
 
   stop();
 
@@ -40,7 +40,7 @@ test("The render method on a card is always invoked after activate", function() 
 
 test("A card can initialize the DOM before rendering the first time", function() {
   expect(1);
-  var card = conductor.load('/test/fixtures/render/initialize_dom_card.js');
+  var card = conductor.load('/test/fixtures/render/initialize_dom_card.html');
 
   stop();
 
@@ -52,7 +52,7 @@ test("A card can initialize the DOM before rendering the first time", function()
 
 test("A card adjusts the css to maximize the space", function() {
   expect(9);
-  var card = conductor.load('/test/fixtures/render/reset_css_card.js');
+  var card = conductor.load('/test/fixtures/render/reset_css_card.html');
 
   stop();
 

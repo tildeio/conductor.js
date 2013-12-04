@@ -10,11 +10,6 @@ define("conductor",
     function Conductor(options) {
       this.options = options || {};
       this.oasis = new Oasis();
-      this.conductorURL = this.options.conductorURL ||
-                          // take the default oasisURL from the global Oasis so
-                          // sandboxes can inherit
-                          oasis.configuration.oasisURL ||
-                          'conductor-' + Version + '.js.html';
 
       this.data = {};
       this.cards = {};
@@ -95,7 +90,7 @@ define("conductor",
 
         // TODO: this should be a custom service provided in tests
         if (this.options.testing) {
-          capabilities.push('assertion');
+          capabilities.unshift('assertion');
         }
 
         // It is possible to add services when loading the card
@@ -110,7 +105,6 @@ define("conductor",
           capabilities: capabilities,
           services: cardServices,
 
-          oasisURL: this.conductorURL,
           adapter: adapter
         });
 
@@ -149,7 +143,7 @@ define("conductor",
 
       unload: function(card) {
         var cardArray = this.cards[card.url][card.id],
-            cardIndex = cardArray.indexOf(card);
+            cardIndex = a_indexOf.call(cardArray, card);
 
         card.sandbox.conductor = null;
 
@@ -456,7 +450,6 @@ define("conductor/card",
 
           Conductor.card({
             conductorConfiguration: {
-              conductorURL: "...", // specify here a link to Conductor hosted on a separate domain
               allowSameOrigin: true
             },
             childCards: [
@@ -469,11 +462,6 @@ define("conductor/card",
             conductorOptions = {};
 
         if(this.childCards) {
-          if( this.conductorConfiguration ) {
-            conductorOptions.conductorURL = this.conductorConfiguration.conductorURL;
-            delete this.conductorConfiguration.conductorURL;
-          }
-
           this.conductor = new Conductor( conductorOptions );
 
           if( this.conductorConfiguration ) {

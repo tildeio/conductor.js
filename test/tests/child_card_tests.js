@@ -15,7 +15,7 @@ test("A child card can require files through his parent", function() {
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/child/require_parent_card.js");
+  card = conductor.load(crossOrigin + "/test/fixtures/child/require_parent_card.html");
 
   card.appendTo(qunitFixture);
   card.render();
@@ -30,7 +30,7 @@ test("A card with child cards loads the needed services", function() {
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/child/service_parent_card.js");
+  card = conductor.load(crossOrigin + "/test/fixtures/child/service_parent_card.html");
 
   card.appendTo(qunitFixture);
   card.render();
@@ -43,7 +43,7 @@ test("A card with child cards loads without new services", function() {
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/child/no_service_parent_card.js");
+  card = conductor.load(crossOrigin + "/test/fixtures/child/no_service_parent_card.html");
   card.appendTo(qunitFixture);
   card.render();
 });
@@ -55,7 +55,7 @@ test("A card with child cards can load without defining `loadDataForChildCards`"
   var conductor = newConductor(),
       card;
 
-  card = conductor.load("/test/fixtures/child/no_custom_data_parent_card.js");
+  card = conductor.load(crossOrigin + "/test/fixtures/child/no_custom_data_parent_card.html");
   card.appendTo(qunitFixture);
   card.render();
 });
@@ -65,7 +65,7 @@ test("A card with child cards calls `loadDataForChildCards` if available before 
   stop();
 
   var conductor = newConductor(),
-      parentCardUrl = "/test/fixtures/child/custom_data_parent_card.js",
+      parentCardUrl = crossOrigin + "/test/fixtures/child/custom_data_parent_card.html",
       card;
 
   conductor.loadData(parentCardUrl, 1, "food for cards");
@@ -79,7 +79,7 @@ test("A card with child cards loads the data and the associated card", function(
   stop();
 
   var conductor = newConductor(),
-      parentCardUrl = "/test/fixtures/child/config_data_parent_card.js",
+      parentCardUrl = crossOrigin + "/test/fixtures/child/config_data_parent_card.html",
       card;
 
   card = conductor.load(parentCardUrl, 1);
@@ -92,7 +92,7 @@ test("A card with child cards and `allowSameOrigin` sets to true loads the data 
   stop(1);
 
   var conductor = newConductor(),
-      parentCardUrl = "/test/fixtures/child/config_conductor_parent_card.js",
+      parentCardUrl = crossOrigin + "/test/fixtures/child/config_conductor_parent_card.html",
       card;
 
   conductor.configure('allowSameOrigin', true);
@@ -107,7 +107,7 @@ test("A child card can load and communicate with an iframe on the same origin", 
   stop(1);
 
   var conductor = newConductor(),
-      parentCardUrl = "/test/fixtures/child/simple_iframe_parent_card.js",
+      parentCardUrl = crossOrigin + "/test/fixtures/child/simple_iframe_parent_card.html",
       card;
 
   conductor.configure('allowSameOrigin', true);

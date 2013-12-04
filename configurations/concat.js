@@ -22,7 +22,7 @@ module.exports = {
     src: vendorSources.concat([
       'dist/conductor-<%= pkg.version %>.amd.js'
     ]),
-    dest: 'tmp/browser/conductor-<%= pkg.version %>.js',
+    dest: 'dist/conductor-<%= pkg.version %>.js',
     options: {
       footer: "self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
     }
@@ -32,7 +32,7 @@ module.exports = {
     src: vendorSources.concat([
       'dist/conductor-<%= pkg.version %>-dev.amd.js'
     ]),
-    dest: 'tmp/browser/conductor-<%= pkg.version %>-dev.js',
+    dest: 'dist/conductor-<%= pkg.version %>-dev.js',
     options: {
       footer: "requireModule('conductor/dev'); self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
     }

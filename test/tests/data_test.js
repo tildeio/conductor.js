@@ -11,7 +11,7 @@ module("Data Service", {
 test("A card receives its data", function() {
   stop();
 
-  conductor.loadData('/test/fixtures/data/activate_data_card.js', 1, {
+  conductor.loadData('/test/fixtures/data/activate_data_card.html', 1, {
     all: {
       red: 'light',
       green: 'light',
@@ -19,7 +19,7 @@ test("A card receives its data", function() {
     }
   });
 
-  card = conductor.load('/test/fixtures/data/activate_data_card.js', 1);
+  card = conductor.load('/test/fixtures/data/activate_data_card.html', 1);
 
   card.appendTo('#qunit-fixture');
 });
@@ -27,7 +27,7 @@ test("A card receives its data", function() {
 test("The containing environment can update the data", function() {
   stop();
 
-  var url = '/test/fixtures/data/data_card.js';
+  var url = '/test/fixtures/data/data_card.html';
 
   conductor.loadData(url, 1, {
     all: {
@@ -48,7 +48,7 @@ test("The containing environment can update the data", function() {
 test("The card can notify the parent about data updates", function() {
   stop();
 
-  var url = '/test/fixtures/data/data_changing_card.js';
+  var url = '/test/fixtures/data/data_changing_card.html';
 
   conductor.loadData(url, 1, {
     all: {
@@ -76,7 +76,7 @@ test("The card can declare a custom data consumer that triggers the activation o
   stop();
   expect(1);
 
-  var url = '/test/fixtures/data/custom_consumer_card.js';
+  var url = '/test/fixtures/data/custom_consumer_card.html';
 
   card = conductor.load( url, 1 );
 

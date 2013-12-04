@@ -1,7 +1,6 @@
 module.exports = function(grunt) {
   var buildTasks,
       transpileTasks = ['transpile'],
-      jsframeTasks = ['jsframe:conductor', 'jsframe:conductorDev'],
       fixupLinefeed = grunt.util.linefeed !== '\n';
 
   require('matchdep').
@@ -22,10 +21,6 @@ module.exports = function(grunt) {
     transpileTasks = ['lineending:lib', 'copy:LFlib'].
                       concat(transpileTasks).
                       concat(['lineending:amd', 'copy:CRLFamd']);
-
-    jsframeTasks = ['lineending:jsframeLF', 'copy:LFjsframe'].
-                    concat(jsframeTasks).
-                    concat(['lineending:jsframeCRLF', 'copy:CRLFjsframe']);
   }
 
   buildTasks = [
@@ -38,7 +33,7 @@ module.exports = function(grunt) {
     'concat:amdDev',
     'concat:browser',
     'concat:browserDev',
-  ]).concat(jsframeTasks);
+  ]);
 
   // Build a new version of the library
   this.registerTask('build', "Builds a distributable version of Conductor.js", buildTasks);
@@ -63,17 +58,6 @@ module.exports = function(grunt) {
     'saucelabs-qunit': config('saucelabs-qunit'),
     transpile: config('transpile'),
     watch: config('watch'),
-
-    jsframe: {
-      conductor: {
-        src: ['tmp/browser/conductor-<%= pkg.version %>.js'],
-        dest: 'dist'
-      },
-      conductorDev: {
-        src: ['tmp/browser/conductor-<%= pkg.version %>-dev.js'],
-        dest: 'dist'
-      }
-    },
   });
 
   grunt.registerTask('prepare_test', "Setup the test environment", ['build', 'concat:tests', 'copy:tests', 'rename:tests', 'copy:testsVendor', 'copy:example']);
