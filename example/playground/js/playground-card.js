@@ -25,6 +25,8 @@
     addCard: function(url, id, capabilities) {
       Playground.loadData(url, id);
 
+      url = Playground.crossOriginHtmlUrl(url);
+
       // Create a new card and save it on the
       // application.
       var card = this.conductor.load(

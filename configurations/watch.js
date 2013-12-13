@@ -5,7 +5,6 @@ module.exports = {
     'test/tests/*',
     'test/helpers/*',
     'test/fixtures/**/*',
-    'node_modules/jsframe/*',
     'example/**/*'
   ],
   tasks: ['prepare_test']

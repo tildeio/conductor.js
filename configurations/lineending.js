@@ -23,28 +23,4 @@ module.exports = {
       dest: 'tmp/amdCRLF'
     }]
   },
-
-  jsframeLF: {
-    options: {
-      eol: 'lf'
-    },
-    files: [{
-      expand: true,
-      cwd: 'tmp/browser/',
-      src: ['**/*.js'],
-      dest: 'tmp/browserLF'
-    }]
-  },
-
-  jsframeCRLF: {
-    options: {
-      eol: 'crlf'
-    },
-    files: [{
-      expand: true,
-      cwd: 'dist',
-      src: ['**/*.html'],
-      dest: 'tmp/distCRLF'
-    }]
-  }
 };

@@ -17,7 +17,7 @@
       self.initializeAnalyticsTab();
       analyticsCard = self.initializeConductorAnalytics(
         this.conductor,
-        "../cards/conductor-analytics/card.js",
+        Playground.crossOriginHtmlUrl("../cards/conductor-analytics/card.js"),
         ".analytics .output"
       );
       analyticsCard.appendTo(".output");

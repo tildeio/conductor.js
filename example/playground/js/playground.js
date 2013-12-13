@@ -4,17 +4,26 @@
 // re-export it to the global scope.
 window.RSVP = Conductor.Oasis.RSVP;
 
-var destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1);
-
 // Create a namespace for the Playground jQuery app
 // to live in.
 window.Playground = {
+  crossOriginHtmlUrl: function(url) {
+    if( !url.match(/^http/) ) {
+      var link = document.createElement('a');
+      link.href = url;
+      link.port = parseInt( link.port, 10 ) + 1;
+      url = link.href;
+    }
+
+    url = url.replace(/\.js$/, ".html");
+
+    return url;
+  },
+
   initialize: function() {
     // Create a new Conductor instance that will
     // manage all of the cards on the page.
-    this.conductor = new Conductor({
-      conductorURL: destinationUrl + '/conductor-0.3.0.js.html'
-    });
+    this.conductor = new Conductor();
 
     this.conductor.configure('allowSameOrigin', true);
 

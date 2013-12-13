@@ -11,13 +11,15 @@ test("on a resize event, HeightService resizes the sandbox", function() {
   stop();
 
   card = conductor.load('/test/fixtures/resize_card.js');
-  card.waitForLoad().then(function () {
+
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
       start();
     });
   });
+
   card.appendTo(qunitFixture);
 });
 
@@ -25,12 +27,13 @@ test("HeightService does not resize beyond the sandbox's max-{width, height} pro
   stop();
 
   card = conductor.load('/test/fixtures/resize_card.js');
-  card.waitForLoad().then(function () {
-    $(card.sandbox.el).css({
-      maxWidth: '35px',
-      maxHeight: '25px'
-    });
 
+  $(card.sandbox.el).css({
+    maxWidth: '35px',
+    maxHeight: '25px'
+  });
+
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 30, 40, "HeightService updated width");
       within($(card.sandbox.el).height(), 20, 30, "HeightService updated height");
@@ -46,7 +49,7 @@ test("HeightConsumer's `update` with dimensions sends those dimensions in a resi
   stop();
 
   card = conductor.load('/test/fixtures/resize_explicit_dimensions_card.js');
-  card.waitForLoad().then(function () {
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 50, 60, "HeightService updated width");
       within($(card.sandbox.el).height(), 50, 60, "HeightService updated height");
@@ -62,7 +65,7 @@ test("HeightConsumer's `update` without dimensions sends the dimensions of the d
 
   card = conductor.load('/test/fixtures/resize_implicit_dimensions_card.js');
 
-  card.waitForLoad().then(function () {
+  card.sandbox.envPortDefereds.height.promise.then( function() {
     card.sandbox.heightPort.on('resize', function () {
       within($(card.sandbox.el).width(), 610, 620, "HeightService updated width");
       within($(card.sandbox.el).height(), 700, 720, "HeightService updated height");

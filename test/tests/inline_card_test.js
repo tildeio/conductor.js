@@ -6,7 +6,7 @@ var conductor, card, qunitFixture;
 // cards.
 module('Inline Conductor Cards', {
   setup: function() {
-    conductor = newConductor();
+    conductor = newConductor({}, true);
     qunitFixture = document.getElementById('qunit-fixture');
     $(qunitFixture).html();
   }
