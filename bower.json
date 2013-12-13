@@ -23,7 +23,7 @@
     "tests"
   ],
   "dependencies": {
-    "oasis.js": "https://github.com/tildeio/oasis.js.git#95a49af324e7d739418a304893c4e001c8149963"
+    "oasis.js": "https://github.com/tildeio/oasis.js.git#7803f756a2d30cfd588d896655ca4530ef7acc26"
   },
   "devDependencies": {
     "qunit": "1.12.0",
