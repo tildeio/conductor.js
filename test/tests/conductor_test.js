@@ -4,7 +4,7 @@
 
 var qunitFixture,
     destinationUrl = window.location.protocol + "//" + window.location.hostname + ":" + (parseInt(window.location.port, 10) + 1),
-    a_indexOf = requireModule('oasis/shims').a_indexOf;
+    a_indexOf = require('oasis/shims').a_indexOf;
 
 module("Conductor", {
   setup: function() {
