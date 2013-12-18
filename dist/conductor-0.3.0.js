@@ -1,5 +1,5 @@
-if (typeof define !== 'function' && typeof requireModule !== 'function') {
-  var define, requireModule;
+if (typeof define !== 'function' && typeof require !== 'function') {
+  var define, require;
 
   (function() {
     var registry = {}, seen = {};
@@ -8,7 +8,7 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requireModule = function(name) {
+    require = function(name) {
       if (seen[name]) { return seen[name]; }
 
       var mod = registry[name];
@@ -26,7 +26,7 @@ if (typeof define !== 'function' && typeof requireModule !== 'function') {
         if (deps[i] === 'exports') {
           reified.push(exports = {});
         } else {
-          reified.push(requireModule(deps[i]));
+          reified.push(require(deps[i]));
         }
       }
 
@@ -5410,4 +5410,4 @@ define("conductor/xhr_service",
 
 
     return XhrService;
-  });self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();
+  });self.Oasis = require('oasis'); self.Conductor = require('conductor'); require('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();

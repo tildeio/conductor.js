@@ -73,7 +73,7 @@ define("conductor/analytics/card/application",
     App.Event = Event;
 
     App.deferReadiness();
-    requireModule('conductor/analytics/card/templates');
+    require('conductor/analytics/card/templates');
 
     //TODO: This is bad.
     //I'm doing something wrong when inserting the `App.EventsView` in the `index` template
@@ -550,7 +550,7 @@ Conductor.card( {
     }
 
     oasis.configure('eventCallback', Ember.run);
-    this.App = requireModule('conductor/analytics/card/application');
+    this.App = require('conductor/analytics/card/application');
   },
 
   consumers: {

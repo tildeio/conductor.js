@@ -24,7 +24,7 @@ module.exports = {
     ]),
     dest: 'dist/conductor-<%= pkg.version %>.js',
     options: {
-      footer: "self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
+      footer: "self.Oasis = require('oasis'); self.Conductor = require('conductor'); require('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
     }
   },
 
@@ -34,7 +34,7 @@ module.exports = {
     ]),
     dest: 'dist/conductor-<%= pkg.version %>-dev.js',
     options: {
-      footer: "requireModule('conductor/dev'); self.Oasis = requireModule('oasis'); self.Conductor = requireModule('conductor'); requireModule('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
+      footer: "require('conductor/dev'); self.Oasis = require('oasis'); self.Conductor = require('conductor'); require('conductor/card'); self.oasis = new self.Oasis(); self.oasis.autoInitializeSandbox();"
     }
   },
 
