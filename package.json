@@ -32,7 +32,8 @@
     "bower": "~1.2.6",
     "shelljs": "~0.2.5",
     "lockfile": "~0.4.2",
-    "grunt-rename": "~0.1.2"
+    "grunt-rename": "~0.1.2",
+    "grunt-cli": "~0.1.11"
   },
   "dependencies": {
     "rsvp": "2.0.3"
